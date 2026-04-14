@@ -22,61 +22,29 @@
   var lastScrollY = 0;
   var introComplete = false;
 
-  /* ═══════════════════════════════════════════════════════════
-     INTRO ANIMATION — JS-driven rAF loop, no CSS transitions
-     Total duration: 2 seconds
-     ═══════════════════════════════════════════════════════════ */
-  var INTRO_DURATION = 2000;
-
-  function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
-  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-
-  function runIntro() {
-    var start = null;
-
-    function frame(ts) {
-      if (!start) start = ts;
-      var p = Math.min(1, (ts - start) / INTRO_DURATION);
-
-      /* — Banner: blur 0→6, brightness 0.82→0.4 — */
-      if (heroImg) {
-        var bp = easeOutCubic(p);
-        heroImg.style.filter =
-          'blur(' + (bp * 6).toFixed(2) + 'px) brightness(' + (0.82 - bp * 0.42).toFixed(3) + ')';
-      }
-
-      /* — Title: whole word scales + fades as one unit — */
-      if (parallaxTitle) {
-        var tp = Math.max(0, Math.min(1, (p - 0.05) / 0.6));
-        var te = easeOutQuart(tp);
-        parallaxTitle.style.opacity = String(te);
-        parallaxTitle.style.transform =
-          'scale(' + (0.55 + te * 0.45).toFixed(4) + ') translateY(' + (24 * (1 - te)).toFixed(2) + 'px)';
-      }
-
-      /* — Ghost outline — */
-      if (parallaxGhost) {
-        var gp = Math.max(0, Math.min(1, (p - 0.15) / 0.55));
-        parallaxGhost.style.opacity = String(easeOutCubic(gp));
-      }
-
-      /* — Scroll indicator — */
-      if (scrollIndicator) {
-        var sp = Math.max(0, Math.min(1, (p - 0.7) / 0.3));
-        scrollIndicator.style.opacity = String(easeOutCubic(sp));
-      }
-
-      if (p < 1) {
-        requestAnimationFrame(frame);
-      } else {
-        introComplete = true;
-      }
-    }
-
-    requestAnimationFrame(frame);
+  function isLiteMotion() {
+    return window.innerWidth < 768 ||
+      window.matchMedia('(pointer: coarse)').matches;
   }
 
-  runIntro();
+  /*
+    Intro: CSS transitions on #hero (filter + transform + opacity).
+    Avoid animating filter from JS every frame — that repaints the full
+    banner each frame and feels laggy on phones.
+  */
+  function startIntro() {
+    if (hero) void hero.offsetHeight;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (hero) hero.classList.add('hero-intro-ready');
+        setTimeout(function () {
+          introComplete = true;
+        }, 2200);
+      });
+    });
+  }
+
+  startIntro();
 
   /* ═══════════════════════════════════════════════════════════
      PARALLAX SCROLL
@@ -116,22 +84,29 @@
     var y = lastScrollY;
     if (y > vh * 1.3) return;
 
+    var lite = isLiteMotion();
+    var imgS = lite ? 1.12 : 1.15;
+    var imgTy = lite ? 0.025 : 0.06;
+    var ctTy = lite ? 0.12 : 0.28;
+    var ghTy = lite ? 0.05 : 0.12;
+
     if (heroImg) {
-      var s = 1.15 + y * 0.00008;
-      heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (y * 0.06) + 'px,0)';
+      var s = imgS + y * (lite ? 0.00003 : 0.00008);
+      heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (y * imgTy) + 'px,0)';
     }
 
     var heroContent = hero.querySelector('.hero-content');
     if (heroContent) {
-      heroContent.style.transform = 'translate3d(0,' + (y * 0.28) + 'px,0)';
+      heroContent.style.transform = 'translate3d(0,' + (y * ctTy) + 'px,0)';
     }
     if (parallaxGhost) {
       parallaxGhost.style.transform =
-        'translate(-50%,-50%) translate3d(0,' + (y * 0.12) + 'px,0)';
+        'translate(-50%,-50%) translate3d(0,' + (y * ghTy) + 'px,0)';
     }
   }
 
   function updateLayerParallax() {
+    if (isLiteMotion()) return;
     var vh = window.innerHeight;
     for (var i = 0; i < parallaxLayers.length; i++) {
       var layer = parallaxLayers[i];
@@ -146,7 +121,8 @@
   /* ═══════════════════════════════════════════════════════════
      3D TILT + SHIMMER ON CHANNEL CARDS
      ═══════════════════════════════════════════════════════════ */
-  document.querySelectorAll('[data-tilt]').forEach(function (card) {
+  if (window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 640) {
+    document.querySelectorAll('[data-tilt]').forEach(function (card) {
       var raf = null;
 
       card.addEventListener('mousemove', function (e) {
@@ -173,7 +149,8 @@
       card.addEventListener('mouseenter', function () {
         card.style.transition = '';
       });
-  });
+    });
+  }
 
   /* ═══════════════════════════════════════════════════════════
      ACCORDION
