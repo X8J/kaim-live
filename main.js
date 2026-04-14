@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /* ── Always start at top on reload ── */
+  /* Scroll to top on reload */
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
@@ -54,9 +54,7 @@
     }
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     PARALLAX SCROLL
-     ═══════════════════════════════════════════════════════════ */
+  /* Parallax scroll */
   var parallaxLayers = [];
   document.querySelectorAll('[data-parallax]').forEach(function (el) {
     parallaxLayers.push({
@@ -115,9 +113,7 @@
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     3D TILT + SHIMMER ON CHANNEL CARDS
-     ═══════════════════════════════════════════════════════════ */
+  /* 3D tilt on channel cards (pointer devices) */
   if (window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 640) {
     document.querySelectorAll('[data-tilt]').forEach(function (card) {
       var raf = null;
@@ -149,9 +145,7 @@
     });
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     ACCORDION
-     ═══════════════════════════════════════════════════════════ */
+  /* Role cards accordion */
   document.querySelectorAll('[data-role]').forEach(function (card) {
     var header = card.querySelector('.role-header');
     var drawer = card.querySelector('.role-drawer');
@@ -179,9 +173,7 @@
     });
   });
 
-  /* ═══════════════════════════════════════════════════════════
-     APPLY → SCROLL TO CONTACT + GOLD PULSE
-     ═══════════════════════════════════════════════════════════ */
+  /* Apply: scroll to contact + pulse */
   document.querySelectorAll('[data-apply]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
