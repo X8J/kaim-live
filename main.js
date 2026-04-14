@@ -1,13 +1,8 @@
 (function () {
   'use strict';
 
-  /* Scroll to top on reload */
-  if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-  }
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) window.scrollTo(0, 0);
   });
@@ -20,31 +15,30 @@
   var lastScrollY = 0;
   var introComplete = false;
 
-  function isLiteMotion() {
+  /* Cache device class — re-evaluated on resize instead of every frame */
+  var liteMotion = checkLiteMotion();
+  window.addEventListener('resize', function () {
+    liteMotion = checkLiteMotion();
+  }, { passive: true });
+
+  function checkLiteMotion() {
     return window.innerWidth < 768 ||
       window.matchMedia('(pointer: coarse)').matches;
   }
 
-  /*
-    Intro: CSS transitions on #hero (filter + transform + opacity).
-    Avoid animating filter from JS every frame — that repaints the full
-    banner each frame and feels laggy on phones.
-  */
   function startIntro() {
     if (hero) void hero.offsetHeight;
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         if (hero) hero.classList.add('hero-intro-ready');
-        setTimeout(function () {
-          introComplete = true;
-        }, 2200);
+        setTimeout(function () { introComplete = true; }, 2200);
       });
     });
   }
 
   startIntro();
 
-  /* Duplicate KaiM carousel items once for seamless CSS loop (smaller HTML) */
+  /* Duplicate carousel items for seamless CSS loop */
   document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
     var items = Array.prototype.slice.call(track.children);
     for (var j = 0; j < items.length; j++) {
@@ -54,24 +48,20 @@
     }
   });
 
-  /* Scroll-triggered slide in / out */
+  /* Scroll-triggered reveal */
   var revealObserver = new IntersectionObserver(
     function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        } else {
-          entry.target.classList.remove('is-visible');
-        }
-      });
+      for (var i = 0; i < entries.length; i++) {
+        entries[i].target.classList.toggle('is-visible', entries[i].isIntersecting);
+      }
     },
-    { root: null, rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+    { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
   );
   document.querySelectorAll('.scroll-reveal').forEach(function (el) {
     revealObserver.observe(el);
   });
 
-  /* Parallax scroll */
+  /* Parallax layers */
   var parallaxLayers = [];
   document.querySelectorAll('[data-parallax]').forEach(function (el) {
     parallaxLayers.push({
@@ -96,7 +86,7 @@
     }
 
     updateHeroParallax();
-    updateLayerParallax();
+    if (!liteMotion) updateLayerParallax();
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -104,33 +94,29 @@
   function updateHeroParallax() {
     if (!hero) return;
     var vh = window.innerHeight;
-    var y = lastScrollY;
-    if (y > vh * 1.3) return;
+    if (lastScrollY > vh * 1.3) return;
 
-    var lite = isLiteMotion();
-    var imgS = lite ? 1.12 : 1.15;
-    var imgTy = lite ? 0.025 : 0.06;
+    var imgS  = liteMotion ? 1.12 : 1.15;
+    var imgTy = liteMotion ? 0.025 : 0.06;
 
     if (heroImg) {
-      var s = imgS + y * (lite ? 0.00003 : 0.00008);
-      heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (y * imgTy) + 'px,0)';
+      var s = imgS + lastScrollY * (liteMotion ? 0.00003 : 0.00008);
+      heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (lastScrollY * imgTy) + 'px,0)';
     }
   }
 
   function updateLayerParallax() {
-    if (isLiteMotion()) return;
     var vh = window.innerHeight;
     for (var i = 0; i < parallaxLayers.length; i++) {
       var layer = parallaxLayers[i];
       var rect = layer.el.getBoundingClientRect();
       if (rect.top >= vh + 80 || rect.bottom <= -80) continue;
       var center = rect.top + rect.height * 0.5 - vh * 0.5;
-      var norm = center / Math.max(vh, 1);
-      layer.el.style.transform = 'translate3d(0,' + (norm * layer.speed * 52) + 'px,0)';
+      layer.el.style.transform = 'translate3d(0,' + (center / vh * layer.speed * 52) + 'px,0)';
     }
   }
 
-  /* 3D tilt on channel cards (pointer devices) */
+  /* 3D tilt on channel cards (pointer devices only) */
   if (window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 640) {
     document.querySelectorAll('[data-tilt]').forEach(function (card) {
       var raf = null;
@@ -142,9 +128,7 @@
           var x = (e.clientX - r.left) / r.width  - 0.5;
           var y = (e.clientY - r.top)  / r.height - 0.5;
           card.style.transform =
-            'rotateY(' + (x * 14) + 'deg) ' +
-            'rotateX(' + (-y * 14) + 'deg) ' +
-            'scale3d(1.03, 1.03, 1.03)';
+            'rotateY(' + (x * 14) + 'deg) rotateX(' + (-y * 14) + 'deg) scale3d(1.03,1.03,1.03)';
           raf = null;
         });
       });
@@ -190,7 +174,7 @@
     });
   });
 
-  /* Apply: scroll to contact + pulse */
+  /* Apply → scroll to contact + pulse */
   document.querySelectorAll('[data-apply]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
@@ -199,13 +183,11 @@
       contactPanel.classList.remove('pulse-gold');
       void contactPanel.offsetWidth;
       contactPanel.classList.add('pulse-gold');
-      contactPanel.addEventListener('animationend', function h() {
+      contactPanel.addEventListener('animationend', function () {
         contactPanel.classList.remove('pulse-gold');
-        contactPanel.removeEventListener('animationend', h);
-      });
+      }, { once: true });
     });
   });
 
-  /* ── Initial scroll tick ── */
   onScroll();
 })();
