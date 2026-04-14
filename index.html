@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=22">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
 
@@ -174,7 +174,7 @@
             <div class="role-drawer">
               <div class="role-drawer-inner">
                 <p class="role-desc">Create eye-catching thumbnails for both KaiM and KaiAim channels. Proficient in Blender and Photoshop.</p>
-                <button class="apply-btn" data-apply>Apply now</button>
+                <button type="button" class="apply-btn" data-apply data-apply-role="Thumbnail Artist">Apply now</button>
               </div>
             </div>
           </div>
@@ -199,7 +199,7 @@
             <div class="role-drawer">
               <div class="role-drawer-inner">
                 <p class="role-desc">Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for both channels.</p>
-                <button class="apply-btn" data-apply>Apply now</button>
+                <button type="button" class="apply-btn" data-apply data-apply-role="Concept Artist">Apply now</button>
               </div>
             </div>
           </div>
@@ -224,7 +224,7 @@
             <div class="role-drawer">
               <div class="role-drawer-inner">
                 <p class="role-desc">Moderate the KaiM Discord server, engage with the community, and help manage social media presence.</p>
-                <button class="apply-btn" data-apply>Apply now</button>
+                <button type="button" class="apply-btn" data-apply data-apply-role="Community Manager">Apply now</button>
               </div>
             </div>
           </div>
@@ -312,9 +312,9 @@
       <div class="scroll-reveal scroll-reveal-up">
       <div class="contact-cta" id="contactPanel" data-parallax="0.03">
         <h2>Interested?</h2>
-        <p class="contact-subtitle">Reach out below for business inquiries</p>
+        <p class="contact-subtitle">Apply for open roles below, or reach out on Discord or Twitter for other inquiries.</p>
         <div class="contact-actions">
-          <a href="mailto:kai@kaim.live" class="cta-btn primary">Email</a>
+          <button type="button" class="cta-btn primary" id="applyToggle" data-apply-toggle aria-expanded="false" aria-controls="applyDrawer">Apply</button>
           <a href="https://discord.com/users/1421906052537913385" target="_blank" rel="noopener" class="cta-btn secondary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.26a18.27 18.27 0 0 0-5.49 0 12.64 12.64 0 0 0-.62-1.26.07.07 0 0 0-.08-.04 19.74 19.74 0 0 0-4.89 1.52.07.07 0 0 0-.03.03C1.07 8.17.32 11.84.7 15.46a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.1 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1 0-.12c.13-.09.25-.19.37-.29a.07.07 0 0 1 .07-.01c3.93 1.8 8.18 1.8 12.07 0a.07.07 0 0 1 .08.01c.12.1.24.2.37.29a.08.08 0 0 1 0 .12c-.6.35-1.22.65-1.88.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6-3.03.08.08 0 0 0 .03-.05c.44-4.54-.74-8.49-3.13-11.99a.06.06 0 0 0-.03-.03zM8.02 13.09c-1.04 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.04 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.83 2.12-1.89 2.12z"/></svg>
             Discord
@@ -323,6 +323,46 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             Twitter
           </a>
+        </div>
+        <div id="applyDrawer" class="apply-drawer" aria-hidden="true">
+          <div class="apply-drawer-inner">
+            <form id="applyForm" class="apply-form" method="POST" action="https://formspree.io/f/maqanvwa" novalidate>
+              <input type="hidden" name="_subject" value="KaiM website application">
+              <p class="apply-form-hint">Applications are sent securely through Formspree.</p>
+              <label class="apply-field">
+                <span class="apply-label">Name</span>
+                <input type="text" name="name" required autocomplete="name" placeholder="Your name">
+              </label>
+              <label class="apply-field">
+                <span class="apply-label">Your email</span>
+                <input type="email" name="email" required autocomplete="email" placeholder="you@example.com">
+              </label>
+              <label class="apply-field">
+                <span class="apply-label">Role</span>
+                <select name="role" id="applyRole" required>
+                  <option value="" disabled selected>Select a role</option>
+                  <option value="Thumbnail Artist">Thumbnail Artist</option>
+                  <option value="Concept Artist">Concept Artist</option>
+                  <option value="Community Manager">Community Manager</option>
+                  <option value="Other / general">Other / general</option>
+                </select>
+              </label>
+              <label class="apply-field">
+                <span class="apply-label">Portfolio <span class="apply-label-hint">(required)</span></span>
+                <input type="url" name="portfolio" required autocomplete="url" placeholder="https://…">
+              </label>
+              <label class="apply-field apply-field-grow">
+                <span class="apply-label">Message <span class="apply-label-hint">(25–250 words)</span></span>
+                <textarea id="applyMessage" name="message" rows="4" required maxlength="20000" placeholder="Tell us about your experience and why you’re a fit."></textarea>
+                <p id="applyWordCount" class="apply-word-count" aria-live="polite">0 / 250 words (min 25)</p>
+              </label>
+              <input type="text" name="_gotcha" class="apply-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <div class="apply-form-footer">
+                <button type="submit" class="apply-submit" data-default-label="Send application">Send application</button>
+                <p id="applyFormStatus" class="apply-form-status" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
       </div>
@@ -334,6 +374,6 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=15" defer></script>
+  <script src="main.js?v=19" defer></script>
 </body>
 </html>

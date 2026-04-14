@@ -11,6 +11,17 @@
   var hero            = document.getElementById('hero');
   var heroImg         = document.getElementById('heroImg');
   var contactPanel    = document.getElementById('contactPanel');
+  var applyDrawer     = document.getElementById('applyDrawer');
+  var applyToggle     = document.getElementById('applyToggle');
+  var applyForm       = document.getElementById('applyForm');
+  var applyFormStatus = document.getElementById('applyFormStatus');
+  var applyRoleSelect = document.getElementById('applyRole');
+  var applyMessage    = document.getElementById('applyMessage');
+  var applyWordCount  = document.getElementById('applyWordCount');
+  var APPLY_MESSAGE_MIN_WORDS = 25;
+  var APPLY_MESSAGE_MAX_WORDS = 250;
+  var applySubmitArmed = false;
+  var applyArmedSnapshot = null;
   var ticking = false;
   var lastScrollY = 0;
   var introComplete = false;
@@ -174,20 +185,272 @@
     });
   });
 
-  /* Apply → scroll to contact + pulse */
+  function setApplyDrawerOpen(open) {
+    if (!applyDrawer || !applyToggle) return;
+    applyDrawer.classList.toggle('is-open', open);
+    applyToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    applyDrawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+  }
+
+  function focusApplyFormFirst() {
+    if (!applyForm) return;
+    var el = applyForm.querySelector('input:not(.apply-honeypot):not([type="hidden"]), textarea, select');
+    if (el) el.focus();
+  }
+
+  function pulseContact() {
+    if (!contactPanel) return;
+    contactPanel.classList.remove('pulse-gold');
+    void contactPanel.offsetWidth;
+    contactPanel.classList.add('pulse-gold');
+    contactPanel.addEventListener('animationend', function () {
+      contactPanel.classList.remove('pulse-gold');
+    }, { once: true });
+  }
+
+  function openApplyFromRoles(roleName) {
+    if (!contactPanel) return;
+    resetApplySubmitArm();
+    contactPanel.scrollIntoView({ behavior: 'smooth' });
+    pulseContact();
+    setApplyDrawerOpen(true);
+    if (applyRoleSelect && roleName) {
+      for (var i = 0; i < applyRoleSelect.options.length; i++) {
+        if (applyRoleSelect.options[i].value === roleName) {
+          applyRoleSelect.selectedIndex = i;
+          break;
+        }
+      }
+    }
+    setTimeout(focusApplyFormFirst, 400);
+  }
+
+  if (applyToggle && applyDrawer) {
+    applyToggle.addEventListener('click', function () {
+      var open = !applyDrawer.classList.contains('is-open');
+      setApplyDrawerOpen(open);
+      if (open) focusApplyFormFirst();
+      if (applyFormStatus) {
+        applyFormStatus.textContent = '';
+        applyFormStatus.classList.remove('is-error', 'is-success', 'is-pending');
+      }
+      resetApplySubmitArm();
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !applyDrawer || !applyDrawer.classList.contains('is-open')) return;
+    setApplyDrawerOpen(false);
+    resetApplySubmitArm();
+    if (applyToggle) applyToggle.focus();
+  });
+
   document.querySelectorAll('[data-apply]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
-      if (!contactPanel) return;
-      contactPanel.scrollIntoView({ behavior: 'smooth' });
-      contactPanel.classList.remove('pulse-gold');
-      void contactPanel.offsetWidth;
-      contactPanel.classList.add('pulse-gold');
-      contactPanel.addEventListener('animationend', function () {
-        contactPanel.classList.remove('pulse-gold');
-      }, { once: true });
+      openApplyFromRoles(btn.getAttribute('data-apply-role') || '');
     });
   });
+
+  function countWords(text) {
+    var t = (text || '').trim();
+    if (!t) return 0;
+    return t.split(/\s+/).filter(Boolean).length;
+  }
+
+  function getApplyFormSnapshot() {
+    if (!applyForm) return '';
+    var name = applyForm.querySelector('[name="name"]');
+    var email = applyForm.querySelector('[name="email"]');
+    var role = applyForm.querySelector('[name="role"]');
+    var portfolio = applyForm.querySelector('[name="portfolio"]');
+    var msg = applyForm.querySelector('[name="message"]');
+    return [
+      name && name.value,
+      email && email.value,
+      role && role.value,
+      portfolio && portfolio.value,
+      msg && msg.value
+    ].join('\x1e');
+  }
+
+  function resetApplySubmitArm() {
+    applySubmitArmed = false;
+    applyArmedSnapshot = null;
+    if (!applyForm) return;
+    var submitBtn = applyForm.querySelector('.apply-submit');
+    if (submitBtn) {
+      submitBtn.textContent = submitBtn.getAttribute('data-default-label') || 'Send application';
+      submitBtn.classList.remove('apply-submit-confirm');
+    }
+  }
+
+  function isValidPortfolioUrl(raw) {
+    var p = (raw || '').trim();
+    if (!p) return false;
+    try {
+      var u = new URL(/^https?:\/\//i.test(p) ? p : 'https://' + p);
+      return u.hostname.length >= 1;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function validateApplyForm() {
+    if (!applyForm) return { ok: false, message: 'Form missing.' };
+    var name = applyForm.querySelector('[name="name"]');
+    var email = applyForm.querySelector('[name="email"]');
+    var role = applyForm.querySelector('[name="role"]');
+    var portfolio = applyForm.querySelector('[name="portfolio"]');
+    if (!name || !String(name.value).trim()) {
+      return { ok: false, message: 'Please enter your name.' };
+    }
+    var em = email && String(email.value).trim();
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+      return { ok: false, message: 'Please enter a valid email address.' };
+    }
+    if (!role || !String(role.value).trim()) {
+      return { ok: false, message: 'Please select a role.' };
+    }
+    if (!portfolio || !String(portfolio.value).trim()) {
+      return { ok: false, message: 'Please add a portfolio or relevant link.' };
+    }
+    if (!isValidPortfolioUrl(portfolio.value)) {
+      return { ok: false, message: 'Portfolio must be a valid link (e.g. https://…).' };
+    }
+    var words = countWords(applyMessage ? applyMessage.value : '');
+    if (words < APPLY_MESSAGE_MIN_WORDS) {
+      return { ok: false, message: 'Message must be at least ' + APPLY_MESSAGE_MIN_WORDS + ' words.' };
+    }
+    if (words > APPLY_MESSAGE_MAX_WORDS) {
+      return { ok: false, message: 'Message must be ' + APPLY_MESSAGE_MAX_WORDS + ' words or fewer.' };
+    }
+    return { ok: true, message: '' };
+  }
+
+  function updateApplyWordCount() {
+    if (!applyMessage || !applyWordCount || !applyForm) return;
+    var n = countWords(applyMessage.value);
+    applyWordCount.textContent = n + ' / ' + APPLY_MESSAGE_MAX_WORDS + ' words (min ' + APPLY_MESSAGE_MIN_WORDS + ')';
+    var over = n > APPLY_MESSAGE_MAX_WORDS;
+    var under = n < APPLY_MESSAGE_MIN_WORDS;
+    applyWordCount.classList.toggle('is-over', over);
+    applyWordCount.classList.toggle('is-under', under && n > 0);
+    applyMessage.classList.toggle('apply-field-over-limit', over);
+    applyMessage.classList.toggle('apply-field-under-limit', under && !over && n > 0);
+    var wordsBlock = under || over;
+    if (wordsBlock) resetApplySubmitArm();
+    var submitBtn = applyForm.querySelector('.apply-submit');
+    if (submitBtn) submitBtn.disabled = wordsBlock;
+  }
+
+  if (applyForm) {
+    applyForm.addEventListener('input', function () {
+      if (applySubmitArmed && applyArmedSnapshot !== null && getApplyFormSnapshot() !== applyArmedSnapshot) {
+        resetApplySubmitArm();
+        if (applyFormStatus) {
+          applyFormStatus.textContent = '';
+          applyFormStatus.classList.remove('is-error', 'is-success', 'is-pending');
+        }
+      }
+      updateApplyWordCount();
+    });
+    applyForm.addEventListener('change', function () {
+      if (applySubmitArmed && applyArmedSnapshot !== null && getApplyFormSnapshot() !== applyArmedSnapshot) {
+        resetApplySubmitArm();
+        if (applyFormStatus) {
+          applyFormStatus.textContent = '';
+          applyFormStatus.classList.remove('is-error', 'is-success', 'is-pending');
+        }
+      }
+      updateApplyWordCount();
+    });
+    updateApplyWordCount();
+  }
+
+  if (applyForm && applyFormStatus) {
+    applyForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var action = applyForm.getAttribute('action') || '';
+      if (action.indexOf('REPLACE_ME') !== -1) {
+        applyFormStatus.textContent = 'Form is not connected yet — replace REPLACE_ME in the form action with your Formspree form id.';
+        applyFormStatus.classList.remove('is-success', 'is-pending');
+        applyFormStatus.classList.add('is-error');
+        return;
+      }
+      var check = validateApplyForm();
+      if (!check.ok) {
+        applyFormStatus.textContent = check.message;
+        applyFormStatus.classList.remove('is-success', 'is-pending');
+        applyFormStatus.classList.add('is-error');
+        resetApplySubmitArm();
+        return;
+      }
+      var submitBtn = applyForm.querySelector('.apply-submit');
+      if (!applySubmitArmed) {
+        applySubmitArmed = true;
+        applyArmedSnapshot = getApplyFormSnapshot();
+        if (submitBtn) {
+          submitBtn.textContent = 'Click again to send';
+          submitBtn.classList.add('apply-submit-confirm');
+          submitBtn.disabled = false;
+        }
+        applyFormStatus.textContent = 'Click again to confirm and send your application.';
+        applyFormStatus.classList.remove('is-error', 'is-success');
+        applyFormStatus.classList.add('is-pending');
+        return;
+      }
+      if (getApplyFormSnapshot() !== applyArmedSnapshot) {
+        resetApplySubmitArm();
+        applyFormStatus.textContent = 'Something changed — review the form and press Send twice again.';
+        applyFormStatus.classList.remove('is-success', 'is-pending');
+        applyFormStatus.classList.add('is-error');
+        return;
+      }
+      var checkSend = validateApplyForm();
+      if (!checkSend.ok) {
+        applyFormStatus.textContent = checkSend.message;
+        applyFormStatus.classList.remove('is-success', 'is-pending');
+        applyFormStatus.classList.add('is-error');
+        resetApplySubmitArm();
+        return;
+      }
+      applySubmitArmed = false;
+      applyArmedSnapshot = null;
+      if (submitBtn) {
+        submitBtn.textContent = submitBtn.getAttribute('data-default-label') || 'Send application';
+        submitBtn.classList.remove('apply-submit-confirm');
+        submitBtn.disabled = true;
+      }
+      applyFormStatus.textContent = 'Sending…';
+      applyFormStatus.classList.remove('is-error', 'is-success', 'is-pending');
+      fetch(action, {
+        method: 'POST',
+        body: new FormData(applyForm),
+        headers: { Accept: 'application/json' }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.ok) {
+            applyFormStatus.textContent = 'Thanks — we’ll be in touch.';
+            applyFormStatus.classList.add('is-success');
+            applyForm.reset();
+            resetApplySubmitArm();
+            updateApplyWordCount();
+          } else {
+            throw new Error(data.error || 'Submit failed');
+          }
+        })
+        .catch(function () {
+          applyFormStatus.textContent = 'Could not send. Try again or use Discord.';
+          applyFormStatus.classList.add('is-error');
+        })
+        .finally(function () {
+          if (submitBtn) submitBtn.disabled = false;
+          updateApplyWordCount();
+        });
+    });
+  }
 
   onScroll();
 })();

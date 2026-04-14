@@ -635,6 +635,161 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   flex-wrap: wrap;
 }
 
+.apply-drawer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.apply-drawer.is-open {
+  max-height: 920px;
+}
+.apply-drawer[aria-hidden="true"] { pointer-events: none; }
+.apply-drawer[aria-hidden="false"] { pointer-events: auto; }
+.apply-drawer-inner {
+  padding-top: 28px;
+  text-align: left;
+}
+.apply-form {
+  position: relative;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.apply-form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.apply-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.apply-field-grow textarea { min-height: 100px; resize: vertical; }
+.apply-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+.apply-label-hint {
+  font-weight: 500;
+  color: rgba(240,240,240,0.38);
+}
+.apply-word-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  text-align: right;
+}
+.apply-word-count.is-under {
+  color: #fbbf24;
+}
+.apply-word-count.is-over {
+  color: #f87171;
+  font-weight: 600;
+}
+textarea.apply-field-over-limit {
+  border-color: rgba(248, 113, 113, 0.5);
+}
+textarea.apply-field-under-limit {
+  border-color: rgba(251, 191, 36, 0.35);
+}
+.apply-submit.apply-submit-confirm {
+  animation: applyConfirmPulse 1.1s ease-in-out infinite;
+  box-shadow: 0 0 0 2px rgba(232, 192, 106, 0.4);
+}
+@keyframes applyConfirmPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(232, 192, 106, 0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(232, 192, 106, 0.12); }
+}
+.apply-form-status.is-pending {
+  color: rgba(232, 192, 106, 0.85);
+}
+.apply-form input,
+.apply-form select,
+.apply-form textarea {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.06);
+  width: 100%;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.apply-form input::placeholder,
+.apply-form textarea::placeholder {
+  color: rgba(240,240,240,0.35);
+}
+.apply-form input:focus,
+.apply-form select:focus,
+.apply-form textarea:focus {
+  outline: none;
+  border-color: var(--border-hover);
+  background: rgba(255,255,255,0.08);
+}
+.apply-form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(240,240,240,0.45)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+.apply-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.apply-form-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 8px;
+}
+.apply-submit {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  background: var(--text-primary);
+  color: #0f2a14;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.apply-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+.apply-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.apply-form-status {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  min-height: 1.25em;
+}
+.apply-form-status.is-error { color: #f87171; }
+.apply-form-status.is-success { color: #86efac; }
+
 .cta-btn {
   display: inline-flex;
   align-items: center;
@@ -807,5 +962,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   .scroll-indicator svg { animation: none; }
   .channel-card:hover .card-shimmer { animation: none; opacity: 0; }
   .role-drawer { transition: none; }
+  .apply-drawer { transition: none; }
+  .apply-submit.apply-submit-confirm { animation: none; }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }
