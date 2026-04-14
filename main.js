@@ -49,14 +49,61 @@
 
   startIntro();
 
-  /* Duplicate carousel items for seamless CSS loop */
-  document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
+  /* Seamless carousel: clone once, animate by exact half scrollWidth (px). -50% breaks when lazy images resize the track. */
+  function initLoopCarousel(track) {
+    if (track.getAttribute('data-carousel-inited') === '1') return;
+    track.setAttribute('data-carousel-inited', '1');
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
     var items = Array.prototype.slice.call(track.children);
     for (var j = 0; j < items.length; j++) {
       var c = items[j].cloneNode(true);
       c.setAttribute('aria-hidden', 'true');
       track.appendChild(c);
     }
+
+    var imgs = track.querySelectorAll('img');
+    for (var k = 0; k < imgs.length; k++) {
+      imgs[k].loading = 'eager';
+      imgs[k].decoding = 'async';
+    }
+
+    var raf = 0;
+    var lastHalf = -1;
+    function setCarouselDistance() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(function () {
+        raf = 0;
+        var w = track.scrollWidth;
+        var half = w > 0 ? w / 2 : 0;
+        if (half <= 0) return;
+        if (Math.abs(half - lastHalf) < 0.5) return;
+        lastHalf = half;
+        track.style.setProperty('--carousel-shift', '-' + half + 'px');
+        track.classList.add('is-carousel-ready');
+      });
+    }
+
+    setCarouselDistance();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      var ro = new ResizeObserver(setCarouselDistance);
+      ro.observe(track);
+    }
+
+    for (var m = 0; m < imgs.length; m++) {
+      var img = imgs[m];
+      if (img.complete) continue;
+      img.addEventListener('load', setCarouselDistance, { passive: true });
+      img.addEventListener('error', setCarouselDistance, { passive: true });
+    }
+  }
+
+  document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
+    initLoopCarousel(track);
   });
 
   /* Scroll-triggered reveal */
