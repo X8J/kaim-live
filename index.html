@@ -4,11 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KaiM</title>
-  <meta name="description" content="KaiM — YouTube creator brand. Channels, open roles, and contact.">
+  <meta name="description" content="KaiM, homepage">
+  <meta property="og:title" content="KaiM">
+  <meta property="og:description" content="KaiM, homepage">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://kaim.live/assets/img/KaiM.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="KaiM">
+  <meta name="twitter:description" content="KaiM, homepage">
+  <meta name="twitter:image" content="https://kaim.live/assets/img/KaiM.png">
+  <link rel="icon" href="assets/img/KaiM.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/KaiM.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -29,9 +39,12 @@
     <!-- Channels -->
     <section id="channels">
       <div class="channels">
-        <h2 class="section-heading" data-parallax="0.04">Channels</h2>
+        <div class="scroll-reveal scroll-reveal-up">
+          <h2 class="section-heading" data-parallax="0.04">Channels</h2>
+        </div>
 
         <!-- KaiM -->
+        <div class="scroll-reveal scroll-reveal-left" data-reveal-delay="1">
         <div class="channel-row" data-parallax="0.03">
           <div class="card-wrapper">
             <a href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener" class="channel-card gold" data-tilt>
@@ -88,8 +101,10 @@
             </div>
           </div>
         </div>
+        </div>
 
         <!-- KaiAim -->
+        <div class="scroll-reveal scroll-reveal-right" data-reveal-delay="2">
         <div class="channel-row" data-parallax="-0.03">
           <div class="card-wrapper">
             <a href="https://youtube.com/@AimKaiM" target="_blank" rel="noopener" class="channel-card blue" data-tilt>
@@ -119,6 +134,7 @@
             </a>
           </div>
         </div>
+        </div>
 
       </div>
     </section>
@@ -126,13 +142,16 @@
     <!-- Open positions -->
     <section id="positions">
       <div class="positions">
+        <div class="scroll-reveal scroll-reveal-up">
         <div class="positions-header" data-parallax="0.04">
           <h2>Open Positions</h2>
           <p>consistent remote work</p>
         </div>
+        </div>
 
         <div class="positions-grid">
 
+          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="0">
           <div class="role-card glass closed" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -154,7 +173,9 @@
               </div>
             </div>
           </div>
+          </div>
 
+          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="1">
           <div class="role-card glass" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -177,7 +198,9 @@
               </div>
             </div>
           </div>
+          </div>
 
+          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="2">
           <div class="role-card glass" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -200,7 +223,9 @@
               </div>
             </div>
           </div>
+          </div>
 
+          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
           <div class="role-card glass" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -223,6 +248,7 @@
               </div>
             </div>
           </div>
+          </div>
 
         </div>
       </div>
@@ -230,6 +256,7 @@
 
     <!-- Contact -->
     <section id="contactSection">
+      <div class="scroll-reveal scroll-reveal-up">
       <div class="contact-cta" id="contactPanel" data-parallax="0.03">
         <h2>Interested?</h2>
         <p class="contact-subtitle">Reach out below for business inquiries</p>
@@ -245,14 +272,15 @@
           </a>
         </div>
       </div>
+      </div>
     </section>
 
   </main>
 
-  <footer class="footer-bar">
+  <footer class="footer-bar scroll-reveal scroll-reveal-up">
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=12"></script>
+  <script src="main.js?v=14"></script>
 </body>
 </html>

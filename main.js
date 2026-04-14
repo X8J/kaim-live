@@ -54,6 +54,23 @@
     }
   });
 
+  /* Scroll-triggered slide in / out */
+  var revealObserver = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        } else {
+          entry.target.classList.remove('is-visible');
+        }
+      });
+    },
+    { root: null, rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+  );
+  document.querySelectorAll('.scroll-reveal').forEach(function (el) {
+    revealObserver.observe(el);
+  });
+
   /* Parallax scroll */
   var parallaxLayers = [];
   document.querySelectorAll('[data-parallax]').forEach(function (el) {
