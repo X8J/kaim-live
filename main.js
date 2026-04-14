@@ -287,10 +287,18 @@
 
   function isValidPortfolioUrl(raw) {
     var p = (raw || '').trim();
-    if (!p) return false;
+    if (!p || p.length < 4) return false;
     try {
       var u = new URL(/^https?:\/\//i.test(p) ? p : 'https://' + p);
-      return u.hostname.length >= 1;
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+      var h = u.hostname;
+      if (!h || h.indexOf('.') === -1) return false;
+      var parts = h.split('.').filter(function (s) { return s.length > 0; });
+      if (parts.length < 2) return false;
+      var tld = parts[parts.length - 1];
+      if (tld.length < 2) return false;
+      if (h.replace(/\./g, '').length < 3) return false;
+      return true;
     } catch (err) {
       return false;
     }
@@ -316,7 +324,7 @@
       return { ok: false, message: 'Please add a portfolio or relevant link.' };
     }
     if (!isValidPortfolioUrl(portfolio.value)) {
-      return { ok: false, message: 'Portfolio must be a valid link (e.g. https://…).' };
+      return { ok: false, message: 'Portfolio must be a real link with a domain (e.g. yoursite.com)' };
     }
     var words = countWords(applyMessage ? applyMessage.value : '');
     if (words < APPLY_MESSAGE_MIN_WORDS) {
