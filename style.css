@@ -330,6 +330,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   display: flex;
   flex-shrink: 0;
   width: max-content;
+  will-change: transform;
   animation: carousel-scroll 28s linear infinite;
 }
 .video-carousel:hover .carousel-track {

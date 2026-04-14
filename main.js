@@ -13,8 +13,6 @@
   });
 
   var scrollIndicator = document.getElementById('scrollIndicator');
-  var parallaxTitle   = document.getElementById('parallaxTitle');
-  var parallaxGhost   = document.getElementById('parallaxGhost');
   var hero            = document.getElementById('hero');
   var heroImg         = document.getElementById('heroImg');
   var contactPanel    = document.getElementById('contactPanel');
@@ -45,6 +43,16 @@
   }
 
   startIntro();
+
+  /* Duplicate KaiM carousel items once for seamless CSS loop (smaller HTML) */
+  document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
+    var items = Array.prototype.slice.call(track.children);
+    for (var j = 0; j < items.length; j++) {
+      var c = items[j].cloneNode(true);
+      c.setAttribute('aria-hidden', 'true');
+      track.appendChild(c);
+    }
+  });
 
   /* ═══════════════════════════════════════════════════════════
      PARALLAX SCROLL
@@ -87,21 +95,10 @@
     var lite = isLiteMotion();
     var imgS = lite ? 1.12 : 1.15;
     var imgTy = lite ? 0.025 : 0.06;
-    var ctTy = lite ? 0.12 : 0.28;
-    var ghTy = lite ? 0.05 : 0.12;
 
     if (heroImg) {
       var s = imgS + y * (lite ? 0.00003 : 0.00008);
       heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (y * imgTy) + 'px,0)';
-    }
-
-    var heroContent = hero.querySelector('.hero-content');
-    if (heroContent) {
-      heroContent.style.transform = 'translate3d(0,' + (y * ctTy) + 'px,0)';
-    }
-    if (parallaxGhost) {
-      parallaxGhost.style.transform =
-        'translate(-50%,-50%) translate3d(0,' + (y * ghTy) + 'px,0)';
     }
   }
 
