@@ -1,22 +1,15 @@
 (function () {
   'use strict';
 
-  /* ── Always start at top (disable browser scroll restoration on reload) ── */
+  /* ── Always start at top on reload ── */
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
-  function forceScrollTop() {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }
-  forceScrollTop();
-  requestAnimationFrame(function () {
-    forceScrollTop();
-    requestAnimationFrame(forceScrollTop);
-  });
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
   window.addEventListener('pageshow', function (e) {
-    if (e.persisted) forceScrollTop();
+    if (e.persisted) window.scrollTo(0, 0);
   });
 
   var scrollIndicator = document.getElementById('scrollIndicator');
@@ -24,13 +17,70 @@
   var parallaxGhost   = document.getElementById('parallaxGhost');
   var hero            = document.getElementById('hero');
   var heroImg         = document.getElementById('heroImg');
-  var heroOverlay     = document.querySelector('.hero-overlay');
   var contactPanel    = document.getElementById('contactPanel');
-  var reducedMotion   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var ticking = false;
   var lastScrollY = 0;
+  var introComplete = false;
 
-  /* ── Collect parallax layers ── */
+  /* ═══════════════════════════════════════════════════════════
+     INTRO ANIMATION — JS-driven rAF loop, no CSS transitions
+     Total duration: 2 seconds
+     ═══════════════════════════════════════════════════════════ */
+  var INTRO_DURATION = 2000;
+
+  function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function runIntro() {
+    var start = null;
+
+    function frame(ts) {
+      if (!start) start = ts;
+      var p = Math.min(1, (ts - start) / INTRO_DURATION);
+
+      /* — Banner: blur 0→6, brightness 0.82→0.4 — */
+      if (heroImg) {
+        var bp = easeOutCubic(p);
+        heroImg.style.filter =
+          'blur(' + (bp * 6).toFixed(2) + 'px) brightness(' + (0.82 - bp * 0.42).toFixed(3) + ')';
+      }
+
+      /* — Title: whole word scales + fades as one unit — */
+      if (parallaxTitle) {
+        var tp = Math.max(0, Math.min(1, (p - 0.05) / 0.6));
+        var te = easeOutQuart(tp);
+        parallaxTitle.style.opacity = String(te);
+        parallaxTitle.style.transform =
+          'scale(' + (0.55 + te * 0.45).toFixed(4) + ') translateY(' + (24 * (1 - te)).toFixed(2) + 'px)';
+      }
+
+      /* — Ghost outline — */
+      if (parallaxGhost) {
+        var gp = Math.max(0, Math.min(1, (p - 0.15) / 0.55));
+        parallaxGhost.style.opacity = String(easeOutCubic(gp));
+      }
+
+      /* — Scroll indicator — */
+      if (scrollIndicator) {
+        var sp = Math.max(0, Math.min(1, (p - 0.7) / 0.3));
+        scrollIndicator.style.opacity = String(easeOutCubic(sp));
+      }
+
+      if (p < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        introComplete = true;
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  runIntro();
+
+  /* ═══════════════════════════════════════════════════════════
+     PARALLAX SCROLL
+     ═══════════════════════════════════════════════════════════ */
   var parallaxLayers = [];
   document.querySelectorAll('[data-parallax]').forEach(function (el) {
     parallaxLayers.push({
@@ -39,7 +89,6 @@
     });
   });
 
-  /* ── RAF-throttled scroll handler ── */
   function onScroll() {
     lastScrollY = window.scrollY;
     if (!ticking) {
@@ -51,49 +100,37 @@
   function tick() {
     ticking = false;
 
-    if (scrollIndicator) {
-      scrollIndicator.style.opacity = Math.max(0, 1 - lastScrollY / 200);
+    if (scrollIndicator && introComplete) {
+      scrollIndicator.style.opacity = String(Math.max(0, 1 - lastScrollY / 250));
     }
 
-    if (!reducedMotion) {
-      updateTitleParallax();
-      updateLayerParallax();
-    }
+    updateHeroParallax();
+    updateLayerParallax();
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  /* ── Hero parallax: background, overlay, title & ghost at different depths ── */
-  function updateTitleParallax() {
+  function updateHeroParallax() {
     if (!hero) return;
     var vh = window.innerHeight;
     var y = lastScrollY;
-    var yCap = Math.min(y, vh * 1.15);
-    var t = Math.min(1, yCap / Math.max(1, vh * 0.85));
-    var ease = 1 - Math.pow(1 - t, 2.4);
+    if (y > vh * 1.3) return;
 
-    if (heroImg && heroImg.getAttribute('src')) {
-      var imgY = yCap * 0.46;
-      var scale = 1.05 + ease * 0.055;
-      heroImg.style.transform = 'translate3d(0,' + imgY + 'px,0) scale(' + scale + ')';
+    if (heroImg) {
+      var s = 1.15 + y * 0.00008;
+      heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (y * 0.06) + 'px,0)';
     }
 
-    if (heroOverlay) {
-      heroOverlay.style.transform = 'translate3d(0,' + (yCap * 0.12) + 'px,0)';
-    }
-
-    if (y > vh * 1.25) return;
-
-    if (parallaxTitle) {
-      parallaxTitle.style.transform = 'translate3d(0,' + (y * 0.22) + 'px,0)';
+    var heroContent = hero.querySelector('.hero-content');
+    if (heroContent) {
+      heroContent.style.transform = 'translate3d(0,' + (y * 0.28) + 'px,0)';
     }
     if (parallaxGhost) {
       parallaxGhost.style.transform =
-        'translate(-50%,-50%) translate3d(0,' + (y * 0.1) + 'px,0)';
+        'translate(-50%,-50%) translate3d(0,' + (y * 0.12) + 'px,0)';
     }
   }
 
-  /* ── Section layers: viewport-centered offset for a floating feel ── */
   function updateLayerParallax() {
     var vh = window.innerHeight;
     for (var i = 0; i < parallaxLayers.length; i++) {
@@ -102,15 +139,14 @@
       if (rect.top >= vh + 80 || rect.bottom <= -80) continue;
       var center = rect.top + rect.height * 0.5 - vh * 0.5;
       var norm = center / Math.max(vh, 1);
-      var offset = norm * layer.speed * 52;
-      layer.el.style.transform = 'translate3d(0,' + offset + 'px,0)';
+      layer.el.style.transform = 'translate3d(0,' + (norm * layer.speed * 52) + 'px,0)';
     }
   }
 
-
-  /* ── 3D tilt + shimmer on channel cards ── */
-  if (!reducedMotion) {
-    document.querySelectorAll('[data-tilt]').forEach(function (card) {
+  /* ═══════════════════════════════════════════════════════════
+     3D TILT + SHIMMER ON CHANNEL CARDS
+     ═══════════════════════════════════════════════════════════ */
+  document.querySelectorAll('[data-tilt]').forEach(function (card) {
       var raf = null;
 
       card.addEventListener('mousemove', function (e) {
@@ -137,10 +173,11 @@
       card.addEventListener('mouseenter', function () {
         card.style.transition = '';
       });
-    });
-  }
+  });
 
-  /* ── Accordion ── */
+  /* ═══════════════════════════════════════════════════════════
+     ACCORDION
+     ═══════════════════════════════════════════════════════════ */
   document.querySelectorAll('[data-role]').forEach(function (card) {
     var header = card.querySelector('.role-header');
     var drawer = card.querySelector('.role-drawer');
@@ -168,7 +205,9 @@
     });
   });
 
-  /* ── Apply → scroll to contact + gold pulse ── */
+  /* ═══════════════════════════════════════════════════════════
+     APPLY → SCROLL TO CONTACT + GOLD PULSE
+     ═══════════════════════════════════════════════════════════ */
   document.querySelectorAll('[data-apply]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
@@ -184,6 +223,6 @@
     });
   });
 
-  /* ── Initial tick ── */
+  /* ── Initial scroll tick ── */
   onScroll();
 })();

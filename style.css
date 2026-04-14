@@ -16,7 +16,13 @@
 
 /* ───────────────────────── RESET ────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar { display: none; }
 body {
   font-family: var(--font-body);
   font-size: 15px;
@@ -51,35 +57,34 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   overflow: hidden;
   background: var(--bg-base);
 }
+
 .hero-img {
   position: absolute;
-  inset: -12%;
-  width: calc(100% + 24%);
-  height: calc(100% + 24%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: center center;
   z-index: 0;
+  transform: scale(1.15);
   transform-origin: center center;
-  will-change: transform;
-  animation: heroBannerFocus 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes heroBannerFocus {
-  0%   { filter: blur(0px) brightness(0.92); }
-  100% { filter: blur(6px) brightness(0.42); }
+  will-change: filter, transform;
 }
 .hero-img[src=""] { display: none; }
+
 .hero-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(10,10,10,0.25) 0%,
-    rgba(10,10,10,0.08) 38%,
-    rgba(10,10,10,0.45) 72%,
-    rgba(10,10,10,0.88) 100%
+    rgba(10,10,10,0.2) 0%,
+    rgba(10,10,10,0.05) 35%,
+    rgba(10,10,10,0.4) 70%,
+    rgba(10,10,10,0.92) 100%
   );
   z-index: 1;
-  will-change: transform;
 }
+
 .hero-content {
   position: relative;
   z-index: 2;
@@ -88,6 +93,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   justify-content: center;
   will-change: transform;
 }
+
 .hero-title {
   position: relative;
   font-family: var(--font-display);
@@ -97,22 +103,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   line-height: 1;
   z-index: 1;
   display: flex;
-  animation: heroScale 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.hero-title .letter {
-  display: inline-block;
   opacity: 0;
-  transform: scale(0.7) translateY(20px);
-  animation: letterIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform: scale(0.55) translateY(24px);
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
-@keyframes heroScale {
-  0%   { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes letterIn {
-  0%   { opacity: 0; transform: scale(0.7) translateY(20px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
+
 .parallax-ghost {
   position: absolute;
   top: 50%;
@@ -129,15 +125,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   pointer-events: none;
   user-select: none;
   will-change: transform;
+  opacity: 0;
 }
+
 .scroll-indicator {
   position: absolute;
   bottom: 36px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
-  transition: opacity 0.4s ease;
-  animation: fadeInUp 1s 0.8s ease both;
+  opacity: 0;
 }
 .scroll-indicator svg {
   color: rgba(255,255,255,0.4);
@@ -146,10 +143,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(8px); }
-}
-@keyframes fadeInUp {
-  0%   { opacity: 0; transform: translateX(-50%) translateY(12px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* ──────────────────── CHANNEL CARDS ─────────────────────── */
@@ -367,7 +360,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 
 /* ──────────────────── CONTACT FOOTER ────────────────────── */
 .contact { max-width: 760px; margin: 0 auto; padding: 0 32px 40px; }
-.contact-panel { padding: 48px 32px; text-align: center; transition: box-shadow 0.6s ease; }
+.contact-panel { padding: 48px 32px; text-align: center; }
 .contact-panel h2 {
   font-family: var(--font-display);
   font-size: clamp(24px, 4vw, 36px);
@@ -435,12 +428,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 /* ──────────────── REDUCED MOTION ────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .scroll-indicator { animation: none; }
   .scroll-indicator svg { animation: none; }
-  .hero-img { animation: none; filter: blur(6px) brightness(0.42); }
-  .hero-title { animation: none; opacity: 1; }
-  .hero-title .letter { animation: none; opacity: 1; transform: none; }
   .channel-card:hover .card-shimmer { animation: none; opacity: 0; }
   .role-drawer { transition: none; }
-  .contact-panel.pulse-gold { animation: none; }
 }
