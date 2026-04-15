@@ -379,9 +379,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   flex-shrink: 0;
   width: max-content;
   will-change: transform;
-  /* Marquee: rAF + inline transform in main.js */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+/* JS duplicates items once; -50% = exactly one copy (no scrollWidth / rAF). */
+.carousel-track.is-marquee-active {
+  animation: carousel-marquee 28s linear infinite;
+}
+.video-carousel[data-carousel-loop]:hover .carousel-track.is-marquee-active {
+  animation-play-state: paused;
+}
+
+@keyframes carousel-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }
 
 .video-thumb {
@@ -959,5 +970,6 @@ textarea.apply-field-under-limit {
   .role-drawer { transition: none; }
   .apply-drawer { transition: none; }
   .apply-submit.apply-submit-confirm { animation: none; }
+  .carousel-track.is-marquee-active { animation: none; }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }

@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
 
@@ -154,9 +154,9 @@
 
         <div class="positions-grid">
 
-          <!-- Open -->
+          <!-- Closed -->
           <div class="scroll-reveal scroll-reveal-up">
-          <div class="role-card glass" data-role>
+          <div class="role-card glass closed" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
@@ -166,20 +166,20 @@
                 <div class="role-meta">Both channels</div>
               </div>
               <div class="role-right">
-                <span class="role-dot"></span>
-                <span class="role-badge">Full-time</span>
+                <span class="role-dot closed"></span>
+                <span class="role-badge">Full-time &middot; Closed</span>
                 <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
               </div>
             </div>
             <div class="role-drawer">
               <div class="role-drawer-inner">
                 <p class="role-desc">Create eye-catching thumbnails for both KaiM and KaiAim channels. Proficient in Blender and Photoshop.</p>
-                <button type="button" class="apply-btn" data-apply data-apply-role="Thumbnail Artist">Apply now</button>
               </div>
             </div>
           </div>
           </div>
 
+          <!-- Open -->
           <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="1">
           <div class="role-card glass" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
@@ -230,9 +230,8 @@
           </div>
           </div>
 
-          <!-- Closed -->
           <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
-          <div class="role-card glass closed" data-role>
+          <div class="role-card glass" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -242,18 +241,21 @@
                 <div class="role-meta">Both channels</div>
               </div>
               <div class="role-right">
-                <span class="role-dot closed"></span>
-                <span class="role-badge">Full-time &middot; Closed</span>
+                <span class="role-dot"></span>
+                <span class="role-badge">Full-time</span>
                 <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
               </div>
             </div>
             <div class="role-drawer">
               <div class="role-drawer-inner">
                 <p class="role-desc">Managing the team, analyzing statistics, outreach, and handling business inquiries across both channels.</p>
+                <button type="button" class="apply-btn" data-apply data-apply-role="Channel Production Manager">Apply now</button>
               </div>
             </div>
           </div>
           </div>
+
+          <!-- Closed -->
 
           <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
           <div class="role-card glass closed" data-role>
@@ -341,9 +343,9 @@
                 <span class="apply-label">Role</span>
                 <select name="role" id="applyRole" required>
                   <option value="" disabled selected>Select a role</option>
-                  <option value="Thumbnail Artist">Thumbnail Artist</option>
                   <option value="Concept Artist">Concept Artist</option>
                   <option value="Community Manager">Community Manager</option>
+                  <option value="Channel Production Manager">Channel Production Manager</option>
                   <option value="Other / general">Other / general</option>
                 </select>
               </label>
@@ -374,6 +376,6 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=26" defer></script>
+  <script src="main.js?v=27" defer></script>
 </body>
 </html>

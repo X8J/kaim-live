@@ -50,8 +50,7 @@
 
   startIntro();
 
-  /* Infinite marquee: duplicate row, rAF + translate3d. Read scrollWidth each frame so half is correct
-     once #channels is laid out (avoid caching 0 from content-visibility-skipped ancestors). */
+  /* Infinite marquee: duplicate row once, then CSS translate3d(-50%) (half of track = one copy). */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -73,85 +72,11 @@
       imgs[k].decoding = 'async';
     }
 
-    var wrap = track.closest('.video-carousel');
-    var rafMarquee = null;
-    var durationMs = 28000;
-    var tAnchor = performance.now();
-    var timeOffset = 0;
-    var isPaused = false;
-    var roTimer = null;
-
-    function resetPhase() {
-      tAnchor = performance.now();
-      timeOffset = 0;
-    }
-
-    function stopMarqueeLoop() {
-      if (rafMarquee) cancelAnimationFrame(rafMarquee);
-      rafMarquee = null;
-    }
-
-    function marqueeStep(now) {
-      rafMarquee = requestAnimationFrame(marqueeStep);
-      if (isPaused) return;
-      var w = track.scrollWidth;
-      var half = w > 0 ? w * 0.5 : 0;
-      if (half < 1) return;
-      var t = timeOffset + (now - tAnchor);
-      t = ((t % durationMs) + durationMs) % durationMs;
-      var x = -(t / durationMs) * half;
-      track.style.transform = 'translate3d(' + x + 'px,0,0)';
-    }
-
-    function startMarqueeLoop() {
-      stopMarqueeLoop();
-      resetPhase();
-      isPaused = false;
-      rafMarquee = requestAnimationFrame(marqueeStep);
-    }
-
-    function pauseMarquee() {
-      if (isPaused) return;
-      var now = performance.now();
-      timeOffset += now - tAnchor;
-      isPaused = true;
-    }
-
-    function resumeMarquee() {
-      if (!isPaused) return;
-      tAnchor = performance.now();
-      isPaused = false;
-    }
-
-    function bindHoverPause() {
-      if (!wrap || wrap.getAttribute('data-carousel-hover') === '1') return;
-      wrap.setAttribute('data-carousel-hover', '1');
-      wrap.addEventListener('mouseenter', pauseMarquee, { passive: true });
-      wrap.addEventListener('mouseleave', resumeMarquee, { passive: true });
-    }
-
-    function schedulePhaseReset() {
-      if (roTimer) clearTimeout(roTimer);
-      roTimer = setTimeout(function () {
-        roTimer = null;
-        resetPhase();
-      }, 60);
-    }
-
-    bindHoverPause();
-    startMarqueeLoop();
-
-    if (typeof ResizeObserver !== 'undefined') {
-      var ro = new ResizeObserver(schedulePhaseReset);
-      ro.observe(track);
-    }
-
-    for (var m = 0; m < imgs.length; m++) {
-      var img = imgs[m];
-      if (img.complete) continue;
-      img.addEventListener('load', resetPhase, { passive: true });
-      img.addEventListener('error', resetPhase, { passive: true });
-    }
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        track.classList.add('is-marquee-active');
+      });
+    });
   }
 
   document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
