@@ -49,7 +49,8 @@
 
   startIntro();
 
-  /* Seamless carousel: clone once, animate by exact half scrollWidth (px). -50% breaks when lazy images resize the track. */
+  /* Infinite marquee: duplicate row, then Web Animations API from 0 to -half px.
+     CSS @keyframes + var(--x) in transform is unreliable on iOS Safari; literal px keyframes work. */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -71,34 +72,75 @@
       imgs[k].decoding = 'async';
     }
 
+    var wrap = track.closest('.video-carousel');
     var raf = 0;
     var lastHalf = -1;
-    function setCarouselDistance() {
+    var carouselAnim = null;
+
+    function bindHoverPause() {
+      if (!wrap || wrap.getAttribute('data-carousel-hover') === '1') return;
+      wrap.setAttribute('data-carousel-hover', '1');
+      wrap.addEventListener(
+        'mouseenter',
+        function () {
+          if (carouselAnim) carouselAnim.pause();
+        },
+        { passive: true }
+      );
+      wrap.addEventListener(
+        'mouseleave',
+        function () {
+          if (carouselAnim) carouselAnim.play();
+        },
+        { passive: true }
+      );
+    }
+
+    function syncMarquee() {
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(function () {
         raf = 0;
         var w = track.scrollWidth;
         var half = w > 0 ? w / 2 : 0;
         if (half <= 0) return;
-        if (Math.abs(half - lastHalf) < 0.5) return;
+        if (Math.abs(half - lastHalf) < 0.5 && lastHalf > 0) return;
         lastHalf = half;
-        track.style.setProperty('--carousel-shift', '-' + half + 'px');
-        track.classList.add('is-carousel-ready');
+
+        if (carouselAnim) {
+          carouselAnim.cancel();
+          carouselAnim = null;
+        }
+
+        if (typeof track.animate !== 'function') return;
+
+        carouselAnim = track.animate(
+          [
+            { transform: 'translate3d(0,0,0)' },
+            { transform: 'translate3d(' + -half + 'px,0,0)' }
+          ],
+          {
+            duration: 28000,
+            iterations: Infinity,
+            easing: 'linear'
+          }
+        );
+
+        bindHoverPause();
       });
     }
 
-    setCarouselDistance();
+    syncMarquee();
 
     if (typeof ResizeObserver !== 'undefined') {
-      var ro = new ResizeObserver(setCarouselDistance);
+      var ro = new ResizeObserver(syncMarquee);
       ro.observe(track);
     }
 
     for (var m = 0; m < imgs.length; m++) {
       var img = imgs[m];
       if (img.complete) continue;
-      img.addEventListener('load', setCarouselDistance, { passive: true });
-      img.addEventListener('error', setCarouselDistance, { passive: true });
+      img.addEventListener('load', syncMarquee, { passive: true });
+      img.addEventListener('error', syncMarquee, { passive: true });
     }
   }
 

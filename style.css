@@ -380,16 +380,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   flex-shrink: 0;
   width: max-content;
   will-change: transform;
-  /* Distance set in px via --carousel-shift after clone + layout (main.js) */
-  animation: none;
+  /* Marquee: Web Animations API in main.js (CSS keyframes + var() breaks on iOS) */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-}
-.carousel-track.is-carousel-ready {
-  animation: carousel-scroll 28s linear infinite;
-}
-.video-carousel:hover .carousel-track.is-carousel-ready {
-  animation-play-state: paused;
 }
 
 .video-thumb {
@@ -446,11 +439,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-weight: 600;
   line-height: 1.35;
   color: #fff;
-}
-
-@keyframes carousel-scroll {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(var(--carousel-shift, 0px), 0, 0); }
 }
 
 .video-carousel.single-video {
@@ -972,6 +960,5 @@ textarea.apply-field-under-limit {
   .role-drawer { transition: none; }
   .apply-drawer { transition: none; }
   .apply-submit.apply-submit-confirm { animation: none; }
-  .carousel-track.is-carousel-ready { animation: none; }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }
