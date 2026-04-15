@@ -11,6 +11,7 @@
   var hero            = document.getElementById('hero');
   var heroImg         = document.getElementById('heroImg');
   var contactPanel    = document.getElementById('contactPanel');
+  var contactInterested = document.getElementById('contactInterested');
   var applyDrawer     = document.getElementById('applyDrawer');
   var applyToggle     = document.getElementById('applyToggle');
   var applyForm       = document.getElementById('applyForm');
@@ -49,8 +50,7 @@
 
   startIntro();
 
-  /* Infinite marquee: duplicate row, then Web Animations API from 0 to -half px.
-     CSS @keyframes + var(--x) in transform is unreliable on iOS Safari; literal px keyframes work. */
+  /* Infinite marquee: duplicate row, then rAF + inline translate3d (reliable on iOS; WAAPI can sit idle in WebKit). */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -73,58 +73,68 @@
     }
 
     var wrap = track.closest('.video-carousel');
-    var raf = 0;
+    var measureRaf = 0;
     var lastHalf = -1;
-    var carouselAnim = null;
+    var rafMarquee = null;
+    var halfPx = 0;
+    var durationMs = 28000;
+    var tAnchor = 0;
+    var timeOffset = 0;
+    var isPaused = false;
+
+    function stopMarqueeLoop() {
+      if (rafMarquee) cancelAnimationFrame(rafMarquee);
+      rafMarquee = null;
+    }
+
+    function marqueeStep(now) {
+      rafMarquee = requestAnimationFrame(marqueeStep);
+      if (isPaused || halfPx <= 0) return;
+      var t = timeOffset + (now - tAnchor);
+      t = ((t % durationMs) + durationMs) % durationMs;
+      var x = -(t / durationMs) * halfPx;
+      track.style.transform = 'translate3d(' + x + 'px,0,0)';
+    }
+
+    function startMarqueeLoop() {
+      stopMarqueeLoop();
+      tAnchor = performance.now();
+      timeOffset = 0;
+      isPaused = false;
+      rafMarquee = requestAnimationFrame(marqueeStep);
+    }
+
+    function pauseMarquee() {
+      if (isPaused) return;
+      var now = performance.now();
+      timeOffset += now - tAnchor;
+      isPaused = true;
+    }
+
+    function resumeMarquee() {
+      if (!isPaused) return;
+      tAnchor = performance.now();
+      isPaused = false;
+    }
 
     function bindHoverPause() {
       if (!wrap || wrap.getAttribute('data-carousel-hover') === '1') return;
       wrap.setAttribute('data-carousel-hover', '1');
-      wrap.addEventListener(
-        'mouseenter',
-        function () {
-          if (carouselAnim) carouselAnim.pause();
-        },
-        { passive: true }
-      );
-      wrap.addEventListener(
-        'mouseleave',
-        function () {
-          if (carouselAnim) carouselAnim.play();
-        },
-        { passive: true }
-      );
+      wrap.addEventListener('mouseenter', pauseMarquee, { passive: true });
+      wrap.addEventListener('mouseleave', resumeMarquee, { passive: true });
     }
 
     function syncMarquee() {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(function () {
-        raf = 0;
+      if (measureRaf) cancelAnimationFrame(measureRaf);
+      measureRaf = requestAnimationFrame(function () {
+        measureRaf = 0;
         var w = track.scrollWidth;
         var half = w > 0 ? w / 2 : 0;
         if (half <= 0) return;
         if (Math.abs(half - lastHalf) < 0.5 && lastHalf > 0) return;
         lastHalf = half;
-
-        if (carouselAnim) {
-          carouselAnim.cancel();
-          carouselAnim = null;
-        }
-
-        if (typeof track.animate !== 'function') return;
-
-        carouselAnim = track.animate(
-          [
-            { transform: 'translate3d(0,0,0)' },
-            { transform: 'translate3d(' + -half + 'px,0,0)' }
-          ],
-          {
-            duration: 28000,
-            iterations: Infinity,
-            easing: 'linear'
-          }
-        );
-
+        halfPx = half;
+        startMarqueeLoop();
         bindHoverPause();
       });
     }
@@ -287,6 +297,12 @@
     if (el) el.focus();
   }
 
+  function scrollInterestedHeadingToTop() {
+    var el = contactInterested || (contactPanel && contactPanel.querySelector('h2'));
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function pulseContact() {
     if (!contactPanel) return;
     contactPanel.classList.remove('pulse-gold');
@@ -300,7 +316,7 @@
   function openApplyFromRoles(roleName) {
     if (!contactPanel) return;
     resetApplySubmitArm();
-    contactPanel.scrollIntoView({ behavior: 'smooth' });
+    scrollInterestedHeadingToTop();
     pulseContact();
     setApplyDrawerOpen(true);
     if (applyRoleSelect && roleName) {
@@ -317,6 +333,7 @@
   if (applyToggle && applyDrawer) {
     applyToggle.addEventListener('click', function () {
       var open = !applyDrawer.classList.contains('is-open');
+      if (open) scrollInterestedHeadingToTop();
       setApplyDrawerOpen(open);
       if (open) focusApplyFormFirst();
       if (applyFormStatus) {
