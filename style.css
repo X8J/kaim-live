@@ -390,21 +390,30 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   box-shadow: inset 24px 0 24px -18px var(--bg-base, #0a0a0a), inset -24px 0 24px -18px var(--bg-base, #0a0a0a);
 }
 
-/* Transform the mover, not the flex row — WebKit often ignores translate on display:flex strips */
-.carousel-mover {
-  display: inline-flex;
+/* Inline-block wrapper animates; flex strip inside (classic marquee — avoids WebKit flex+transform bugs) */
+.carousel-scroll {
+  display: inline-block;
   vertical-align: top;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+.carousel-scroll.is-playing {
+  animation: carousel-marquee 26s linear infinite;
+}
+.video-carousel[data-carousel-loop]:hover .carousel-scroll.is-playing {
+  animation-play-state: paused;
+}
 
-.carousel-track {
+.carousel-strip {
   display: flex;
   flex-shrink: 0;
   width: max-content;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+}
+
+@keyframes carousel-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }
 
 .video-thumb {
@@ -987,5 +996,6 @@ textarea.apply-field-under-limit {
   .role-drawer { transition: none; }
   .apply-drawer { transition: none; }
   .apply-submit.apply-submit-confirm { animation: none; }
+  .carousel-scroll.is-playing { animation: none; }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }

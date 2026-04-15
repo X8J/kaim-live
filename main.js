@@ -50,125 +50,40 @@
 
   startIntro();
 
-  /* Infinite marquee: clone row on .carousel-track; translate .carousel-mover (not the flex strip — WebKit bug). */
-  function initLoopCarousel(wrap) {
-    if (!wrap || wrap.getAttribute('data-carousel-inited') === '1') return;
+  /* Marquee: duplicate thumbs once, then CSS animation on .carousel-scroll (-50% = one copy). No rAF. */
+  function initMarqueeCarousel(root) {
+    if (!root || root.getAttribute('data-marquee-done') === '1') return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return;
     }
-    wrap.setAttribute('data-carousel-inited', '1');
+    var strip = root.querySelector('.carousel-strip');
+    var scroll = root.querySelector('.carousel-scroll');
+    if (!strip) return;
+    root.setAttribute('data-marquee-done', '1');
 
-    var track = wrap.querySelector('.carousel-track');
-    var mover = wrap.querySelector('.carousel-mover') || track;
-    if (!track) return;
-
-    var items = Array.prototype.slice.call(track.children);
-    for (var j = 0; j < items.length; j++) {
-      var c = items[j].cloneNode(true);
-      c.setAttribute('aria-hidden', 'true');
-      track.appendChild(c);
+    var nodes = Array.prototype.slice.call(strip.children);
+    for (var j = 0; j < nodes.length; j++) {
+      var dup = nodes[j].cloneNode(true);
+      dup.setAttribute('aria-hidden', 'true');
+      strip.appendChild(dup);
     }
 
-    var imgs = track.querySelectorAll('img');
+    var imgs = strip.querySelectorAll('img');
     for (var k = 0; k < imgs.length; k++) {
       imgs[k].loading = 'eager';
       imgs[k].decoding = 'async';
     }
 
-    var pos = 0;
-    var lastT = performance.now();
-    var durationMs = 28000;
-    var paused = false;
-    var running = false;
-
-    function loopHalfPx() {
-      void track.offsetWidth;
-      var ch = track.children;
-      var n = ch.length;
-      if (n < 2 || n % 2 !== 0) return 0;
-      var halfN = n / 2;
-      var sum = 0;
-      for (var i = 0; i < halfN; i++) {
-        var el = ch[i];
-        sum += el.offsetWidth;
-        var mr = window.getComputedStyle(el).marginRight;
-        sum += parseFloat(mr) || 0;
-      }
-      var sw = track.scrollWidth > 0 ? track.scrollWidth * 0.5 : 0;
-      var half = Math.max(sum, sw);
-      /* Last resort so strip still moves if layout metrics lag */
-      if (half < 8) half = halfN * (170 + 12);
-      return half;
+    function play() {
+      if (scroll) scroll.classList.add('is-playing');
     }
 
-    function step(t) {
-      if (!running) return;
-      requestAnimationFrame(step);
-      if (paused) return;
-      var half = loopHalfPx();
-      if (half < 8) return;
-      var dt = Math.min(50, t - lastT) / 1000;
-      lastT = t;
-      pos += (half / (durationMs / 1000)) * dt;
-      while (pos >= half) pos -= half;
-      mover.style.setProperty('transform', 'translate3d(' + -pos + 'px,0,0)');
-    }
-
-    function start() {
-      if (running) return;
-      running = true;
-      lastT = performance.now();
-      mover.style.removeProperty('transform');
-      requestAnimationFrame(step);
-    }
-
-    function bumpLayout() {
-      var h = loopHalfPx();
-      if (h > 8) pos = pos % h;
-    }
-
-    if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(bumpLayout).observe(track);
-    }
-
-    if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
-      wrap.addEventListener(
-        'mouseenter',
-        function () {
-          paused = true;
-        },
-        { passive: true }
-      );
-      wrap.addEventListener(
-        'mouseleave',
-        function () {
-          paused = false;
-          lastT = performance.now();
-        },
-        { passive: true }
-      );
-    }
-
-    function kick() {
-      requestAnimationFrame(function () {
-        requestAnimationFrame(start);
-      });
-    }
-
-    var dec = [];
-    for (var d = 0; d < imgs.length; d++) {
-      if (imgs[d].decode) dec.push(imgs[d].decode().catch(function () {}));
-    }
-    if (dec.length && typeof Promise !== 'undefined' && typeof Promise.all === 'function') {
-      Promise.all(dec).then(kick).catch(kick);
-    } else {
-      kick();
-    }
+    requestAnimationFrame(function () {
+      requestAnimationFrame(play);
+    });
   }
 
-  document.querySelectorAll('.video-carousel[data-carousel-loop]').forEach(function (wrap) {
-    initLoopCarousel(wrap);
-  });
+  document.querySelectorAll('.video-carousel[data-carousel-loop]').forEach(initMarqueeCarousel);
 
   /* Scroll-triggered reveal */
   var revealObserver = new IntersectionObserver(
