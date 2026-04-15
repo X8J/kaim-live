@@ -215,8 +215,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 /* ──────────────────── CHANNELS ────────────────────────────── */
 #channels {
   position: relative;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
+  /* content-visibility:auto skipped layout for off-screen rows → carousel scrollWidth stayed 0 */
   background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 45%, transparent 100%);
 }
 .channels {
@@ -380,7 +379,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   flex-shrink: 0;
   width: max-content;
   will-change: transform;
-  /* Marquee: Web Animations API in main.js (CSS keyframes + var() breaks on iOS) */
+  /* Marquee: rAF + inline transform in main.js */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

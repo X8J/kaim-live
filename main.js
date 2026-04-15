@@ -50,7 +50,8 @@
 
   startIntro();
 
-  /* Infinite marquee: duplicate row, then rAF + inline translate3d (reliable on iOS; WAAPI can sit idle in WebKit). */
+  /* Infinite marquee: duplicate row, rAF + translate3d. Read scrollWidth each frame so half is correct
+     once #channels is laid out (avoid caching 0 from content-visibility-skipped ancestors). */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -73,14 +74,17 @@
     }
 
     var wrap = track.closest('.video-carousel');
-    var measureRaf = 0;
-    var lastHalf = -1;
     var rafMarquee = null;
-    var halfPx = 0;
     var durationMs = 28000;
-    var tAnchor = 0;
+    var tAnchor = performance.now();
     var timeOffset = 0;
     var isPaused = false;
+    var roTimer = null;
+
+    function resetPhase() {
+      tAnchor = performance.now();
+      timeOffset = 0;
+    }
 
     function stopMarqueeLoop() {
       if (rafMarquee) cancelAnimationFrame(rafMarquee);
@@ -89,17 +93,19 @@
 
     function marqueeStep(now) {
       rafMarquee = requestAnimationFrame(marqueeStep);
-      if (isPaused || halfPx <= 0) return;
+      if (isPaused) return;
+      var w = track.scrollWidth;
+      var half = w > 0 ? w * 0.5 : 0;
+      if (half < 1) return;
       var t = timeOffset + (now - tAnchor);
       t = ((t % durationMs) + durationMs) % durationMs;
-      var x = -(t / durationMs) * halfPx;
+      var x = -(t / durationMs) * half;
       track.style.transform = 'translate3d(' + x + 'px,0,0)';
     }
 
     function startMarqueeLoop() {
       stopMarqueeLoop();
-      tAnchor = performance.now();
-      timeOffset = 0;
+      resetPhase();
       isPaused = false;
       rafMarquee = requestAnimationFrame(marqueeStep);
     }
@@ -124,33 +130,27 @@
       wrap.addEventListener('mouseleave', resumeMarquee, { passive: true });
     }
 
-    function syncMarquee() {
-      if (measureRaf) cancelAnimationFrame(measureRaf);
-      measureRaf = requestAnimationFrame(function () {
-        measureRaf = 0;
-        var w = track.scrollWidth;
-        var half = w > 0 ? w / 2 : 0;
-        if (half <= 0) return;
-        if (Math.abs(half - lastHalf) < 0.5 && lastHalf > 0) return;
-        lastHalf = half;
-        halfPx = half;
-        startMarqueeLoop();
-        bindHoverPause();
-      });
+    function schedulePhaseReset() {
+      if (roTimer) clearTimeout(roTimer);
+      roTimer = setTimeout(function () {
+        roTimer = null;
+        resetPhase();
+      }, 60);
     }
 
-    syncMarquee();
+    bindHoverPause();
+    startMarqueeLoop();
 
     if (typeof ResizeObserver !== 'undefined') {
-      var ro = new ResizeObserver(syncMarquee);
+      var ro = new ResizeObserver(schedulePhaseReset);
       ro.observe(track);
     }
 
     for (var m = 0; m < imgs.length; m++) {
       var img = imgs[m];
       if (img.complete) continue;
-      img.addEventListener('load', syncMarquee, { passive: true });
-      img.addEventListener('error', syncMarquee, { passive: true });
+      img.addEventListener('load', resetPhase, { passive: true });
+      img.addEventListener('error', resetPhase, { passive: true });
     }
   }
 
@@ -204,15 +204,13 @@
   function updateHeroParallax() {
     if (!hero) return;
     var vh = window.innerHeight;
-    if (lastScrollY > vh * 1.3) return;
+    if (lastScrollY > vh * 1.35) return;
+    if (!heroImg) return;
 
     var imgS  = liteMotion ? 1.12 : 1.15;
     var imgTy = liteMotion ? 0.025 : 0.06;
-
-    if (heroImg) {
-      var s = imgS + lastScrollY * (liteMotion ? 0.00003 : 0.00008);
-      heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (lastScrollY * imgTy) + 'px,0)';
-    }
+    var s = imgS + lastScrollY * (liteMotion ? 0.00003 : 0.00008);
+    heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (lastScrollY * imgTy) + 'px,0)';
   }
 
   function updateLayerParallax() {
