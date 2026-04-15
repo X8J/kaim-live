@@ -50,7 +50,7 @@
 
   startIntro();
 
-  /* Infinite marquee: duplicate row once, then CSS translate3d(-50%) (half of track = one copy). */
+  /* Infinite marquee: clone row, then rAF translate (CSS keyframes often never run under opacity:0 ancestors). */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -72,11 +72,106 @@
       imgs[k].decoding = 'async';
     }
 
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        track.classList.add('is-marquee-active');
-      });
-    });
+    var wrap = track.closest('.video-carousel');
+    var rafId = 0;
+    var running = false;
+    var started = false;
+    var paused = false;
+    var pos = 0;
+    var lastFrame = 0;
+    var durationMs = 28000;
+    var roDebounce = null;
+
+    function step(now) {
+      if (!running) return;
+      rafId = requestAnimationFrame(step);
+      if (paused) return;
+      var w = track.scrollWidth;
+      var half = w > 0 ? w * 0.5 : 0;
+      if (half < 2) return;
+      var dt = Math.min(48, now - lastFrame) / 1000;
+      lastFrame = now;
+      pos += (half / (durationMs / 1000)) * dt;
+      while (pos >= half) pos -= half;
+      track.style.transform = 'translate3d(' + (-pos) + 'px,0,0)';
+    }
+
+    function startRaf() {
+      if (running) return;
+      running = true;
+      lastFrame = performance.now();
+      rafId = requestAnimationFrame(step);
+    }
+
+    function onResizeStrip() {
+      clearTimeout(roDebounce);
+      roDebounce = setTimeout(function () {
+        roDebounce = null;
+        var w = track.scrollWidth;
+        var half = w > 0 ? w * 0.5 : 0;
+        if (half > 2) pos = pos % half;
+      }, 80);
+    }
+
+    function proceed() {
+      if (started) return;
+      started = true;
+      startRaf();
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(onResizeStrip).observe(track);
+      }
+    }
+
+    function bindViewportStart() {
+      if (!wrap || typeof IntersectionObserver === 'undefined') {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(proceed);
+        });
+        return;
+      }
+      var io = new IntersectionObserver(
+        function (entries) {
+          for (var i = 0; i < entries.length; i++) {
+            if (!entries[i].isIntersecting) continue;
+            io.disconnect();
+            requestAnimationFrame(function () {
+              requestAnimationFrame(proceed);
+            });
+            return;
+          }
+        },
+        { root: null, rootMargin: '160px 0px 240px 0px', threshold: 0 }
+      );
+      io.observe(wrap);
+      var r = wrap.getBoundingClientRect();
+      var vh = window.innerHeight || 0;
+      if (r.top < vh + 240 && r.bottom > -240) {
+        io.disconnect();
+        requestAnimationFrame(function () {
+          requestAnimationFrame(proceed);
+        });
+      }
+    }
+
+    if (wrap) {
+      wrap.addEventListener(
+        'mouseenter',
+        function () {
+          paused = true;
+        },
+        { passive: true }
+      );
+      wrap.addEventListener(
+        'mouseleave',
+        function () {
+          paused = false;
+          lastFrame = performance.now();
+        },
+        { passive: true }
+      );
+    }
+
+    bindViewportStart();
   }
 
   document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
