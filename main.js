@@ -79,13 +79,12 @@
     var imgs = track.querySelectorAll('img');
     for (var i = 0; i < imgs.length; i++) imgs[i].loading = 'eager';
 
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var loopW = 0;
     var accumPx = 0;
     var lastNow = 0;
     var paused = false;
     /* Slightly slower when “reduce motion” is on — still scrolls, just gentler */
-    var pxPerSec = reduced ? 26 : 44;
+    var pxPerSec = prefersReducedMotion ? 26 : 44;
 
     function readLoopWidth() {
       void track.offsetWidth;
@@ -295,8 +294,10 @@
 
       document.querySelectorAll('[data-role].expanded').forEach(function (o) {
         o.classList.remove('expanded');
-        o.querySelector('.role-header').setAttribute('aria-expanded', 'false');
-        o.querySelector('.role-drawer').style.maxHeight = '0';
+        var oh = o.querySelector('.role-header');
+        var od = o.querySelector('.role-drawer');
+        if (oh) oh.setAttribute('aria-expanded', 'false');
+        if (od) od.style.maxHeight = '0';
       });
 
       if (!open) {
@@ -311,6 +312,36 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     });
   });
+
+  /* Closed positions: one summary row, expand to show past roles */
+  var closedToggle = document.querySelector('[data-closed-toggle]');
+  var closedRolesRoot = closedToggle ? closedToggle.closest('[data-closed-roles]') : null;
+  var closedPanel = document.getElementById('closedRolesPanel');
+
+  function collapseClosedRoleCards() {
+    if (!closedPanel) return;
+    closedPanel.querySelectorAll('[data-role].expanded').forEach(function (c) {
+      c.classList.remove('expanded');
+      var hdr = c.querySelector('.role-header');
+      var drw = c.querySelector('.role-drawer');
+      if (hdr) hdr.setAttribute('aria-expanded', 'false');
+      if (drw) drw.style.maxHeight = '0';
+    });
+  }
+
+  function setClosedRolesOpen(open) {
+    if (!closedRolesRoot || !closedToggle || !closedPanel) return;
+    closedRolesRoot.classList.toggle('is-open', open);
+    closedToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    closedPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (!open) collapseClosedRoleCards();
+  }
+
+  if (closedToggle && closedRolesRoot && closedPanel) {
+    closedToggle.addEventListener('click', function () {
+      setClosedRolesOpen(!closedRolesRoot.classList.contains('is-open'));
+    });
+  }
 
   function setApplyDrawerOpen(open) {
     if (!applyDrawer || !applyToggle) return;
@@ -373,10 +404,18 @@
   }
 
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape' || !applyDrawer || !applyDrawer.classList.contains('is-open')) return;
-    setApplyDrawerOpen(false);
-    resetApplySubmitArm();
-    if (applyToggle) applyToggle.focus();
+    if (e.key !== 'Escape') return;
+    if (applyDrawer && applyDrawer.classList.contains('is-open')) {
+      setApplyDrawerOpen(false);
+      resetApplySubmitArm();
+      if (applyToggle) applyToggle.focus();
+      return;
+    }
+    if (closedRolesRoot && closedPanel && closedRolesRoot.classList.contains('is-open')) {
+      if (!closedPanel.contains(document.activeElement) && document.activeElement !== closedToggle) return;
+      setClosedRolesOpen(false);
+      if (closedToggle) closedToggle.focus();
+    }
   });
 
   document.querySelectorAll('[data-apply]').forEach(function (btn) {

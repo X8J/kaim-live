@@ -22,7 +22,7 @@
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap"></noscript>
-  <link rel="stylesheet" href="style.css?v=68">
+  <link rel="stylesheet" href="style.css?v=70">
 </head>
 <body>
 
@@ -248,8 +248,16 @@
           </div>
           </div>
 
-          <!-- Closed roles -->
+          <!-- Closed roles: collapsed list; expand to show past roles -->
           <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
+          <div class="closed-roles" data-closed-roles>
+            <button type="button" class="closed-roles-toggle glass" id="closedRolesToggle" data-closed-toggle aria-expanded="false" aria-controls="closedRolesPanel">
+              <span class="closed-roles-toggle-label">Closed positions</span>
+              <span class="closed-roles-toggle-meta">3 roles</span>
+              <svg class="closed-roles-toggle-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="closed-roles-panel" id="closedRolesPanel" role="region" aria-labelledby="closedRolesToggle" aria-hidden="true">
+              <div class="closed-roles-stack">
           <div class="role-card glass closed" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -271,9 +279,7 @@
               </div>
             </div>
           </div>
-          </div>
 
-          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
           <div class="role-card glass closed" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -295,9 +301,7 @@
               </div>
             </div>
           </div>
-          </div>
 
-          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
           <div class="role-card glass closed" data-role>
             <div class="role-header" role="button" tabindex="0" aria-expanded="false">
               <div class="role-icon">
@@ -316,6 +320,9 @@
             <div class="role-drawer">
               <div class="role-drawer-inner">
                 <p class="role-desc">Needs a deep understanding of retention and how to weave a compelling story from raw footage. Responsible for structuring and cutting long-form content for the main KaiM channel.</p>
+              </div>
+            </div>
+          </div>
               </div>
             </div>
           </div>
@@ -392,6 +399,6 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=43" defer></script>
+  <script src="main.js?v=45" defer></script>
 </body>
 </html>
