@@ -379,10 +379,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   min-width: 0;
   overflow: hidden;
   border-radius: 14px;
-  /* Don’t skip layout: lazy images + % transform loop need a real scrollWidth */
   content-visibility: visible;
   mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent);
+}
+/* Mask + composited transform broke marquee on WebKit; loop strip uses edge fade via box-shadow instead */
+.video-carousel[data-carousel-loop] {
+  mask-image: none;
+  -webkit-mask-image: none;
+  box-shadow: inset 24px 0 24px -18px var(--bg-base, #0a0a0a), inset -24px 0 24px -18px var(--bg-base, #0a0a0a);
 }
 
 .carousel-track {
@@ -392,18 +397,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-}
-/* JS duplicates row; -50% = one full set (parallax lives on card only, not this row). */
-.carousel-track.is-marquee-active {
-  animation: carousel-loop 28s linear infinite;
-}
-.video-carousel[data-carousel-loop]:hover .carousel-track.is-marquee-active {
-  animation-play-state: paused;
-}
-
-@keyframes carousel-loop {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
 }
 
 .video-thumb {
@@ -986,6 +979,5 @@ textarea.apply-field-under-limit {
   .role-drawer { transition: none; }
   .apply-drawer { transition: none; }
   .apply-submit.apply-submit-confirm { animation: none; }
-  .carousel-track.is-marquee-active { animation: none; }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }

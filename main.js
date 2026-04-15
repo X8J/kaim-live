@@ -50,7 +50,7 @@
 
   startIntro();
 
-  /* Infinite marquee: clone once, then CSS translate3d(-50%). Parallax is on the card column only (not .channel-row). */
+  /* Infinite marquee: clone once, rAF + translate3d. Loop length = sum(first half of children) — never rely on scrollWidth or CSS % under mask. */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -72,24 +72,86 @@
       imgs[k].decoding = 'async';
     }
 
-    function armMarquee() {
-      if (track.getAttribute('data-marquee-armed') === '1') return;
-      track.setAttribute('data-marquee-armed', '1');
-      track.style.removeProperty('transform');
-      track.classList.add('is-marquee-active');
+    var wrap = track.closest('.video-carousel');
+    var pos = 0;
+    var lastT = performance.now();
+    var durationMs = 28000;
+    var paused = false;
+    var rafId = 0;
+    var running = false;
+
+    function loopHalfPx() {
+      var ch = track.children;
+      var n = ch.length;
+      if (n < 2 || n % 2 !== 0) return 0;
+      var halfN = n / 2;
+      var sum = 0;
+      for (var i = 0; i < halfN; i++) {
+        var el = ch[i];
+        sum += el.getBoundingClientRect().width;
+        var mr = window.getComputedStyle(el).marginRight;
+        sum += parseFloat(mr) || 0;
+      }
+      var sw = track.scrollWidth > 0 ? track.scrollWidth * 0.5 : 0;
+      if (sum > 8 && sw > 8) return Math.max(sum, sw);
+      if (sum > 8) return sum;
+      if (sw > 8) return sw;
+      return 0;
     }
 
-    function scheduleArm() {
+    function step(t) {
+      if (!running) return;
+      rafId = requestAnimationFrame(step);
+      if (paused) return;
+      var half = loopHalfPx();
+      if (half < 8) return;
+      var dt = Math.min(50, t - lastT) / 1000;
+      lastT = t;
+      pos += (half / (durationMs / 1000)) * dt;
+      while (pos >= half) pos -= half;
+      track.style.transform = 'translate3d(' + -pos + 'px,0,0)';
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      lastT = performance.now();
+      rafId = requestAnimationFrame(step);
+    }
+
+    function bumpLayout() {
+      var h = loopHalfPx();
+      if (h > 8) pos = pos % h;
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(bumpLayout).observe(track);
+    }
+
+    if (wrap && window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+      wrap.addEventListener(
+        'mouseenter',
+        function () {
+          paused = true;
+        },
+        { passive: true }
+      );
+      wrap.addEventListener(
+        'mouseleave',
+        function () {
+          paused = false;
+          lastT = performance.now();
+        },
+        { passive: true }
+      );
+    }
+
+    requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        requestAnimationFrame(armMarquee);
+        track.style.removeProperty('transform');
+        start();
       });
-    }
-
-    if (document.readyState === 'complete') {
-      scheduleArm();
-    } else {
-      window.addEventListener('load', scheduleArm, { once: true });
-    }
+    });
   }
 
   document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
