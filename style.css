@@ -253,6 +253,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   flex: 1;
   min-width: 0;
   width: auto;
+  --vc-dur: 0.2s;
+  --vc-rise: 22px;
+  /* Motion matches .scroll-reveal; opacity uses a softer decel so short fades read less “snappy”. */
+  --vc-ease-motion: cubic-bezier(0.22, 1, 0.36, 1);
+  --vc-ease-fade: cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 .channel-row > .scroll-reveal:first-of-type .card-wrapper {
   width: 100%;
@@ -395,6 +400,53 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .channel-videos-float {
   width: 100%;
   min-width: 0;
+}
+
+/*
+ * Channel video rail: opaque shell + transform reveal; each .video-card fades + rises in.
+ * Cards keep opacity:0 + offset in the default rule so .is-visible triggers a real opacity transition.
+ * Stagger: --vc-i on shell (0) + nth overrides; delay = var(--vc-i)*var(--vc-dur).
+ */
+.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]) {
+  --vc-i: 0;
+  opacity: 1 !important;
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0ms;
+}
+.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]).is-visible,
+.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]):not(.is-visible) {
+  transition-delay: 0ms !important;
+}
+.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]):not(.is-visible) {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms;
+  pointer-events: none;
+}
+.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]).is-visible {
+  pointer-events: auto;
+}
+
+/* Explicit rest + transition on the anchor so opacity always interpolates (was only set while :not(.is-visible)). */
+.channel-row > .channel-videos-shell .video-card {
+  opacity: 0;
+  transform: translate3d(0, var(--vc-rise), 0);
+  transition:
+    opacity var(--vc-dur) var(--vc-ease-fade),
+    transform var(--vc-dur) var(--vc-ease-motion);
+  transition-delay: 0ms;
+}
+.channel-row > .channel-videos-shell:not(.is-visible) .video-card {
+  transition-delay: 0ms !important;
+}
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(2) { --vc-i: 1; }
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(3) { --vc-i: 2; }
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(4) { --vc-i: 3; }
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(5) { --vc-i: 4; }
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(6) { --vc-i: 5; }
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(n + 7) { --vc-i: 6; }
+.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card,
+.channel-row > .channel-videos-shell.is-visible .video-static .video-card {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: calc(var(--vc-i, 0) * var(--vc-dur));
 }
 
 .video-marquee__viewport {
@@ -1042,6 +1094,12 @@ textarea.apply-field-under-limit {
   .scroll-reveal.scroll-reveal-right,
   .scroll-reveal.is-visible {
     transform: none !important;
+  }
+  .channel-row > .channel-videos-shell .video-card {
+    transform: none !important;
+    transition-duration: 0.2s !important;
+    transition-delay: 0ms !important;
+    transition-timing-function: ease !important;
   }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }
