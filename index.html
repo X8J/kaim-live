@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=37">
+  <link rel="stylesheet" href="style.css?v=44">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
     <div class="hero-content">
       <div class="hero-heading-stack">
         <h1 class="hero-title">KaiM</h1>
-        <p class="hero-tagline">Inspire millions with us</p>
+        <p class="hero-tagline">Inspire millions with our team.</p>
       </div>
     </div>
     <div class="scroll-indicator" id="scrollIndicator">
@@ -48,9 +48,9 @@
           <h2 class="section-heading" data-parallax="0.04">Channels</h2>
         </div>
 
-        <!-- KaiM: reveal only the card — carousel stays outside opacity:0 subtree so it can animate -->
         <div class="channel-row">
-          <div class="scroll-reveal scroll-reveal-left" data-reveal-delay="1" data-parallax="0.03">
+          <div class="scroll-reveal scroll-reveal-left" data-reveal-delay="1">
+          <div class="channel-card-float" data-parallax="0.03">
           <div class="card-wrapper">
             <a href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener" class="channel-card gold" data-tilt>
               <div class="card-glass"></div>
@@ -72,47 +72,55 @@
             </a>
           </div>
           </div>
-          <div class="video-carousel" data-carousel-loop>
-            <div class="carousel-scroll">
-            <div class="carousel-strip">
-              <a class="video-thumb" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
-                <span class="thumb-views">8M+</span>
-                <img src="assets/KaiM Video Thumbnails/1.jpg" alt="" loading="eager" decoding="async">
-                <div class="thumb-overlay"><span class="thumb-title">Exposing the #1 TOXIC Clan as a Undercover PRO..</span></div>
-              </a>
-              <a class="video-thumb" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
-                <span class="thumb-views">6M+</span>
-                <img src="assets/KaiM Video Thumbnails/2.jpg" alt="" loading="eager" decoding="async">
-                <div class="thumb-overlay"><span class="thumb-title">I Snuck into a School's Rivals Tournament..</span></div>
-              </a>
-              <a class="video-thumb" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
-                <span class="thumb-views">3M+</span>
-                <img src="assets/KaiM Video Thumbnails/3.jpg" alt="" loading="eager" decoding="async">
-                <div class="thumb-overlay"><span class="thumb-title">I Hired a PRO Rivals Coach, Then DESTROYED Him..</span></div>
-              </a>
-              <a class="video-thumb" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
-                <span class="thumb-views">3.4M+</span>
-                <img src="assets/KaiM Video Thumbnails/4.jpg" alt="" loading="eager" decoding="async">
-                <div class="thumb-overlay"><span class="thumb-title">I Hunted A TOXIC Scammer for REVENGE..</span></div>
-              </a>
-              <a class="video-thumb" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
-                <span class="thumb-views">2.2M+</span>
-                <img src="assets/KaiM Video Thumbnails/5.jpg" alt="" loading="eager" decoding="async">
-                <div class="thumb-overlay"><span class="thumb-title">I Hunted a TOXIC Hacker Until He RAGE QUITS</span></div>
-              </a>
-              <a class="video-thumb" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
-                <span class="thumb-views">2.2M+</span>
-                <img src="assets/KaiM Video Thumbnails/6.jpg" alt="" loading="eager" decoding="async">
-                <div class="thumb-overlay"><span class="thumb-title">I Banned the DUMBEST Hacker in Rivals..</span></div>
-              </a>
-            </div>
+          </div>
+          <div class="scroll-reveal scroll-reveal-up channel-videos-shell" data-reveal-delay="2">
+            <div class="channel-videos-float" data-parallax="0.02">
+              <div class="video-marquee" data-video-marquee>
+                <div class="video-marquee__viewport">
+                  <div class="video-marquee__track">
+                    <div class="video-marquee__set">
+                      <a class="video-card" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
+                        <span class="video-card__views">8M+</span>
+                        <img src="assets/KaiM Video Thumbnails/1.jpg" alt="" loading="eager" decoding="async">
+                        <div class="video-card__overlay"><span class="video-card__title">Exposing the #1 TOXIC Clan as a Undercover PRO..</span></div>
+                      </a>
+                      <a class="video-card" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
+                        <span class="video-card__views">6M+</span>
+                        <img src="assets/KaiM Video Thumbnails/2.jpg" alt="" loading="eager" decoding="async">
+                        <div class="video-card__overlay"><span class="video-card__title">I Snuck into a School's Rivals Tournament..</span></div>
+                      </a>
+                      <a class="video-card" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
+                        <span class="video-card__views">3M+</span>
+                        <img src="assets/KaiM Video Thumbnails/3.jpg" alt="" loading="eager" decoding="async">
+                        <div class="video-card__overlay"><span class="video-card__title">I Hired a PRO Rivals Coach, Then DESTROYED Him..</span></div>
+                      </a>
+                      <a class="video-card" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
+                        <span class="video-card__views">3.4M+</span>
+                        <img src="assets/KaiM Video Thumbnails/4.jpg" alt="" loading="eager" decoding="async">
+                        <div class="video-card__overlay"><span class="video-card__title">I Hunted A TOXIC Scammer for REVENGE..</span></div>
+                      </a>
+                      <a class="video-card" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
+                        <span class="video-card__views">2.2M+</span>
+                        <img src="assets/KaiM Video Thumbnails/5.jpg" alt="" loading="eager" decoding="async">
+                        <div class="video-card__overlay"><span class="video-card__title">I Hunted a TOXIC Hacker Until He RAGE QUITS</span></div>
+                      </a>
+                      <a class="video-card" href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener">
+                        <span class="video-card__views">2.2M+</span>
+                        <img src="assets/KaiM Video Thumbnails/6.jpg" alt="" loading="eager" decoding="async">
+                        <div class="video-card__overlay"><span class="video-card__title">I Banned the DUMBEST Hacker in Rivals..</span></div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- KaiAim -->
         <div class="channel-row">
-          <div class="scroll-reveal scroll-reveal-right" data-reveal-delay="2" data-parallax="-0.03">
+          <div class="scroll-reveal scroll-reveal-right" data-reveal-delay="2">
+          <div class="channel-card-float" data-parallax="-0.03">
           <div class="card-wrapper">
             <a href="https://youtube.com/@AimKaiM" target="_blank" rel="noopener" class="channel-card blue" data-tilt>
               <div class="card-glass"></div>
@@ -134,12 +142,17 @@
             </a>
           </div>
           </div>
-          <div class="video-carousel single-video">
-            <a class="video-thumb" href="https://youtube.com/@AimKaiM" target="_blank" rel="noopener">
-              <span class="thumb-views">250K+</span>
-              <img src="assets/KaiAim Video Thumbnails/1.jpg" alt="" loading="lazy" decoding="async">
-              <div class="thumb-overlay"><span class="thumb-title">The #1 Sniper in Rivals</span></div>
-            </a>
+          </div>
+          <div class="scroll-reveal scroll-reveal-up channel-videos-shell" data-reveal-delay="3">
+            <div class="channel-videos-float" data-parallax="0.02">
+              <div class="video-static">
+                <a class="video-card video-card--solo" href="https://youtube.com/@AimKaiM" target="_blank" rel="noopener">
+                  <span class="video-card__views">250K+</span>
+                  <img src="assets/KaiAim Video Thumbnails/1.jpg" alt="" loading="lazy" decoding="async">
+                  <div class="video-card__overlay"><span class="video-card__title">The #1 Sniper in Rivals</span></div>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -378,6 +391,6 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=33" defer></script>
+  <script src="main.js?v=39" defer></script>
 </body>
 </html>

@@ -50,42 +50,83 @@
 
   startIntro();
 
-  /* Marquee: duplicate thumbs once, then CSS animation on .carousel-scroll (-50% = one copy). No rAF. */
-  function initMarqueeCarousel(root) {
-    if (!root || root.getAttribute('data-marquee-done') === '1') return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return;
-    }
-    var strip = root.querySelector('.carousel-strip');
-    var scroll = root.querySelector('.carousel-scroll');
-    if (!strip) return;
-    root.setAttribute('data-marquee-done', '1');
+  /* Side-scroll marquee: clone row, then rAF + inline translateX (WAAPI/CSS keyframes were not moving on some builds). */
+  function initVideoMarquee(root) {
+    if (!root || root.getAttribute('data-video-marquee-ready') === '1') return;
+    var track = root.querySelector('.video-marquee__track');
+    var set = root.querySelector('.video-marquee__set');
+    if (!track || !set) return;
+    root.setAttribute('data-video-marquee-ready', '1');
 
-    var nodes = Array.prototype.slice.call(strip.children);
-    for (var j = 0; j < nodes.length; j++) {
-      var dup = nodes[j].cloneNode(true);
-      dup.setAttribute('aria-hidden', 'true');
-      strip.appendChild(dup);
+    var dup = set.cloneNode(true);
+    dup.setAttribute('aria-hidden', 'true');
+    var dupLinks = dup.querySelectorAll('a');
+    for (var d = 0; d < dupLinks.length; d++) dupLinks[d].setAttribute('tabindex', '-1');
+    track.appendChild(dup);
+
+    var imgs = track.querySelectorAll('img');
+    for (var i = 0; i < imgs.length; i++) imgs[i].loading = 'eager';
+
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var loopW = 0;
+    var accumPx = 0;
+    var lastNow = 0;
+    var paused = false;
+    /* Slightly slower when “reduce motion” is on — still scrolls, just gentler */
+    var pxPerSec = reduced ? 26 : 44;
+
+    function readLoopWidth() {
+      void track.offsetWidth;
+      var w = Math.round(set.scrollWidth);
+      if (w < 24) w = Math.round(set.offsetWidth);
+      if (w < 24) w = Math.round(track.scrollWidth / 2);
+      return w >= 24 ? w : 0;
     }
 
-    var imgs = strip.querySelectorAll('img');
-    for (var k = 0; k < imgs.length; k++) {
-      imgs[k].loading = 'eager';
-      imgs[k].decoding = 'async';
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (!loopW) {
+        loopW = readLoopWidth();
+        if (!loopW) return;
+        lastNow = now;
+        return;
+      }
+      if (!paused) {
+        accumPx += ((now - lastNow) / 1000) * pxPerSec;
+      }
+      lastNow = now;
+      var x = accumPx % loopW;
+      track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
     }
 
-    function play() {
-      if (scroll) scroll.classList.add('is-playing');
+    requestAnimationFrame(frame);
+
+    if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+      root.addEventListener('mouseenter', function () { paused = true; });
+      root.addEventListener('mouseleave', function () { paused = false; });
     }
 
-    requestAnimationFrame(function () {
-      requestAnimationFrame(play);
-    });
+    var roTimer = null;
+    function invalidateWidth() {
+      loopW = 0;
+      lastNow = 0;
+      accumPx = 0;
+    }
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () {
+        if (roTimer) clearTimeout(roTimer);
+        roTimer = setTimeout(function () {
+          roTimer = null;
+          invalidateWidth();
+        }, 100);
+      }).observe(track);
+    }
+    window.addEventListener('load', invalidateWidth, { once: true });
   }
 
-  document.querySelectorAll('.video-carousel[data-carousel-loop]').forEach(initMarqueeCarousel);
+  document.querySelectorAll('[data-video-marquee]').forEach(initVideoMarquee);
 
-  /* Scroll-triggered reveal */
+  /* Scroll-triggered reveal: in on enter, reverse out on leave (same transition, mirrored). */
   var revealObserver = new IntersectionObserver(
     function (entries) {
       for (var i = 0; i < entries.length; i++) {
@@ -123,7 +164,8 @@
     }
 
     updateHeroParallax();
-    if (!liteMotion) updateLayerParallax();
+    var skipParallax = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!liteMotion && !skipParallax) updateLayerParallax();
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
