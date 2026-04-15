@@ -91,12 +91,15 @@
         lastNow = now;
         return;
       }
-      if (!paused) {
+      var hidden = document.hidden;
+      if (!hidden && !paused) {
         accumPx += ((now - lastNow) / 1000) * pxPerSec;
       }
       lastNow = now;
-      var x = accumPx % loopW;
-      track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
+      if (!hidden) {
+        var x = accumPx % loopW;
+        track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
+      }
     }
 
     requestAnimationFrame(frame);
@@ -108,9 +111,10 @@
 
     var roTimer = null;
     function invalidateWidth() {
+      /* Only drop cached width so readLoopWidth runs again. Do not reset accumPx — channel
+       * thumbnails animate opacity/transform and can churn ResizeObserver; resetting scroll
+       * made the rail look “stuck” during staggered entrance. */
       loopW = 0;
-      lastNow = 0;
-      accumPx = 0;
     }
     if (window.ResizeObserver) {
       new ResizeObserver(function () {
@@ -118,7 +122,7 @@
         roTimer = setTimeout(function () {
           roTimer = null;
           invalidateWidth();
-        }, 100);
+        }, 180);
       }).observe(track);
     }
     window.addEventListener('load', invalidateWidth, { once: true });

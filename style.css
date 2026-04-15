@@ -653,23 +653,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   flex-shrink: 0;
 }
 .role-dot:not(.closed) {
-  box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.42);
-  animation: role-dot-glow 2.4s ease-in-out infinite;
+  box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.38);
 }
 .role-dot.closed {
   background: #ef4444;
   box-shadow: none;
-  animation: none;
-}
-/* Single soft halo — same shape at 0/100% so the loop does not “snap”. */
-@keyframes role-dot-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 6px 1px rgba(74, 222, 128, 0.35);
-  }
-  50% {
-    box-shadow: 0 0 14px 4px rgba(74, 222, 128, 0.6);
-  }
 }
 .role-card.closed { opacity: 0.55; }
 .role-card.closed:hover {
@@ -1101,5 +1089,4 @@ textarea.apply-field-under-limit {
     transition-delay: 0ms !important;
     transition-timing-function: ease !important;
   }
-  .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }
