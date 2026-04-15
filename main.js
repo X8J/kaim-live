@@ -50,7 +50,7 @@
 
   startIntro();
 
-  /* Infinite marquee: clone row, then rAF translate (CSS keyframes often never run under opacity:0 ancestors). */
+  /* Infinite marquee: clone once, rAF + translate3d. Carousel is outside scroll-reveal (see index.html). */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -75,7 +75,6 @@
     var wrap = track.closest('.video-carousel');
     var rafId = 0;
     var running = false;
-    var started = false;
     var paused = false;
     var pos = 0;
     var lastFrame = 0;
@@ -113,47 +112,12 @@
       }, 80);
     }
 
-    function proceed() {
-      if (started) return;
-      started = true;
-      startRaf();
-      if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(onResizeStrip).observe(track);
-      }
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(onResizeStrip).observe(track);
     }
 
-    function bindViewportStart() {
-      if (!wrap || typeof IntersectionObserver === 'undefined') {
-        requestAnimationFrame(function () {
-          requestAnimationFrame(proceed);
-        });
-        return;
-      }
-      var io = new IntersectionObserver(
-        function (entries) {
-          for (var i = 0; i < entries.length; i++) {
-            if (!entries[i].isIntersecting) continue;
-            io.disconnect();
-            requestAnimationFrame(function () {
-              requestAnimationFrame(proceed);
-            });
-            return;
-          }
-        },
-        { root: null, rootMargin: '160px 0px 240px 0px', threshold: 0 }
-      );
-      io.observe(wrap);
-      var r = wrap.getBoundingClientRect();
-      var vh = window.innerHeight || 0;
-      if (r.top < vh + 240 && r.bottom > -240) {
-        io.disconnect();
-        requestAnimationFrame(function () {
-          requestAnimationFrame(proceed);
-        });
-      }
-    }
-
-    if (wrap) {
+    /* Touch devices: mouseenter often sticks without mouseleave → marquee frozen */
+    if (wrap && window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
       wrap.addEventListener(
         'mouseenter',
         function () {
@@ -171,7 +135,12 @@
       );
     }
 
-    bindViewportStart();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        track.style.transform = 'translate3d(0,0,0)';
+        startRaf();
+      });
+    });
   }
 
   document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {

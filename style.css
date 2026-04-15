@@ -201,7 +201,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   padding: 80px 32px;
 }
 
-.channels > .scroll-reveal + .scroll-reveal {
+.channels > .channel-row + .channel-row {
   margin-top: 28px;
 }
 
@@ -211,8 +211,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   gap: 24px;
 }
 
-.channel-row .card-wrapper {
-  flex: 0 0 320px;
+/* Card sits in scroll-reveal (opacity reveal); carousel is a sibling — not width:100% */
+.channel-row > .scroll-reveal {
+  flex: 0 0 clamp(240px, 28vw, 320px);
+  width: auto;
+  min-width: 0;
+}
+.channel-row > .scroll-reveal .card-wrapper {
+  width: 100%;
   perspective: 800px;
 }
 
@@ -830,8 +836,7 @@ textarea.apply-field-under-limit {
 
 /* ──────────────────── RESPONSIVE ────────────────────────── */
 
-/* Fluid channel card width */
-.channel-row .card-wrapper { flex: 0 0 clamp(240px, 28vw, 320px); }
+/* Fluid channel card column — width lives on .channel-row > .scroll-reveal */
 .channel-card { height: clamp(160px, 18vw, 190px); padding: clamp(16px, 2vw, 24px); }
 .card-name { font-size: clamp(22px, 3vw, 32px); }
 .card-views { font-size: clamp(20px, 2.5vw, 28px); }
@@ -850,14 +855,13 @@ textarea.apply-field-under-limit {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
   .hero-title { font-size: clamp(44px, 12.5vw, 120px); }
-  .parallax-ghost { font-size: clamp(56px, 15vw, 150px); }
 
   .channel-row {
     flex-direction: column;
     gap: 20px;
     align-items: stretch;
   }
-  .channel-row .card-wrapper {
+  .channel-row > .scroll-reveal {
     flex: none;
     width: 100%;
   }
@@ -875,7 +879,7 @@ textarea.apply-field-under-limit {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
   /* Extra air between channel blocks when stacked (card + carousel per row) */
-  .channels > .scroll-reveal + .scroll-reveal {
+  .channels > .channel-row + .channel-row {
     margin-top: 36px;
   }
   .positions-grid { gap: 14px; }
@@ -923,7 +927,7 @@ textarea.apply-field-under-limit {
     padding-right: max(14px, env(safe-area-inset-right, 0px));
   }
   .contact-subtitle { font-size: 14px; }
-  .channels > .scroll-reveal + .scroll-reveal { margin-top: 40px; }
+  .channels > .channel-row + .channel-row { margin-top: 40px; }
 }
 
 /* ──────────────── REDUCED MOTION ────────────────────────── */
