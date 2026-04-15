@@ -390,11 +390,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   box-shadow: inset 24px 0 24px -18px var(--bg-base, #0a0a0a), inset -24px 0 24px -18px var(--bg-base, #0a0a0a);
 }
 
+/* Transform the mover, not the flex row — WebKit often ignores translate on display:flex strips */
+.carousel-mover {
+  display: inline-flex;
+  vertical-align: top;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 .carousel-track {
   display: flex;
   flex-shrink: 0;
   width: max-content;
-  will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

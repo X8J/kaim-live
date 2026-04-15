@@ -50,14 +50,17 @@
 
   startIntro();
 
-  /* Infinite marquee: clone once, rAF + translate3d. Loop length = sum(first half of children) — never rely on scrollWidth or CSS % under mask. */
-  function initLoopCarousel(track) {
-    if (track.getAttribute('data-carousel-inited') === '1') return;
-    track.setAttribute('data-carousel-inited', '1');
-
+  /* Infinite marquee: clone row on .carousel-track; translate .carousel-mover (not the flex strip — WebKit bug). */
+  function initLoopCarousel(wrap) {
+    if (!wrap || wrap.getAttribute('data-carousel-inited') === '1') return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return;
     }
+    wrap.setAttribute('data-carousel-inited', '1');
+
+    var track = wrap.querySelector('.carousel-track');
+    var mover = wrap.querySelector('.carousel-mover') || track;
+    if (!track) return;
 
     var items = Array.prototype.slice.call(track.children);
     for (var j = 0; j < items.length; j++) {
@@ -72,15 +75,14 @@
       imgs[k].decoding = 'async';
     }
 
-    var wrap = track.closest('.video-carousel');
     var pos = 0;
     var lastT = performance.now();
     var durationMs = 28000;
     var paused = false;
-    var rafId = 0;
     var running = false;
 
     function loopHalfPx() {
+      void track.offsetWidth;
       var ch = track.children;
       var n = ch.length;
       if (n < 2 || n % 2 !== 0) return 0;
@@ -88,20 +90,20 @@
       var sum = 0;
       for (var i = 0; i < halfN; i++) {
         var el = ch[i];
-        sum += el.getBoundingClientRect().width;
+        sum += el.offsetWidth;
         var mr = window.getComputedStyle(el).marginRight;
         sum += parseFloat(mr) || 0;
       }
       var sw = track.scrollWidth > 0 ? track.scrollWidth * 0.5 : 0;
-      if (sum > 8 && sw > 8) return Math.max(sum, sw);
-      if (sum > 8) return sum;
-      if (sw > 8) return sw;
-      return 0;
+      var half = Math.max(sum, sw);
+      /* Last resort so strip still moves if layout metrics lag */
+      if (half < 8) half = halfN * (170 + 12);
+      return half;
     }
 
     function step(t) {
       if (!running) return;
-      rafId = requestAnimationFrame(step);
+      requestAnimationFrame(step);
       if (paused) return;
       var half = loopHalfPx();
       if (half < 8) return;
@@ -109,14 +111,15 @@
       lastT = t;
       pos += (half / (durationMs / 1000)) * dt;
       while (pos >= half) pos -= half;
-      track.style.transform = 'translate3d(' + -pos + 'px,0,0)';
+      mover.style.setProperty('transform', 'translate3d(' + -pos + 'px,0,0)');
     }
 
     function start() {
       if (running) return;
       running = true;
       lastT = performance.now();
-      rafId = requestAnimationFrame(step);
+      mover.style.removeProperty('transform');
+      requestAnimationFrame(step);
     }
 
     function bumpLayout() {
@@ -128,7 +131,7 @@
       new ResizeObserver(bumpLayout).observe(track);
     }
 
-    if (wrap && window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+    if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
       wrap.addEventListener(
         'mouseenter',
         function () {
@@ -146,16 +149,25 @@
       );
     }
 
-    requestAnimationFrame(function () {
+    function kick() {
       requestAnimationFrame(function () {
-        track.style.removeProperty('transform');
-        start();
+        requestAnimationFrame(start);
       });
-    });
+    }
+
+    var dec = [];
+    for (var d = 0; d < imgs.length; d++) {
+      if (imgs[d].decode) dec.push(imgs[d].decode().catch(function () {}));
+    }
+    if (dec.length && typeof Promise !== 'undefined' && typeof Promise.all === 'function') {
+      Promise.all(dec).then(kick).catch(kick);
+    } else {
+      kick();
+    }
   }
 
-  document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {
-    initLoopCarousel(track);
+  document.querySelectorAll('.video-carousel[data-carousel-loop]').forEach(function (wrap) {
+    initLoopCarousel(wrap);
   });
 
   /* Scroll-triggered reveal */
