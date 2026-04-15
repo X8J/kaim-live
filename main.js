@@ -50,7 +50,7 @@
 
   startIntro();
 
-  /* Infinite marquee: clone once, rAF + translate3d. Carousel is outside scroll-reveal (see index.html). */
+  /* Infinite marquee: clone once, then CSS translate3d(-50%). Parallax is on the card column only (not .channel-row). */
   function initLoopCarousel(track) {
     if (track.getAttribute('data-carousel-inited') === '1') return;
     track.setAttribute('data-carousel-inited', '1');
@@ -72,75 +72,24 @@
       imgs[k].decoding = 'async';
     }
 
-    var wrap = track.closest('.video-carousel');
-    var rafId = 0;
-    var running = false;
-    var paused = false;
-    var pos = 0;
-    var lastFrame = 0;
-    var durationMs = 28000;
-    var roDebounce = null;
-
-    function step(now) {
-      if (!running) return;
-      rafId = requestAnimationFrame(step);
-      if (paused) return;
-      var w = track.scrollWidth;
-      var half = w > 0 ? w * 0.5 : 0;
-      if (half < 2) return;
-      var dt = Math.min(48, now - lastFrame) / 1000;
-      lastFrame = now;
-      pos += (half / (durationMs / 1000)) * dt;
-      while (pos >= half) pos -= half;
-      track.style.transform = 'translate3d(' + (-pos) + 'px,0,0)';
+    function armMarquee() {
+      if (track.getAttribute('data-marquee-armed') === '1') return;
+      track.setAttribute('data-marquee-armed', '1');
+      track.style.removeProperty('transform');
+      track.classList.add('is-marquee-active');
     }
 
-    function startRaf() {
-      if (running) return;
-      running = true;
-      lastFrame = performance.now();
-      rafId = requestAnimationFrame(step);
-    }
-
-    function onResizeStrip() {
-      clearTimeout(roDebounce);
-      roDebounce = setTimeout(function () {
-        roDebounce = null;
-        var w = track.scrollWidth;
-        var half = w > 0 ? w * 0.5 : 0;
-        if (half > 2) pos = pos % half;
-      }, 80);
-    }
-
-    if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(onResizeStrip).observe(track);
-    }
-
-    /* Touch devices: mouseenter often sticks without mouseleave → marquee frozen */
-    if (wrap && window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
-      wrap.addEventListener(
-        'mouseenter',
-        function () {
-          paused = true;
-        },
-        { passive: true }
-      );
-      wrap.addEventListener(
-        'mouseleave',
-        function () {
-          paused = false;
-          lastFrame = performance.now();
-        },
-        { passive: true }
-      );
-    }
-
-    requestAnimationFrame(function () {
+    function scheduleArm() {
       requestAnimationFrame(function () {
-        track.style.transform = 'translate3d(0,0,0)';
-        startRaf();
+        requestAnimationFrame(armMarquee);
       });
-    });
+    }
+
+    if (document.readyState === 'complete') {
+      scheduleArm();
+    } else {
+      window.addEventListener('load', scheduleArm, { once: true });
+    }
   }
 
   document.querySelectorAll('[data-carousel-loop] .carousel-track').forEach(function (track) {

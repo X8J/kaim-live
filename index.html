@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 
@@ -29,7 +29,10 @@
     <img class="hero-img" id="heroImg" src="assets/img/Banner.jpg" alt="KaiM banner" fetchpriority="high" decoding="async">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="hero-title">KaiM</h1>
+      <div class="hero-heading-stack">
+        <h1 class="hero-title">KaiM</h1>
+        <p class="hero-tagline">Inspire millions with us</p>
+      </div>
     </div>
     <div class="scroll-indicator" id="scrollIndicator">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -46,8 +49,8 @@
         </div>
 
         <!-- KaiM: reveal only the card — carousel stays outside opacity:0 subtree so it can animate -->
-        <div class="channel-row" data-parallax="0.03">
-          <div class="scroll-reveal scroll-reveal-left" data-reveal-delay="1">
+        <div class="channel-row">
+          <div class="scroll-reveal scroll-reveal-left" data-reveal-delay="1" data-parallax="0.03">
           <div class="card-wrapper">
             <a href="https://youtube.com/@SubToKaiM" target="_blank" rel="noopener" class="channel-card gold" data-tilt>
               <div class="card-glass"></div>
@@ -106,8 +109,8 @@
         </div>
 
         <!-- KaiAim -->
-        <div class="channel-row" data-parallax="-0.03">
-          <div class="scroll-reveal scroll-reveal-right" data-reveal-delay="2">
+        <div class="channel-row">
+          <div class="scroll-reveal scroll-reveal-right" data-reveal-delay="2" data-parallax="-0.03">
           <div class="card-wrapper">
             <a href="https://youtube.com/@AimKaiM" target="_blank" rel="noopener" class="channel-card blue" data-tilt>
               <div class="card-glass"></div>
@@ -373,6 +376,6 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=29" defer></script>
+  <script src="main.js?v=30" defer></script>
 </body>
 </html>

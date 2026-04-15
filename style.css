@@ -109,6 +109,34 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   backface-visibility: hidden;
 }
 
+.hero-heading-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2vw, 20px);
+  text-align: center;
+}
+
+.hero-tagline {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 2.2vw, 20px);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0;
+  max-width: 22em;
+  line-height: 1.35;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+}
+.hero.hero-intro-ready .hero-tagline {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
 .hero-title {
   position: relative;
   font-family: var(--font-display);
@@ -365,6 +393,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+/* JS duplicates row; -50% = one full set (parallax lives on card only, not this row). */
+.carousel-track.is-marquee-active {
+  animation: carousel-loop 28s linear infinite;
+}
+.video-carousel[data-carousel-loop]:hover .carousel-track.is-marquee-active {
+  animation-play-state: paused;
+}
+
+@keyframes carousel-loop {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
 
 .video-thumb {
   flex: 0 0 220px;
@@ -468,6 +508,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+}
+/* Open role cards always listed before closed, regardless of DOM order */
+.positions-grid > .scroll-reveal:has(.role-card:not(.closed)) {
+  order: 0;
+}
+.positions-grid > .scroll-reveal:has(.role-card.closed) {
+  order: 1;
 }
 
 .role-card {
@@ -855,6 +902,7 @@ textarea.apply-field-under-limit {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
   .hero-title { font-size: clamp(44px, 12.5vw, 120px); }
+  .hero-tagline { font-size: clamp(14px, 3.6vw, 18px); }
 
   .channel-row {
     flex-direction: column;
@@ -938,5 +986,6 @@ textarea.apply-field-under-limit {
   .role-drawer { transition: none; }
   .apply-drawer { transition: none; }
   .apply-submit.apply-submit-confirm { animation: none; }
+  .carousel-track.is-marquee-active { animation: none; }
   .role-dot:not(.closed) { animation: none; box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.4); }
 }
