@@ -33,6 +33,18 @@
     liteMotion = checkLiteMotion();
   }, { passive: true });
 
+  /* prefers-reduced-motion: read once + on change (avoid matchMedia in every scroll tick) */
+  var prefersReducedMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  var prefersReducedMotion = prefersReducedMQ ? prefersReducedMQ.matches : false;
+  function onPrefersReducedChange() {
+    prefersReducedMotion = prefersReducedMQ ? prefersReducedMQ.matches : false;
+  }
+  if (prefersReducedMQ && prefersReducedMQ.addEventListener) {
+    prefersReducedMQ.addEventListener('change', onPrefersReducedChange);
+  } else if (prefersReducedMQ && prefersReducedMQ.addListener) {
+    prefersReducedMQ.addListener(onPrefersReducedChange);
+  }
+
   function checkLiteMotion() {
     return window.innerWidth < 768 ||
       window.matchMedia('(pointer: coarse)').matches;
@@ -83,26 +95,39 @@
       return w >= 24 ? w : 0;
     }
 
-    function frame(now) {
-      requestAnimationFrame(frame);
+    var marqueeRaf = null;
+    function marqueeFrame(now) {
+      marqueeRaf = null;
+      if (document.hidden || !root.isConnected) return;
+
       if (!loopW) {
         loopW = readLoopWidth();
-        if (!loopW) return;
         lastNow = now;
-        return;
+        if (!loopW) {
+          marqueeRaf = requestAnimationFrame(marqueeFrame);
+          return;
+        }
       }
-      var hidden = document.hidden;
-      if (!hidden && !paused) {
+
+      if (!paused) {
         accumPx += ((now - lastNow) / 1000) * pxPerSec;
       }
       lastNow = now;
-      if (!hidden) {
-        var x = accumPx % loopW;
-        track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
-      }
+      var x = accumPx % loopW;
+      track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
+      marqueeRaf = requestAnimationFrame(marqueeFrame);
     }
 
-    requestAnimationFrame(frame);
+    function scheduleMarqueeFrame() {
+      if (document.hidden || !root.isConnected) return;
+      if (marqueeRaf != null) return;
+      marqueeRaf = requestAnimationFrame(marqueeFrame);
+    }
+
+    scheduleMarqueeFrame();
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && root.isConnected) scheduleMarqueeFrame();
+    });
 
     if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
       root.addEventListener('mouseenter', function () { paused = true; });
@@ -143,14 +168,43 @@
     revealObserver.observe(el);
   });
 
-  /* Parallax layers */
+  /* Parallax layers — IntersectionObserver skips layout when off-screen */
   var parallaxLayers = [];
+  var parallaxByEl = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
   document.querySelectorAll('[data-parallax]').forEach(function (el) {
-    parallaxLayers.push({
+    var layer = {
       el: el,
       speed: parseFloat(el.getAttribute('data-parallax')) || 0.1
-    });
+    };
+    parallaxLayers.push(layer);
+    if (parallaxByEl) parallaxByEl.set(el, layer);
   });
+  if (window.IntersectionObserver && parallaxByEl && parallaxLayers.length) {
+    var parallaxIO = new IntersectionObserver(
+      function (entries) {
+        var needParallaxTick = false;
+        for (var e = 0; e < entries.length; e++) {
+          var ent = entries[e];
+          var L = parallaxByEl.get(ent.target);
+          if (L) {
+            L.visible = ent.isIntersecting;
+            if (ent.isIntersecting) needParallaxTick = true;
+          }
+        }
+        if (needParallaxTick && !liteMotion && !prefersReducedMotion) {
+          lastScrollY = window.scrollY;
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(tick);
+          }
+        }
+      },
+      { rootMargin: '120px 0px', threshold: 0 }
+    );
+    for (var pl = 0; pl < parallaxLayers.length; pl++) {
+      parallaxIO.observe(parallaxLayers[pl].el);
+    }
+  }
 
   function onScroll() {
     lastScrollY = window.scrollY;
@@ -168,8 +222,7 @@
     }
 
     updateHeroParallax();
-    var skipParallax = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!liteMotion && !skipParallax) updateLayerParallax();
+    if (!liteMotion && !prefersReducedMotion) updateLayerParallax();
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -190,6 +243,10 @@
     var vh = window.innerHeight;
     for (var i = 0; i < parallaxLayers.length; i++) {
       var layer = parallaxLayers[i];
+      if (layer.visible === false) {
+        layer.el.style.transform = '';
+        continue;
+      }
       var rect = layer.el.getBoundingClientRect();
       if (rect.top >= vh + 80 || rect.bottom <= -80) continue;
       var center = rect.top + rect.height * 0.5 - vh * 0.5;
