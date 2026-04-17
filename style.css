@@ -641,7 +641,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: 15px;
 }
 .closed-roles-toggle-meta {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -729,7 +729,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .role-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
