@@ -190,7 +190,7 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 
 - Links to `https://youtube.com/@SubToKaiM` (new tab, `noopener`).
 - Layers: `.card-glass` (backdrop blur), background profile image `.card-pfp` at low opacity, `.card-shimmer` sweep on hover, content z-stacked above.
-- Displays name **KaiM**, handle `@SubToKaiM`, YouTube glyph, **total views** inside `.card-views` → inner **`span[data-kaim-total-views]`** (default text `38M`).
+- Displays channel name **KaiM**, YouTube glyph, **total views** inside `.card-views` → inner **`span[data-kaim-total-views]`** (default text `38M`). (No `@handle` line on the card — link target remains `@SubToKaiM`.)
 
 **Video marquee (`[data-video-marquee]`)**
 
@@ -227,7 +227,7 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 **Channel card (`a.channel-card.blue`, `data-tilt`)**
 
 - Accent variable resolves to **pink** (`--accent-pink`) for views label tinting.
-- Total views in **`span[data-kaiaim-total-views]`** (default `256K`).
+- Displays channel name **KaiAim**; total views in **`span[data-kaiaim-total-views]`** (default `256K`). (No `@handle` on the card; link remains `@AimKaiM`.)
 - Links to `https://youtube.com/@AimKaiM`.
 
 **Video rail (`[data-kaiaim-video-rail]`)**
@@ -437,7 +437,7 @@ JS: marquee speed reduced; parallax for layers skipped; hero parallax still runs
 | `--accent-pink` | KaiAim card accent chain |
 | `--shadow-card` | Card elevation |
 | `--font-display` / `--font-body` | Inter |
-| `--font-mono` | JetBrains Mono (handles, small labels, some UI chrome) |
+| `--font-mono` | JetBrains Mono (small labels, some UI chrome) |
 
 **Scrollbar:** hidden (`scrollbar-width: none` + webkit display none) for aesthetic full-bleed layout.
 

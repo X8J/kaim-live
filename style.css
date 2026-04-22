@@ -351,13 +351,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: relative;
   z-index: 2;
 }
-.card-handle {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  margin-top: 6px;
-}
 .card-yt-icon { color: var(--text-muted); flex-shrink: 0; }
 .card-name {
   font-family: var(--font-display);
