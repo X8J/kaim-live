@@ -382,9 +382,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: var(--card-accent);
 }
 .card-views-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
   margin-top: 2px;
   text-transform: uppercase;
