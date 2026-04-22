@@ -152,7 +152,74 @@
     window.addEventListener('load', invalidateWidth, { once: true });
   }
 
-  document.querySelectorAll('[data-video-marquee]').forEach(initVideoMarquee);
+  const YT_DATA_URL = '/public/yt-data.json';
+
+  function renderChannels(data) {
+    if (!data?.channels) return;
+
+    var kaimViews = data.channels.kaim && data.channels.kaim.totalViewsFormatted;
+    var kaiaimViews = data.channels.kaiaim && data.channels.kaiaim.totalViewsFormatted;
+    if (kaimViews) {
+      document.querySelectorAll('[data-kaim-total-views]').forEach(function (el) {
+        el.textContent = kaimViews;
+      });
+    }
+    if (kaiaimViews) {
+      document.querySelectorAll('[data-kaiaim-total-views]').forEach(function (el) {
+        el.textContent = kaiaimViews;
+      });
+    }
+
+    var videos = data.topVideos;
+    if (!Array.isArray(videos) || videos.length < 6) return;
+
+    var marquee = document.querySelector('[data-video-marquee]');
+    if (!marquee) return;
+
+    for (var i = 0; i < videos.length; i++) {
+      var video = videos[i];
+      if (!video || !video.videoId) continue;
+      var card = marquee.querySelector('[data-video-rank="' + video.rank + '"]');
+      if (!card) continue;
+
+      var thumb = card.querySelector('[data-video-thumb]');
+      var badge = card.querySelector('[data-video-views]');
+      var title = card.querySelector('[data-video-title]');
+
+      if (thumb) {
+        if (video.thumbnail) thumb.src = video.thumbnail;
+        thumb.alt = video.title != null ? video.title : '';
+      }
+      if (badge && video.viewCountFormatted != null) {
+        badge.textContent = video.viewCountFormatted;
+      }
+      if (title && video.title != null) {
+        title.textContent = video.title;
+      }
+
+      card.setAttribute('href', 'https://www.youtube.com/watch?v=' + video.videoId);
+    }
+  }
+
+  async function hydrateChannels() {
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () {
+      controller.abort();
+    }, 10000);
+    try {
+      var res = await fetch(YT_DATA_URL, { signal: controller.signal });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      renderChannels(data);
+    } catch {
+      console.warn('[kaim.live] YouTube data unavailable, using static fallback');
+    } finally {
+      clearTimeout(timeoutId);
+      document.querySelectorAll('[data-video-marquee]').forEach(initVideoMarquee);
+    }
+  }
+
+  hydrateChannels();
 
   /* Scroll-triggered reveal: in on enter, reverse out on leave (same transition, mirrored). */
   var revealObserver = new IntersectionObserver(

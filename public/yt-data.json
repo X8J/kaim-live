@@ -1,0 +1,20 @@
+{
+  "fetchedAt": null,
+  "channels": {
+    "kaim": {
+      "handle": "@SubToKaiM",
+      "totalViews": 38000000,
+      "totalViewsFormatted": "38M",
+      "subscribers": null,
+      "subscribersFormatted": "hidden"
+    },
+    "kaiaim": {
+      "handle": "@AimKaiM",
+      "totalViews": 256000,
+      "totalViewsFormatted": "256K",
+      "subscribers": null,
+      "subscribersFormatted": "hidden"
+    }
+  },
+  "topVideos": []
+}
