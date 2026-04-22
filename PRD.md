@@ -8,8 +8,8 @@
 | **Primary URL** | `https://kaim.live/` (canonical in `index.html`) |
 | **Stack** | Static HTML, CSS, vanilla JavaScript; no application server |
 | **Repository layout** | `index.html`, `style.css`, `main.js`, `assets/`, `public/yt-data.json`, `scripts/`, `.github/workflows/` |
-| **Document version** | 1.0 |
-| **Last reviewed** | 2026-04-17 |
+| **Document version** | 1.1 |
+| **Last reviewed** | 2026-04-22 |
 
 ---
 
@@ -106,7 +106,7 @@ flowchart TB
 1. Browser requests `index.html`, `style.css?v=…`, `main.js?v=…`, images, fonts.
 2. `main.js` runs after DOM ready (`defer`).
 3. **`hydrateChannels()`** (async): `fetch('/public/yt-data.json', { signal: AbortController })` with a **10s** timer that calls `controller.abort()`.
-4. On **success**: `renderChannels(data)` mutates DOM (channel totals; KaiM marquee if `topVideos.length >= 6`; KaiAim solo card if **`kaiaimFeaturedVideo.videoId`** is present).
+4. On **success**: `renderChannels(data)` mutates DOM (channel totals; KaiM marquee if `topVideos.length >= 6`; KaiAim rail via **`renderKaiaimRail(data.kaiaimTopVideos)`** when that array has at least one valid **`videoId`** — one tile uses **`video-card--solo`** (no horizontal strip); two or more use a scrollable row, not a marquee).
 5. On **failure** (network, non-2xx, abort, invalid JSON): `console.warn(...)`; **DOM is left unchanged**, then **`+`** is appended to **`[data-kaim-total-views]`**, **`[data-kaiaim-total-views]`**, and every **`[data-video-views]`** that does not already end with **`+`** (signals “at least this many” since the last successful sync). On **success**, `renderChannels` applies counts **without** trailing **`+`** (and strips a trailing **`+`** from JSON defensively).
 6. **`initVideoMarquee`** runs on **each** `[data-video-marquee]` root inside `hydrateChannels`’s **`finally`** so the marquee always initializes **after** any hydration, independent of fetch outcome.
 
@@ -114,7 +114,7 @@ flowchart TB
 
 1. Workflow triggers on **schedule** or **workflow_dispatch**.
 2. Node 20 executes `scripts/fetch-yt-data.mjs` with `YT_API_KEY`.
-3. Script reads existing `public/yt-data.json` to compute **rank deltas** vs previous top six.
+3. Script reads existing `public/yt-data.json` to compute **rank deltas** vs previous top lists (KaiM top six, KaiAim top up to six).
 4. Script writes updated JSON and workflow commits with message containing **`[skip ci]`** to avoid recursive workflow noise (GitHub honors skip phrases on push).
 
 ---
@@ -147,8 +147,8 @@ flowchart TB
 | Icons | Favicon + Apple touch icon → `assets/img/KaiM.png` |
 | Fonts | Google Fonts: **Inter** (400,600,700,800) + **JetBrains Mono** (400); loaded with `media="print" onload="this.media='all'"` pattern + `noscript` fallback |
 | LCP hint | `preload` on `assets/img/Banner.jpg` with `fetchpriority="high"` |
-| Stylesheet | `style.css` with cache-busting query `?v=72` (bump when CSS changes materially) |
-| Script | `main.js?v=47` (bump when JS changes materially) |
+| Stylesheet | `style.css` with cache-busting query `?v=73` (bump when CSS changes materially) |
+| Script | `main.js?v=51` (bump when JS changes materially) |
 
 ### 6.2 Hero
 
@@ -207,12 +207,14 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 3. **Deep-clones** the set, marks clone `aria-hidden="true"`, sets **`tabindex="-1"`** on all cloned links (keyboard users skip duplicate links).
 4. Appends clone so track contains **two identical sets** for seamless loop.
 5. Sets all images in track to `loading="eager"` (avoids lazy decode jank in moving strip).
-6. **Animation:** `requestAnimationFrame` loop advances `accumPx` by `pxPerSec * deltaTime`; `pxPerSec` is **44** normally, **26** if `prefers-reduced-motion: reduce`.
-7. Transform: `translate3d(-(accumPx % loopW)px, 0, 0)` on the track.
-8. **`loopW`** from measured `scrollWidth` of first set; recomputed when `loopW` is 0.
-9. **Pause on hover** for fine pointers (`(hover: hover)` media): `mouseenter` / `mouseleave` toggle `paused`.
-10. **ResizeObserver** on track (debounced ~180ms) sets `loopW = 0` **without** resetting `accumPx` (commented rationale: avoid marquee “sticking” during card entrance animations).
-11. **`visibilitychange`**: resumes scheduling frames when tab visible.
+6. **Startup delay:** before the first `requestAnimationFrame` animation tick, the code runs **one** `requestAnimationFrame` callback, then a **`setTimeout(..., 200)`**, then **`scheduleMarqueeFrame()`**. That defers the initial **`loopW`** read until narrow-viewport layout and eager-loaded thumbnails are more likely to match final **`scrollWidth`** (fixes intermittent “end of strip then black” on mobile when **`loopW`** was measured too early or too small).
+7. **Animation:** `requestAnimationFrame` loop advances `accumPx` by `pxPerSec * deltaTime`; `pxPerSec` is **44** normally, **26** if `prefers-reduced-motion: reduce`.
+8. **Overshoot guard:** after updating `accumPx`, if **`loopW > 0`** and **`accumPx > loopW * 1.5`**, set **`accumPx = accumPx % loopW`** so a transient underestimate of **`loopW`** cannot leave the transform drifting past one loop length into empty track.
+9. Transform: `translate3d(-(accumPx % loopW)px, 0, 0)` on the track.
+10. **`loopW`** from **`readLoopWidth()`** (rounded **`set.scrollWidth`**, with fallbacks); recomputed whenever **`loopW`** is **0** (including after invalidation).
+11. **Pause on hover** for fine pointers (`(hover: hover)` media): `mouseenter` / `mouseleave` toggle `paused`.
+12. **ResizeObserver** on track (debounced ~180ms) and **`window` `load` (once)** call **`invalidateWidth`**: always **`loopW = 0`** to force remeasure on the next frame. If **`liteMotion`** is true (viewport **&lt; 768** or **`pointer: coarse`**), also **`accumPx = 0`** so scroll offset realigns after mobile resize (avoids **`accumPx % loopW`** drifting into dead space). If **`liteMotion`** is false, **`accumPx`** is **not** reset (avoids a visible hitch during staggered card entrance when the observer fires during opacity/transform animations).
+13. **`visibilitychange`**: resumes scheduling frames when tab visible.
 
 **Video card entrance (CSS + IO)**
 
@@ -228,9 +230,10 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 - Total views in **`span[data-kaiaim-total-views]`** (default `256K`).
 - Links to `https://youtube.com/@AimKaiM`.
 
-**Static video tile**
+**Video rail (`[data-kaiaim-video-rail]`)**
 
-- Single `a.video-card.video-card--solo` with **`data-kaiaim-featured`** and the same **`data-video-*`** hooks as the marquee; hydrates from **`kaiaimFeaturedVideo`** when the JSON includes it.
+- Wrapper **`div.video-static.video-static--kaiaim`**; seed HTML is a single **`a.video-card.video-card--solo`** (fallback until JSON loads).
+- After a successful fetch, **`renderKaiaimRail`** rebuilds children from **`kaiaimTopVideos`** (0–6 entries, capped by upload count): **one** video ⇒ solo class (no carousel / strip); **two or more** ⇒ plain **`video-card`** tiles, **`video-static--multi`** for horizontal overflow (no **`initVideoMarquee`**). Same **`data-video-*`** hooks as the KaiM cards for badges and stale **`+`** behavior.
 
 #### 6.3.3 YouTube data hydration (client)
 
@@ -243,7 +246,7 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 1. Guard: `if (!data?.channels) return` (optional chaining).
 2. Sets **`[data-kaim-total-views]`** and **`[data-kaiaim-total-views]`** via **`querySelectorAll`** + `forEach` when formatted totals exist.
 3. **KaiM marquee:** if `topVideos` is an array with **`length >= 6`**, for each entry **`continue`** if missing `videoId` or card; scope to **`[data-video-marquee]`**; update thumb, badge, title, `href` via **`data-video-rank`**.
-4. **KaiAim featured:** if **`data.kaiaimFeaturedVideo?.videoId`**, update **`[data-kaiaim-featured]`** the same way (thumb, badge, title, watch URL).
+4. **KaiAim rail:** **`renderKaiaimRail(data.kaiaimTopVideos)`** — no-op if missing/empty/invalid rows; otherwise replaces rail contents (see **§6.3.2**).
 
 **`hydrateChannels()`**
 
@@ -252,7 +255,7 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 
 **Committed seed file (`public/yt-data.json`)**
 
-- Seed may include `topVideos: []` and **`kaiaimFeaturedVideo: null`** until a successful sync fills KaiM’s six slots and KaiAim’s featured object.
+- Seed may include `topVideos: []` and **`kaiaimTopVideos: []`** until a successful sync fills KaiM’s six slots and KaiAim’s ranked list (length grows with uploads, up to six).
 
 ### 6.4 Open positions
 
@@ -460,29 +463,29 @@ JS: marquee speed reduced; parallax for layers skipped; hero parallax still runs
 
 ### 9.2 Fetch script (`scripts/fetch-yt-data.mjs`)
 
-**Configuration**
+**Configuration** (see **§9.3** to add channels or rails.)
 
 - `CHANNELS.kaim`: handle `SubToKaiM`, **`topVideoLimit: 6`** (`TOP_VIDEO_COUNT`).
-- `CHANNELS.kaiaim`: handle `AimKaiM`, **`topVideoLimit: 1`** (featured tile).
-- Output: `OUTPUT_PATH = new URL('../public/yt-data.json', import.meta.url)` → `fileURLToPath` for I/O; **`YT_BASE`** for API URLs; **`node:fs/promises`** for read/write; missing key → **`process.stderr.write`** + **`process.exit(1)`**. JSON includes **`topVideos`** (KaiM, six) and **`kaiaimFeaturedVideo`** (object or `null`).
+- `CHANNELS.kaiaim`: handle `AimKaiM`, **`topVideoLimit: 6`** (same cap; output length is **`min(6, uploads with stats)`**).
+- Output: `OUTPUT_PATH = new URL('../public/yt-data.json', import.meta.url)` → `fileURLToPath` for I/O; **`YT_BASE`** for API URLs; **`node:fs/promises`** for read/write; missing key → **`process.stderr.write`** + **`process.exit(1)`**. JSON includes **`topVideos`** (KaiM, up to six) and **`kaiaimTopVideos`** (KaiAim, zero to six).
 
 **API usage pattern (quota-friendly)**
 
 1. `channels.list` with `forHandle`, `part=statistics,snippet,contentDetails` — **1 unit** per channel (two calls).
 2. For **each** channel with `topVideoLimit > 0`: read that channel’s **`uploads`** playlist id.
 3. Paginate `playlistItems.list` per channel — **1 unit per page** (KaiM + KaiAim each walk their own uploads list).
-4. Batch `videos.list` with up to **50** ids per request — **1 unit per batch** (per channel pass).
+4. **Single merged** `videos.list` pass: dedupe **union** of both channels’ upload video ids, batch up to **50** ids per request — **1 unit per batch** total (not per channel).
 
 No `search.list` (expensive).
 
 **Ranking**
 
-- Build list of `{ id, viewCount }` from `statistics.viewCount` for every upload id returned in `videos.list`.
-- Sort descending by views; slice **`topVideoLimit`** (6 for KaiM, 1 for KaiAim).
+- For each channel, build scored rows from the shared **`videos.list`** map for **every** upload id on that channel’s list (with statistics).
+- Sort descending by views; **`slice(0, min(topVideoLimit, count))`** so the global top‑N is correct when a **new** upload outranks a former top‑six entry.
 
 **Rank metadata**
 
-- Reads previous file; builds **`Map<videoId, previousRank>`** for KaiM from **`topVideos`**; reads **`kaiaimFeaturedVideo.videoId`** for the featured slot’s “same video still #1” metadata.
+- Reads previous file; builds **`Map<videoId, previousRank>`** for KaiM from **`topVideos`** and for KaiAim from **`kaiaimTopVideos`**; if the map is empty, migrates legacy **`kaiaimFeaturedVideo.videoId`** as rank **1** for one cycle.
 - For each new row: `previousRank` from map or **`null`**; **`isNewEntry`** = **`previousRank === null`**; **`rankDelta`** = **`null`** if new, else **`previousRank - rank`** (positive ⇒ moved up); **`isTopThree`**: `rank <= 3`.
 
 **Formatting**
@@ -501,6 +504,63 @@ No `search.list` (expensive).
 - API HTTP error: thrown with status + first **200** chars of body.
 - Existing file read/JSON parse failure when building previous ranks: **empty map** (first run).
 
+### 9.3 Adding or extending channels (playbook)
+
+The fetcher is driven by a single config object and one loop, but **where video rows land in JSON** and **how the page hydrates** are still **key-specific** (`kaim` → `topVideos`, `kaiaim` → `kaiaimTopVideos`). Adding a channel is **easy for totals-only**; adding **another rail** needs a small, explicit extension in three places (script branch, JSON shape, `renderChannels` + HTML).
+
+#### 9.3.1 `CHANNELS` entry (required fields)
+
+| Field | Purpose |
+|-------|---------|
+| **`key`** | Stable id (`kaim`, `kaiaim`, …). Must match **`channels.{key}`** in JSON and your **`data-{key}-total-views`** attribute stem in HTML. |
+| **`handle`** | YouTube handle **without** `@` (passed to `channels.list` **`forHandle`**). |
+| **`topVideoLimit`** | **`0`** = channel **statistics only** (no uploads playlist walk, no extra quota). **Positive integer** = fetch uploads, sort by views, keep top **N**. |
+
+**Insertion point:** add a new property to the **`CHANNELS`** object in `scripts/fetch-yt-data.mjs` (order only affects API call sequence, not output keys).
+
+#### 9.3.2 What you get for free
+
+- Every configured channel receives **`out.channels[def.key]`** from **`buildChannelBlock`** (totals, subscribers, formatted strings).
+- **GitHub Actions** does not need edits for a new channel — the same workflow runs the script and commits **`public/yt-data.json`**.
+
+#### 9.3.3 Stats-only channel (`topVideoLimit: 0`)
+
+1. Add e.g. `other: { key: 'other', handle: 'SomeHandle', topVideoLimit: 0 }`.
+2. In **`index.html`**, add a channel card row (or reuse pattern) with **`<span data-other-total-views>…</span>`** inside `.card-views` (fallback number).
+3. In **`main.js` → `renderChannels`**, mirror KaiM/KaiAim: read **`data.channels.other?.totalViewsFormatted`** and assign to **`querySelectorAll('[data-other-total-views]')`**.
+4. In **`markStaleViewLabelsWithPlus`**, add **`[data-other-total-views]`** to the selector list so failed fetches mark that total too.
+
+No script changes beyond **`CHANNELS`** for step 1 if you only need totals (the loop **`continue`s** when `topVideoLimit` is falsy).
+
+#### 9.3.4 Another “KaiM-style” rail (top **N** videos, ranked list in JSON)
+
+Today **`kaim`** writes **`topVideos`** and **`kaiaim`** writes **`kaiaimTopVideos`**. To add a third rail:
+
+1. **Script:** In `main()`, after building **`top`** for the new key, assign to a **new** root property (e.g. **`otherTopVideos`**) or refactor to a generic map. Extend **`readPreviousState()`** to build a **`Map`** from **`prev.otherTopVideos`** the same way as **`topVideos`** for rank deltas.
+2. **`public/yt-data.json`:** Seed **`otherTopVideos: []`** until CI runs; document the schema next to **`topVideos`**.
+3. **HTML:** Marquee (or static stack) with **`data-video-rank="1"`…`"N"`**, **`data-video-thumb`**, **`data-video-views`**, **`data-video-title`**; scope under a root **`[data-other-marquee]`** (or reuse **`data-video-marquee`** only if one rail exists per page area).
+4. **`main.js`:** Duplicate the KaiM block: require **`data.otherTopVideos.length >= N`**, query the new root, loop by **`video.rank`**. Call **`initVideoMarquee`** on that root in **`hydrateChannels`’s `finally`** (same pattern as KaiM: init **after** hydrate so clones match DOM).
+
+#### 9.3.5 Another “KaiAim-style” top‑N rail (array in JSON)
+
+Today **`kaiaim`** writes **`kaiaimTopVideos`** (array, same row shape as **`topVideos`**). For a second channel with the same UX pattern:
+
+1. **Script:** Add a root array (e.g. **`otherTopVideos`**) and an **`else if (def.key === 'other')`** branch after ranking; extend **`readPreviousState()`** with a **`Map`** from **`prev.otherTopVideos`**.
+2. **HTML:** A **`[data-other-video-rail]`** wrapper with fallback **`video-card`**(s), mirroring **`data-kaiaim-video-rail`**.
+3. **`main.js`:** Call a small renderer (copy **`renderKaiaimRail`** pattern) from **`renderChannels`**.
+
+#### 9.3.6 Naming and consistency checklist
+
+| Layer | Convention |
+|-------|--------------|
+| Config **`key`** | Lowercase slug; matches **`channels.{key}`** and **`data-{key}-total-views`**. |
+| JSON | Channel stats always under **`channels`**. Video lists are **root-level** today (`topVideos`, `kaiaimTopVideos`); new lists should stay **documented** in this PRD and in a short comment at top of **`fetch-yt-data.mjs`**. |
+| Stale **`+` on error** | Any new total-view span must be added to **`markStaleViewLabelsWithPlus`**’s selector. |
+
+#### 9.3.7 Longer-term refactor (optional)
+
+To make **N rails** trivial without `if (def.key === 'kaim')` branches, refactor toward e.g. **`channelTopVideos: { kaim: [...], kaiaim: [...] }`**, with each UI region declaring **`data-channel-key`** and **`data-layout="marquee|rail"`**. That is **not** implemented today; the playbook above matches the current repo.
+
 ---
 
 ## 10. Assets and external dependencies
@@ -511,7 +571,7 @@ No `search.list` (expensive).
 | Brand PNG | `assets/img/KaiM.png` | OG/Twitter/favicons |
 | Channel avatars | `assets/img/KaiM-card.jpg`, `KaiAim-card.jpg` | Card backgrounds |
 | KaiM thumbnails | `assets/KaiM Video Thumbnails/1.jpg` … `6.jpg` | Fallback until JSON provides URLs |
-| KaiAim thumbnail | `assets/KaiAim Video Thumbnails/1.jpg` | HTML fallback until **`kaiaimFeaturedVideo`** hydrates |
+| KaiAim thumbnail | `assets/KaiAim Video Thumbnails/1.jpg` | HTML fallback until **`kaiaimTopVideos`** hydrates |
 | Fonts | `fonts.googleapis.com` | Inter + JetBrains Mono |
 | Form backend | `formspree.io/f/maqanvwa` | POST JSON response expected |
 

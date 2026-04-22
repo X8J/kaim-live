@@ -442,6 +442,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(5) { --vc-i: 4; }
 .channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(6) { --vc-i: 5; }
 .channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(n + 7) { --vc-i: 6; }
+.channel-row > .channel-videos-shell.is-visible .video-static--kaiaim .video-card:nth-child(2) { --vc-i: 1; }
+.channel-row > .channel-videos-shell.is-visible .video-static--kaiaim .video-card:nth-child(3) { --vc-i: 2; }
+.channel-row > .channel-videos-shell.is-visible .video-static--kaiaim .video-card:nth-child(4) { --vc-i: 3; }
+.channel-row > .channel-videos-shell.is-visible .video-static--kaiaim .video-card:nth-child(5) { --vc-i: 4; }
+.channel-row > .channel-videos-shell.is-visible .video-static--kaiaim .video-card:nth-child(6) { --vc-i: 5; }
+.channel-row > .channel-videos-shell.is-visible .video-static--kaiaim .video-card:nth-child(n + 7) { --vc-i: 6; }
 .channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card,
 .channel-row > .channel-videos-shell.is-visible .video-static .video-card {
   opacity: 1;
@@ -510,6 +516,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .video-card--solo {
   flex: 0 0 auto;
   width: clamp(160px, 19vw, 220px);
+  margin-right: 0;
+}
+
+/* KaiAim rail: one tile stays centered-ish; two+ tiles scroll horizontally (no marquee). */
+.video-static.video-static--kaiaim.video-static--multi {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  gap: 12px;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+}
+.video-static.video-static--kaiaim.video-static--multi .video-card {
+  flex: 0 0 clamp(160px, 19vw, 220px);
   margin-right: 0;
 }
 

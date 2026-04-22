@@ -112,6 +112,9 @@
         accumPx += ((now - lastNow) / 1000) * pxPerSec;
       }
       lastNow = now;
+      if (loopW > 0 && accumPx > loopW * 1.5) {
+        accumPx = accumPx % loopW;
+      }
       var x = accumPx % loopW;
       track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
       marqueeRaf = requestAnimationFrame(marqueeFrame);
@@ -123,7 +126,12 @@
       marqueeRaf = requestAnimationFrame(marqueeFrame);
     }
 
-    scheduleMarqueeFrame();
+    /* Defer first measurement so mobile layout + eager images have settled before loopW locks. */
+    requestAnimationFrame(function () {
+      setTimeout(function () {
+        scheduleMarqueeFrame();
+      }, 200);
+    });
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden && root.isConnected) scheduleMarqueeFrame();
     });
@@ -135,10 +143,11 @@
 
     var roTimer = null;
     function invalidateWidth() {
-      /* Only drop cached width so readLoopWidth runs again. Do not reset accumPx — channel
-       * thumbnails animate opacity/transform and can churn ResizeObserver; resetting scroll
-       * made the rail look “stuck” during staggered entrance. */
       loopW = 0;
+      /* On mobile/coarse pointer, remeasure can lag card width; reset scroll offset so % loopW
+       * cannot drift into dead space. Desktop keeps accumPx to avoid a visible hitch during
+       * staggered card entrance (ResizeObserver churn during opacity/transform). */
+      if (liteMotion) accumPx = 0;
     }
     if (window.ResizeObserver) {
       new ResizeObserver(function () {
@@ -170,6 +179,62 @@
         if (/\+$/.test(t)) return;
         el.textContent = t + '+';
       });
+  }
+
+  /** KaiAim: 1 tile = solo (no horizontal strip); 2–6 = scrollable row. No marquee. */
+  function renderKaiaimRail(videos) {
+    var rail = document.querySelector('[data-kaiaim-video-rail]');
+    if (!rail) return;
+    if (!Array.isArray(videos)) return;
+
+    var rows = [];
+    for (var j = 0; j < videos.length; j++) {
+      var v = videos[j];
+      if (v && v.videoId) rows.push(v);
+    }
+    if (rows.length === 0) return;
+
+    rail.classList.toggle('video-static--multi', rows.length > 1);
+    while (rail.firstChild) rail.removeChild(rail.firstChild);
+
+    var solo = rows.length === 1;
+    for (var i = 0; i < rows.length; i++) {
+      var video = rows[i];
+      var a = document.createElement('a');
+      a.className = solo ? 'video-card video-card--solo' : 'video-card';
+      a.href = 'https://www.youtube.com/watch?v=' + video.videoId;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      var rank = typeof video.rank === 'number' ? video.rank : i + 1;
+      a.setAttribute('data-video-rank', String(rank));
+
+      var badge = document.createElement('span');
+      badge.className = 'video-card__views';
+      badge.setAttribute('data-video-views', '');
+      if (video.viewCountFormatted != null) {
+        badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted);
+      }
+
+      var img = document.createElement('img');
+      img.setAttribute('data-video-thumb', '');
+      if (video.thumbnail) img.src = video.thumbnail;
+      img.alt = video.title != null ? video.title : '';
+      img.decoding = 'async';
+      img.loading = solo && i === 0 ? 'eager' : 'lazy';
+
+      var overlay = document.createElement('div');
+      overlay.className = 'video-card__overlay';
+      var titleEl = document.createElement('span');
+      titleEl.className = 'video-card__title';
+      titleEl.setAttribute('data-video-title', '');
+      if (video.title != null) titleEl.textContent = video.title;
+      overlay.appendChild(titleEl);
+
+      a.appendChild(badge);
+      a.appendChild(img);
+      a.appendChild(overlay);
+      rail.appendChild(a);
+    }
   }
 
   function renderChannels(data) {
@@ -220,26 +285,7 @@
       }
     }
 
-    var feat = data.kaiaimFeaturedVideo;
-    if (feat && feat.videoId) {
-      var solo = document.querySelector('[data-kaiaim-featured]');
-      if (solo) {
-        var tThumb = solo.querySelector('[data-video-thumb]');
-        var tBadge = solo.querySelector('[data-video-views]');
-        var tTitle = solo.querySelector('[data-video-title]');
-        if (tThumb) {
-          if (feat.thumbnail) tThumb.src = feat.thumbnail;
-          tThumb.alt = feat.title != null ? feat.title : '';
-        }
-        if (tBadge && feat.viewCountFormatted != null) {
-          tBadge.textContent = normalizeLiveViewLabel(feat.viewCountFormatted);
-        }
-        if (tTitle && feat.title != null) {
-          tTitle.textContent = feat.title;
-        }
-        solo.setAttribute('href', 'https://www.youtube.com/watch?v=' + feat.videoId);
-      }
-    }
+    renderKaiaimRail(data.kaiaimTopVideos);
   }
 
   async function hydrateChannels() {

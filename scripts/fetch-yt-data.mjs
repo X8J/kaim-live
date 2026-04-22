@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Fetches public YouTube stats + KaiM top 6 + KaiAim featured top video, writes public/yt-data.json.
+ * Fetches YouTube stats + top videos (KaiM up to 6, KaiAim up to min(6, upload count)).
+ * One merged videos.list pass across both channels' upload IDs (quota-friendly).
  * Run locally: YT_API_KEY=... node scripts/fetch-yt-data.mjs
  */
 import fs from 'node:fs/promises';
@@ -13,8 +14,8 @@ if (!YT_API_KEY) {
   process.exit(1);
 }
 
+/** Max videos to rank per channel (top by lifetime view count on uploads playlist). */
 const TOP_VIDEO_COUNT = 6;
-const KAIAIM_FEATURED_COUNT = 1;
 
 const CHANNELS = {
   kaim: {
@@ -25,7 +26,7 @@ const CHANNELS = {
   kaiaim: {
     key: 'kaiaim',
     handle: 'AimKaiM',
-    topVideoLimit: KAIAIM_FEATURED_COUNT,
+    topVideoLimit: TOP_VIDEO_COUNT,
   },
 };
 
@@ -72,6 +73,10 @@ function thumbnailUrl(snippet, videoId) {
   );
 }
 
+/**
+ * Rank top videos for one channel. Sorts ALL scored uploads by viewCount desc, then slices
+ * min(limit, count) — a new upload that outranks an old top-N automatically displaces it.
+ */
 function toRankedVideoJson(row, idx, previousRanks) {
   const rank = idx + 1;
   const { id, views, raw } = row;
@@ -94,6 +99,20 @@ function toRankedVideoJson(row, idx, previousRanks) {
   };
 }
 
+function rankTopForChannel(ids, details, limit, previousRanks) {
+  const scored = [];
+  for (const id of ids) {
+    const v = details.get(id);
+    if (!v?.statistics) continue;
+    const views = parseInt(v.statistics.viewCount, 10) || 0;
+    scored.push({ id, views, raw: v });
+  }
+  scored.sort((a, b) => b.views - a.views);
+  const cap = Math.min(limit, scored.length);
+  const top = scored.slice(0, cap);
+  return top.map((row, idx) => toRankedVideoJson(row, idx, previousRanks));
+}
+
 async function yt(pathname, params) {
   const rel = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const u = new URL(rel, YT_BASE);
@@ -111,7 +130,7 @@ async function yt(pathname, params) {
 
 async function readPreviousState() {
   const kaimRanks = new Map();
-  let kaiaimFeaturedVideoId = null;
+  const kaiaimRanks = new Map();
   try {
     const raw = await fs.readFile(OUTPUT_FILE, 'utf8');
     const prev = JSON.parse(raw);
@@ -120,13 +139,18 @@ async function readPreviousState() {
         kaimRanks.set(v.videoId, v.rank);
       }
     }
-    if (prev.kaiaimFeaturedVideo?.videoId) {
-      kaiaimFeaturedVideoId = prev.kaiaimFeaturedVideo.videoId;
+    for (const v of prev.kaiaimTopVideos ?? []) {
+      if (v && v.videoId != null && typeof v.rank === 'number') {
+        kaiaimRanks.set(v.videoId, v.rank);
+      }
+    }
+    if (kaiaimRanks.size === 0 && prev.kaiaimFeaturedVideo?.videoId) {
+      kaiaimRanks.set(prev.kaiaimFeaturedVideo.videoId, 1);
     }
   } catch {
     // first run or missing file
   }
-  return { kaimRanks, kaiaimFeaturedVideoId };
+  return { kaimRanks, kaiaimRanks };
 }
 
 async function fetchChannelByHandle(handle) {
@@ -190,14 +214,17 @@ function buildChannelBlock(handle, item) {
 }
 
 async function main() {
-  const { kaimRanks, kaiaimFeaturedVideoId } = await readPreviousState();
+  const { kaimRanks, kaiaimRanks } = await readPreviousState();
 
   const out = {
     fetchedAt: new Date().toISOString(),
     channels: {},
     topVideos: [],
-    kaiaimFeaturedVideo: null,
+    kaiaimTopVideos: [],
   };
+
+  /** @type {{ def: object, limit: number, ids: string[] }[]} */
+  const channelUploads = [];
 
   for (const def of Object.values(CHANNELS)) {
     const item = await fetchChannelByHandle(def.handle);
@@ -214,53 +241,28 @@ async function main() {
       throw new Error(`Missing uploads playlist for @${def.handle}`);
     }
 
-    const allIds = await collectUploadVideoIds(uploadsId);
-    const details = await fetchVideoStatsBatched(allIds);
+    const ids = await collectUploadVideoIds(uploadsId);
+    channelUploads.push({ def, limit, ids });
+  }
 
-    const scored = [];
-    for (const id of allIds) {
-      const v = details.get(id);
-      if (!v || !v.statistics) continue;
-      const views = parseInt(v.statistics.viewCount, 10) || 0;
-      scored.push({ id, views, raw: v });
-    }
-    scored.sort((a, b) => b.views - a.views);
-    const top = scored.slice(0, limit);
+  const mergedIds = [...new Set(channelUploads.flatMap((c) => c.ids))];
+  const details =
+    mergedIds.length > 0 ? await fetchVideoStatsBatched(mergedIds) : new Map();
 
+  for (const { def, limit, ids } of channelUploads) {
+    const prevMap = def.key === 'kaim' ? kaimRanks : def.key === 'kaiaim' ? kaiaimRanks : new Map();
+    const rows = rankTopForChannel(ids, details, limit, prevMap);
     if (def.key === 'kaim') {
-      out.topVideos = top.map((row, idx) => toRankedVideoJson(row, idx, kaimRanks));
+      out.topVideos = rows;
     } else if (def.key === 'kaiaim') {
-      if (!top.length) {
-        out.kaiaimFeaturedVideo = null;
-      } else {
-        const row = top[0];
-        const id = row.id;
-        const sn = row.raw.snippet || {};
-        const views = row.views;
-        const previousRank = kaiaimFeaturedVideoId === id ? 1 : null;
-        const isNewEntry = previousRank === null;
-        const rankDelta = isNewEntry ? null : previousRank - 1;
-        out.kaiaimFeaturedVideo = {
-          rank: 1,
-          previousRank,
-          rankDelta,
-          isNewEntry,
-          isTopThree: true,
-          videoId: id,
-          title: sn.title || '',
-          thumbnail: thumbnailUrl(sn, id),
-          viewCount: views,
-          viewCountFormatted: formatChannelNumber(views),
-          publishedAt: sn.publishedAt || '',
-        };
-      }
+      out.kaiaimTopVideos = rows;
     }
   }
 
   await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
   await fs.writeFile(OUTPUT_FILE, JSON.stringify(out, null, 2) + '\n', 'utf8');
   console.log(
-    `Wrote ${OUTPUT_FILE} (topVideos=${out.topVideos.length}, kaiaimFeatured=${out.kaiaimFeaturedVideo ? 'yes' : 'no'}, fetchedAt=${out.fetchedAt})`,
+    `Wrote ${OUTPUT_FILE} (kaim=${out.topVideos.length}, kaiaim=${out.kaiaimTopVideos.length}, uniqueVideoIds=${mergedIds.length}, fetchedAt=${out.fetchedAt})`,
   );
 }
 
