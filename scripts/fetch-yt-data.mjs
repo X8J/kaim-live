@@ -29,7 +29,7 @@ const CHANNELS = {
 const TOP_VIDEO_COUNT = 6;
 const OUTPUT_PATH = new URL('../public/yt-data.json', import.meta.url);
 const OUTPUT_FILE = fileURLToPath(OUTPUT_PATH);
-const YT_BASE = 'https://www.googleapis.com/youtube/v3';
+const YT_BASE = 'https://www.googleapis.com/youtube/v3/';
 
 function formatThousands(n) {
   const v = Math.floor(Number(n));
@@ -93,7 +93,8 @@ function formatVideoViews(n) {
 }
 
 async function yt(pathname, params) {
-  const u = new URL(pathname, YT_BASE);
+  const rel = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+  const u = new URL(rel, YT_BASE);
   for (const [k, val] of Object.entries(params)) {
     if (val !== undefined && val !== null) u.searchParams.set(k, String(val));
   }
