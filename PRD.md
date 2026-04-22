@@ -142,9 +142,9 @@ flowchart TB
 | Charset & viewport | UTF-8; viewport includes `viewport-fit=cover` for notched devices |
 | Title | `KaiM` |
 | Description | Short meta for SERP/snippet |
-| Open Graph / Twitter | Title, description, `summary_large_image`, image `https://kaim.live/assets/img/KaiM.png`, url `https://kaim.live/` |
+| Open Graph / Twitter | Title, description, `summary_large_image`, **`og:image` / `twitter:image`** → `https://kaim.live/assets/img/KaiM.png` with **`og:image:width` / `height` / `alt`** (and **`twitter:image:alt`**), url `https://kaim.live/` |
 | Canonical | `https://kaim.live/` |
-| Icons | Favicon + Apple touch icon → `assets/img/KaiM.png` |
+| Icons | **`rel="icon"`** → `assets/img/favicon.svg` (minimal mark, distinct from OG art so embeds do not duplicate the tab icon). **`apple-touch-icon`** → `assets/img/KaiM.png` |
 | Fonts | Google Fonts: **Inter** (400,600,700,800) + **JetBrains Mono** (400); loaded with `media="print" onload="this.media='all'"` pattern + `noscript` fallback |
 | LCP hint | `preload` on `assets/img/Banner.jpg` with `fetchpriority="high"` |
 | Stylesheet | `style.css` with cache-busting query `?v=73` (bump when CSS changes materially) |
@@ -568,7 +568,8 @@ To make **N rails** trivial without `if (def.key === 'kaim')` branches, refactor
 | Asset / dependency | Path / URL | Notes |
 |--------------------|------------|-------|
 | Banner | `assets/img/Banner.jpg` | Hero LCP image |
-| Brand PNG | `assets/img/KaiM.png` | OG/Twitter/favicons |
+| Brand PNG | `assets/img/KaiM.png` | OG/Twitter large preview; Apple touch |
+| Favicon (tab) | `assets/img/favicon.svg` | Small **`rel="icon"`** only — not used as **`og:image`** |
 | Channel avatars | `assets/img/KaiM-card.jpg`, `KaiAim-card.jpg` | Card backgrounds |
 | Video rail thumbnails | YouTube `i.ytimg.com/.../maxresdefault.jpg` (same pattern as **`thumbnail`** in **`public/yt-data.json`**) | **`index.html`** static `src` mirrors the committed JSON for no‑JS / first paint; **`renderChannels`** / **`renderKaiaimRail`** overwrite from JSON when fetch succeeds. No bundled JPEG copies in **`assets/`**. |
 | Fonts | `fonts.googleapis.com` | Inter + JetBrains Mono |
