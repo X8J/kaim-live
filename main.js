@@ -130,8 +130,10 @@
       }
       lastNow = now;
       if (loopW > 0) {
-        /* Keep offset bounded every frame so float drift / huge accumPx never breaks % modulo. */
-        accumPx = ((accumPx % loopW) + loopW) % loopW;
+        /* Wrap only when crossing a loop (avoid per-frame % jitter); clamp huge values for float safety. */
+        if (accumPx >= loopW || accumPx > loopW * 20) {
+          accumPx = ((accumPx % loopW) + loopW) % loopW;
+        }
       }
       var x = loopW > 0 ? accumPx : 0;
       track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
@@ -169,15 +171,15 @@
       if (liteMotion) accumPx = 0;
     }
     if (window.ResizeObserver) {
-      var ro = new ResizeObserver(function () {
+      /* Observe track only: observing the inner set fires during card opacity/transform stagger
+       * and thrashes loopW, which caused visible flicker on the rail. */
+      new ResizeObserver(function () {
         if (roTimer) clearTimeout(roTimer);
         roTimer = setTimeout(function () {
           roTimer = null;
           invalidateWidth();
         }, 180);
-      });
-      ro.observe(track);
-      ro.observe(set);
+      }).observe(track);
     }
     window.addEventListener('load', invalidateWidth, { once: true });
   }
@@ -330,14 +332,28 @@
 
   hydrateChannels();
 
-  /* Scroll-triggered reveal: in on enter, reverse out on leave (same transition, mirrored). */
+  /* Scroll-triggered reveal: hysteresis on intersection ratio so edge scroll does not
+   * flip is-visible rapidly (channel + video card flicker). */
   var revealObserver = new IntersectionObserver(
     function (entries) {
       for (var i = 0; i < entries.length; i++) {
-        entries[i].target.classList.toggle('is-visible', entries[i].isIntersecting);
+        var entry = entries[i];
+        var el = entry.target;
+        var ratio = typeof entry.intersectionRatio === 'number' ? entry.intersectionRatio : (entry.isIntersecting ? 1 : 0);
+        var latched = el.getAttribute('data-reveal-latched') === '1';
+        var next = latched;
+        if (latched && ratio < 0.03) next = false;
+        else if (!latched && entry.isIntersecting && ratio >= 0.1) next = true;
+        if (next !== latched) {
+          el.setAttribute('data-reveal-latched', next ? '1' : '0');
+          el.classList.toggle('is-visible', next);
+        }
       }
     },
-    { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+    {
+      rootMargin: '0px 0px -5% 0px',
+      threshold: [0, 0.02, 0.04, 0.06, 0.1, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
+    }
   );
   document.querySelectorAll('.scroll-reveal').forEach(function (el) {
     revealObserver.observe(el);

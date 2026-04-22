@@ -148,7 +148,7 @@ flowchart TB
 | Fonts | Google Fonts: **Inter** (400,600,700,800) + **JetBrains Mono** (400); loaded with `media="print" onload="this.media='all'"` pattern + `noscript` fallback |
 | LCP hint | `preload` on `assets/img/Banner.jpg` with `fetchpriority="high"` |
 | Stylesheet | `style.css` with cache-busting query `?v=73` (bump when CSS changes materially) |
-| Script | `main.js?v=52` (bump when JS changes materially) |
+| Script | `main.js?v=53` (bump when JS changes materially) |
 
 ### 6.2 Hero
 
@@ -209,11 +209,11 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 5. Sets all images in track to `loading="eager"` (avoids lazy decode jank in moving strip).
 6. **Startup delay:** one `requestAnimationFrame` then **`setTimeout`**: **200ms** on desktop, **400ms** when **`liteMotion`** is true, then **`scheduleMarqueeFrame()`**. Defers the initial **`loopW`** read until layout and eager thumbnails are stable (reduces “black gap after one lap” on narrow viewports).
 7. **Animation:** `requestAnimationFrame` loop advances `accumPx` by `pxPerSec * deltaTime`; `pxPerSec` is **44** normally, **26** if `prefers-reduced-motion: reduce`.
-8. **Bounded offset:** after each tick, if **`loopW > 0`**, **`accumPx = ((accumPx % loopW) + loopW) % loopW`** so **`accumPx`** never grows unbounded (avoids floating-point **`%`** drift after long runs) and never exceeds one loop length.
-9. Transform: `translate3d(-accumPx px, 0, 0)` on the track (with **`accumPx`** already in **`[0, loopW)`** when **`loopW > 0`**).
+8. **Bounded offset:** when **`loopW > 0`** and **`accumPx >= loopW`** (or **`accumPx`** is extremely large for float safety), wrap with **`((accumPx % loopW) + loopW) % loopW`** — not every frame, to avoid subtle jitter from repeated **`%`** on small deltas.
+9. Transform: `translate3d(-accumPx px, 0, 0)` on the track.
 10. **`loopW`** from **`readLoopWidth()`**: **`Math.floor`** of the **minimum** of usable candidates — gap between the two sets’ **`getBoundingClientRect().left`**, **`set.scrollWidth`**, and **`track.scrollWidth / 2`** (plus **`set.offsetWidth`** fallback) — so **`loopW`** is never **larger** than the true repeat distance (an overestimate caused black past the first clone). Recomputed whenever **`loopW`** is **0**.
 11. **Pause on hover** for fine pointers (`(hover: hover)` media): `mouseenter` / `mouseleave` toggle `paused`.
-12. **ResizeObserver** (debounced ~180ms) on **both** the track and the first set, plus **`window` `load` (once)**, call **`invalidateWidth`**: always **`loopW = 0`** to force remeasure on the next frame. If **`liteMotion`** is true (viewport **&lt; 768** or **`pointer: coarse`**), also **`accumPx = 0`**. If **`liteMotion`** is false, **`accumPx`** is **not** reset (avoids a visible hitch during staggered card entrance).
+12. **ResizeObserver** (debounced ~180ms) on the **track only** (not the inner set — observing the set fired during card stagger and caused rail flicker), plus **`window` `load` (once)**, call **`invalidateWidth`**: always **`loopW = 0`** to force remeasure on the next frame. If **`liteMotion`** is true (viewport **&lt; 768** or **`pointer: coarse`**), also **`accumPx = 0`**. If **`liteMotion`** is false, **`accumPx`** is **not** reset (avoids a visible hitch during staggered card entrance).
 13. **`visibilitychange`**: resumes scheduling frames when tab visible.
 
 **Video card entrance (CSS + IO)**
@@ -391,8 +391,8 @@ Each card:
 ### 7.1 Scroll reveal (`IntersectionObserver`)
 
 - Targets every `.scroll-reveal`.
-- Toggles **`is-visible`** when intersecting root with `rootMargin: 0 0 -6% 0`, `threshold: 0.06`.
-- **Exit:** class removed when leaving—elements mirror transition back (opacity/transform).
+- **`is-visible`** uses **hysteresis** on **`intersectionRatio`** (many **`threshold`** steps) so the class does not flip at the viewport edge while scrolling: latch on when **`ratio >= 0.1`**, latch off when **`ratio < 0.03`**, with **`data-reveal-latched`** mirroring that state. **`rootMargin`** bottom inset **`-5%`** (slightly less aggressive than **`-6%`**).
+- **Exit:** class removed when latched off—elements mirror transition back (opacity/transform).
 
 **Stagger attributes**
 
