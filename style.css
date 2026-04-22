@@ -813,12 +813,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border: none;
   border-radius: 8px;
   white-space: nowrap;
-  background: var(--accent-blue);
+  /* Same green family as .contact-cta and open-role .role-dot (#4ade80) */
+  background: #22c55e;
   color: #fff;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 .apply-btn:hover {
-  background: #3d94d4;
+  background: #4ade80;
   transform: translateY(-1px);
 }
 .apply-btn:active { transform: translateY(0); }
