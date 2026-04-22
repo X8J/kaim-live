@@ -196,7 +196,7 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 
 - Six **`a.video-card`** elements with `data-video-rank="1"` … `"6"`, each with:
   - `span.video-card__views[data-video-views]` (badge),
-  - `img[data-video-thumb]` (thumbnail),
+  - `img[data-video-thumb]` (thumbnail `src` uses the same **`https://i.ytimg.com/vi/{videoId}/maxresdefault.jpg`** pattern as committed **`public/yt-data.json`** — no duplicate JPEGs under **`assets/`**; if the top six **videoId** values change in JSON, update **`index.html`** fallbacks for accurate no‑JS / first paint),
   - `span.video-card__title[data-video-title]` (title in overlay),
   - Default `href` to channel; after hydration with valid data, `href` becomes `https://www.youtube.com/watch?v={videoId}`.
 
@@ -570,8 +570,7 @@ To make **N rails** trivial without `if (def.key === 'kaim')` branches, refactor
 | Banner | `assets/img/Banner.jpg` | Hero LCP image |
 | Brand PNG | `assets/img/KaiM.png` | OG/Twitter/favicons |
 | Channel avatars | `assets/img/KaiM-card.jpg`, `KaiAim-card.jpg` | Card backgrounds |
-| KaiM thumbnails | `assets/KaiM Video Thumbnails/1.jpg` … `6.jpg` | Fallback until JSON provides URLs |
-| KaiAim thumbnail | `assets/KaiAim Video Thumbnails/1.jpg` | HTML fallback until **`kaiaimTopVideos`** hydrates |
+| Video rail thumbnails | YouTube `i.ytimg.com/.../maxresdefault.jpg` (same pattern as **`thumbnail`** in **`public/yt-data.json`**) | **`index.html`** static `src` mirrors the committed JSON for no‑JS / first paint; **`renderChannels`** / **`renderKaiaimRail`** overwrite from JSON when fetch succeeds. No bundled JPEG copies in **`assets/`**. |
 | Fonts | `fonts.googleapis.com` | Inter + JetBrains Mono |
 | Form backend | `formspree.io/f/maqanvwa` | POST JSON response expected |
 
