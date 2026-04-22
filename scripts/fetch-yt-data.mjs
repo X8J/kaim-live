@@ -63,35 +63,6 @@ function formatChannelNumber(n) {
   return `${s}B`;
 }
 
-/** Video view badges — + suffix on K / M / B tiers */
-function formatVideoViews(n) {
-  const v = Math.floor(Number(n));
-  if (v < 1000) return String(v);
-  if (v < 1_000_000) return `${formatThousands(v)}+`;
-  if (v < 1_000_000_000) {
-    const m = v / 1_000_000;
-    let s;
-    if (m >= 100) s = `${Math.floor(m)}M`;
-    else if (m >= 10) s = `${Math.floor(m)}M`;
-    else {
-      const one = Math.floor(m * 10) / 10;
-      s = Number.isInteger(one) ? String(one) : one.toFixed(1).replace(/\.0$/, '');
-      s = `${s}M`;
-    }
-    return `${s}+`;
-  }
-  const b = v / 1_000_000_000;
-  let s;
-  if (b >= 100) s = `${Math.floor(b)}B`;
-  else if (b >= 10) s = `${Math.floor(b)}B`;
-  else {
-    const one = Math.floor(b * 10) / 10;
-    s = Number.isInteger(one) ? String(one) : one.toFixed(1).replace(/\.0$/, '');
-    s = `${s}B`;
-  }
-  return `${s}+`;
-}
-
 async function yt(pathname, params) {
   const rel = pathname.startsWith('/') ? pathname.slice(1) : pathname;
   const u = new URL(rel, YT_BASE);
@@ -236,7 +207,7 @@ async function main() {
           sn?.thumbnails?.maxres?.url ??
           `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
         viewCount: views,
-        viewCountFormatted: formatVideoViews(views),
+        viewCountFormatted: formatChannelNumber(views),
         publishedAt: sn.publishedAt || '',
       };
     });

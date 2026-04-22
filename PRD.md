@@ -490,7 +490,7 @@ No `search.list` (expensive).
 **Formatting**
 
 - **`formatChannelNumber`**: channel totals / subscribers; **no** trailing `+` on millions (matches card design).
-- **`formatVideoViews`**: badges; **`+`** suffix on **K, M, B** tiers (matches marquee badges).
+- **`viewCountFormatted`** (top videos): **`formatChannelNumber`** — same as channel totals (no **`+`** suffix).
 - Hidden subscriber count ⇒ `subscribers: null`, `subscribersFormatted: "hidden"`.
 
 **Thumbnail selection**
