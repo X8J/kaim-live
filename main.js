@@ -445,28 +445,50 @@
     }
   }
 
-  /* 3D tilt on channel cards (pointer devices only) */
+  /* 3D tilt on channel cards (pointer devices only). Coalesces mousemove to latest pointer per frame. */
   if (window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 640) {
     document.querySelectorAll('[data-tilt]').forEach(function (card) {
       var raf = null;
+      var pending = null;
+
+      function applyPointer(ev) {
+        var r = card.getBoundingClientRect();
+        var x = (ev.clientX - r.left) / r.width - 0.5;
+        var y = (ev.clientY - r.top) / r.height - 0.5;
+        card.style.transform =
+          'rotateY(' + x * 14 + 'deg) rotateX(' + -y * 14 + 'deg) scale3d(1.03,1.03,1.03)';
+      }
+
+      function scheduleTilt() {
+        if (raf != null) return;
+        raf = requestAnimationFrame(function tick() {
+          raf = null;
+          if (!pending) return;
+          var ev = pending;
+          pending = null;
+          applyPointer(ev);
+          if (pending) {
+            raf = requestAnimationFrame(tick);
+          }
+        });
+      }
 
       card.addEventListener('mousemove', function (e) {
-        if (raf) return;
-        raf = requestAnimationFrame(function () {
-          var r = card.getBoundingClientRect();
-          var x = (e.clientX - r.left) / r.width  - 0.5;
-          var y = (e.clientY - r.top)  / r.height - 0.5;
-          card.style.transform =
-            'rotateY(' + (x * 14) + 'deg) rotateX(' + (-y * 14) + 'deg) scale3d(1.03,1.03,1.03)';
-          raf = null;
-        });
+        pending = e;
+        scheduleTilt();
       });
 
       card.addEventListener('mouseleave', function () {
-        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        pending = null;
+        if (raf != null) {
+          cancelAnimationFrame(raf);
+          raf = null;
+        }
         card.style.transition = 'transform 0.4s ease';
         card.style.transform = '';
-        setTimeout(function () { card.style.transition = ''; }, 400);
+        setTimeout(function () {
+          card.style.transition = '';
+        }, 400);
       });
 
       card.addEventListener('mouseenter', function () {

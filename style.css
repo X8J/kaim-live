@@ -303,34 +303,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   overflow: hidden;
 }
 
-.card-shimmer {
-  position: absolute;
-  inset: 0;
-  border-radius: 14px;
-  background: linear-gradient(
-    110deg,
-    transparent 0%, transparent 28%,
-    rgba(255,255,255,0.15) 40%,
-    rgba(255,255,255,0.25) 50%,
-    rgba(255,255,255,0.15) 60%,
-    transparent 72%, transparent 100%
-  );
-  background-size: 250% 100%;
-  background-position: 100% 0;
-  pointer-events: none;
-  z-index: 4;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-.channel-card:hover .card-shimmer {
-  opacity: 1;
-  animation: shimmer 0.8s ease-out forwards;
-}
-@keyframes shimmer {
-  0%   { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
-}
-
 .channel-card .card-pfp {
   position: absolute;
   inset: 0;
@@ -338,10 +310,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   height: 100%;
   object-fit: cover;
   opacity: 0.22;
-  filter: brightness(1.12) saturate(1.05);
   pointer-events: none;
   border-radius: 14px;
   z-index: 1;
+  transition: opacity 0.35s ease;
+}
+.channel-card:hover .card-pfp {
+  opacity: 0.5;
 }
 
 .card-top {
@@ -628,9 +603,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   order: 1;
 }
 
-/* Past roles: one collapsed row; open to list closed job cards (each still accordion) */
+/* Past roles: one darker .glass panel (dropdown); list rows attach, hairline dividers */
 .closed-roles {
   width: 100%;
+  overflow: hidden; /* one rounded frame */
+}
+/* Darker than default open job cards (which use .glass) */
+.closed-roles.glass {
+  background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 6px 36px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
 }
 .closed-roles-toggle {
   width: 100%;
@@ -638,17 +624,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   align-items: center;
   gap: 12px;
   padding: 18px 20px;
-  border-radius: 14px;
+  border-radius: 0;
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  color: inherit;
+  color: rgba(245, 245, 245, 0.88);
   border: none;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.28);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.closed-roles-toggle:hover {
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(250, 250, 250, 0.95);
 }
 .closed-roles-toggle:focus-visible {
   outline: 2px solid var(--accent-gold);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 .closed-roles-toggle-label {
   font-weight: 600;
@@ -659,14 +650,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: rgba(200, 200, 200, 0.38);
   margin-left: auto;
   margin-right: 4px;
 }
 .closed-roles-toggle-chevron {
   flex-shrink: 0;
-  color: var(--text-muted);
-  transition: transform 0.3s ease;
+  color: rgba(200, 200, 200, 0.4);
+  transition: transform 0.3s ease, color 0.2s ease;
+}
+.closed-roles-toggle:hover .closed-roles-toggle-chevron,
+.closed-roles.is-open .closed-roles-toggle-chevron {
+  color: rgba(210, 210, 210, 0.5);
 }
 .closed-roles.is-open .closed-roles-toggle-chevron {
   transform: rotate(180deg);
@@ -682,8 +677,56 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .closed-roles-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 12px;
+  gap: 0;
+  padding: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.15);
+}
+/* Rows inside the closed list: no separate “cards,” only hairline dividers */
+.closed-roles .role-card.closed {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  /* Block-level .role-card.closed uses 0.55; here we want a darker list, not extra fade */
+  opacity: 0.9;
+}
+.closed-roles .role-card.closed + .role-card.closed {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.closed-roles .role-header {
+  transition: background 0.2s ease;
+}
+.closed-roles .role-card.closed .role-header:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+.closed-roles .role-icon {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: rgba(200, 200, 205, 0.5);
+}
+.closed-roles .role-title {
+  color: rgba(240, 240, 240, 0.82);
+}
+.closed-roles .role-meta {
+  color: rgba(200, 200, 200, 0.38);
+}
+.closed-roles .role-badge {
+  color: rgba(200, 200, 200, 0.45);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+.closed-roles .role-chevron,
+.closed-roles .role-right {
+  color: rgba(180, 180, 185, 0.4);
+}
+.closed-roles .role-card.closed .role-header:hover .role-chevron {
+  color: rgba(200, 200, 200, 0.55);
+}
+.closed-roles .role-desc {
+  color: rgba(200, 200, 200, 0.48);
 }
 
 .role-card {
@@ -741,6 +784,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   transform: none;
   border-color: var(--border-subtle);
   box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.closed-roles .role-card.closed:hover {
+  border: none;
+  box-shadow: none;
 }
 .role-badge {
   font-family: var(--font-body);
@@ -1026,16 +1073,6 @@ textarea.apply-field-under-limit {
   color: var(--text-muted);
   position: relative;
 }
-.footer-bar::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(100% - 48px, 520px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-}
 
 /* ──────────────────── RESPONSIVE ────────────────────────── */
 
@@ -1146,7 +1183,7 @@ textarea.apply-field-under-limit {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .scroll-indicator svg { animation: none; }
-  .channel-card:hover .card-shimmer { animation: none; opacity: 0; }
+  .channel-card:hover .card-pfp { opacity: 0.22; }
   .role-drawer { transition: none; }
   .closed-roles-panel { transition: none; }
   .apply-drawer { transition: none; }
