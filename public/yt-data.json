@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-04-22T16:49:34.143Z",
+  "fetchedAt": "2026-04-22T16:59:06.525Z",
   "channels": {
     "kaim": {
       "handle": "@SubToKaiM",
@@ -26,7 +26,7 @@
       "videoId": "UBIF_MuqPxg",
       "title": "Exposing the #1 TOXIC Clan as a Undercover PRO..",
       "thumbnail": "https://i.ytimg.com/vi/UBIF_MuqPxg/maxresdefault.jpg",
-      "viewCount": 8152055,
+      "viewCount": 8152104,
       "viewCountFormatted": "8.1M",
       "publishedAt": "2025-08-25T17:38:34Z"
     },
@@ -39,7 +39,7 @@
       "videoId": "ci5Gup4YAiw",
       "title": "I Snuck into a School's Rivals Tournament..",
       "thumbnail": "https://i.ytimg.com/vi/ci5Gup4YAiw/maxresdefault.jpg",
-      "viewCount": 6898419,
+      "viewCount": 6898831,
       "viewCountFormatted": "6.8M",
       "publishedAt": "2025-07-19T18:39:15Z"
     },
@@ -52,7 +52,7 @@
       "videoId": "h1kC0zZjIuc",
       "title": "I Hired a PRO Rivals Coach, Then DESTROYED Him..",
       "thumbnail": "https://i.ytimg.com/vi/h1kC0zZjIuc/maxresdefault.jpg",
-      "viewCount": 3645339,
+      "viewCount": 3645349,
       "viewCountFormatted": "3.6M",
       "publishedAt": "2025-06-30T19:09:50Z"
     },
@@ -65,7 +65,7 @@
       "videoId": "GQt7NBAO5i8",
       "title": "I Hunted A TOXIC Scammer for REVENGE..",
       "thumbnail": "https://i.ytimg.com/vi/GQt7NBAO5i8/maxresdefault.jpg",
-      "viewCount": 3511008,
+      "viewCount": 3511010,
       "viewCountFormatted": "3.5M",
       "publishedAt": "2025-08-09T01:50:36Z"
     },
@@ -78,7 +78,7 @@
       "videoId": "y6Gp4EdpBbQ",
       "title": "I Hunted a TOXIC Hacker Until He RAGE QUITS",
       "thumbnail": "https://i.ytimg.com/vi/y6Gp4EdpBbQ/maxresdefault.jpg",
-      "viewCount": 2251149,
+      "viewCount": 2251180,
       "viewCountFormatted": "2.2M",
       "publishedAt": "2025-09-30T11:08:45Z"
     },
@@ -91,10 +91,22 @@
       "videoId": "8jiN33s2aRw",
       "title": "I Banned the DUMBEST HACKER in Rivals..",
       "thumbnail": "https://i.ytimg.com/vi/8jiN33s2aRw/maxresdefault.jpg",
-      "viewCount": 2221428,
+      "viewCount": 2221442,
       "viewCountFormatted": "2.2M",
       "publishedAt": "2025-03-28T21:38:52Z"
     }
   ],
-  "kaiaimFeaturedVideo": null
+  "kaiaimFeaturedVideo": {
+    "rank": 1,
+    "previousRank": null,
+    "rankDelta": null,
+    "isNewEntry": true,
+    "isTopThree": true,
+    "videoId": "E8jouAvCpxQ",
+    "title": "The #1 Sniper in Rivals.",
+    "thumbnail": "https://i.ytimg.com/vi/E8jouAvCpxQ/maxresdefault.jpg",
+    "viewCount": 290385,
+    "viewCountFormatted": "290K",
+    "publishedAt": "2026-03-06T23:04:53Z"
+  }
 }
