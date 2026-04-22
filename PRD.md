@@ -148,7 +148,7 @@ flowchart TB
 | Fonts | Google Fonts: **Inter** (400,600,700,800) + **JetBrains Mono** (400); loaded with `media="print" onload="this.media='all'"` pattern + `noscript` fallback |
 | LCP hint | `preload` on `assets/img/Banner.jpg` with `fetchpriority="high"` |
 | Stylesheet | `style.css` with cache-busting query `?v=73` (bump when CSS changes materially) |
-| Script | `main.js?v=51` (bump when JS changes materially) |
+| Script | `main.js?v=52` (bump when JS changes materially) |
 
 ### 6.2 Hero
 
@@ -207,13 +207,13 @@ Each **channel row** is a flex layout: **channel card column** + **video shell c
 3. **Deep-clones** the set, marks clone `aria-hidden="true"`, sets **`tabindex="-1"`** on all cloned links (keyboard users skip duplicate links).
 4. Appends clone so track contains **two identical sets** for seamless loop.
 5. Sets all images in track to `loading="eager"` (avoids lazy decode jank in moving strip).
-6. **Startup delay:** before the first `requestAnimationFrame` animation tick, the code runs **one** `requestAnimationFrame` callback, then a **`setTimeout(..., 200)`**, then **`scheduleMarqueeFrame()`**. That defers the initial **`loopW`** read until narrow-viewport layout and eager-loaded thumbnails are more likely to match final **`scrollWidth`** (fixes intermittent “end of strip then black” on mobile when **`loopW`** was measured too early or too small).
+6. **Startup delay:** one `requestAnimationFrame` then **`setTimeout`**: **200ms** on desktop, **400ms** when **`liteMotion`** is true, then **`scheduleMarqueeFrame()`**. Defers the initial **`loopW`** read until layout and eager thumbnails are stable (reduces “black gap after one lap” on narrow viewports).
 7. **Animation:** `requestAnimationFrame` loop advances `accumPx` by `pxPerSec * deltaTime`; `pxPerSec` is **44** normally, **26** if `prefers-reduced-motion: reduce`.
-8. **Overshoot guard:** after updating `accumPx`, if **`loopW > 0`** and **`accumPx > loopW * 1.5`**, set **`accumPx = accumPx % loopW`** so a transient underestimate of **`loopW`** cannot leave the transform drifting past one loop length into empty track.
-9. Transform: `translate3d(-(accumPx % loopW)px, 0, 0)` on the track.
-10. **`loopW`** from **`readLoopWidth()`** (rounded **`set.scrollWidth`**, with fallbacks); recomputed whenever **`loopW`** is **0** (including after invalidation).
+8. **Bounded offset:** after each tick, if **`loopW > 0`**, **`accumPx = ((accumPx % loopW) + loopW) % loopW`** so **`accumPx`** never grows unbounded (avoids floating-point **`%`** drift after long runs) and never exceeds one loop length.
+9. Transform: `translate3d(-accumPx px, 0, 0)` on the track (with **`accumPx`** already in **`[0, loopW)`** when **`loopW > 0`**).
+10. **`loopW`** from **`readLoopWidth()`**: **`Math.floor`** of the **minimum** of usable candidates — gap between the two sets’ **`getBoundingClientRect().left`**, **`set.scrollWidth`**, and **`track.scrollWidth / 2`** (plus **`set.offsetWidth`** fallback) — so **`loopW`** is never **larger** than the true repeat distance (an overestimate caused black past the first clone). Recomputed whenever **`loopW`** is **0**.
 11. **Pause on hover** for fine pointers (`(hover: hover)` media): `mouseenter` / `mouseleave` toggle `paused`.
-12. **ResizeObserver** on track (debounced ~180ms) and **`window` `load` (once)** call **`invalidateWidth`**: always **`loopW = 0`** to force remeasure on the next frame. If **`liteMotion`** is true (viewport **&lt; 768** or **`pointer: coarse`**), also **`accumPx = 0`** so scroll offset realigns after mobile resize (avoids **`accumPx % loopW`** drifting into dead space). If **`liteMotion`** is false, **`accumPx`** is **not** reset (avoids a visible hitch during staggered card entrance when the observer fires during opacity/transform animations).
+12. **ResizeObserver** (debounced ~180ms) on **both** the track and the first set, plus **`window` `load` (once)**, call **`invalidateWidth`**: always **`loopW = 0`** to force remeasure on the next frame. If **`liteMotion`** is true (viewport **&lt; 768** or **`pointer: coarse`**), also **`accumPx = 0`**. If **`liteMotion`** is false, **`accumPx`** is **not** reset (avoids a visible hitch during staggered card entrance).
 13. **`visibilitychange`**: resumes scheduling frames when tab visible.
 
 **Video card entrance (CSS + IO)**

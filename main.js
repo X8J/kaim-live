@@ -88,9 +88,26 @@
 
     function readLoopWidth() {
       void track.offsetWidth;
-      var w = Math.round(set.scrollWidth);
-      if (w < 24) w = Math.round(set.offsetWidth);
-      if (w < 24) w = Math.round(track.scrollWidth / 2);
+      void set.offsetWidth;
+      var candidates = [];
+      try {
+        var r0 = set.getBoundingClientRect();
+        var r1 = dup.getBoundingClientRect();
+        var gap = r1.left - r0.left;
+        if (gap >= 24 && isFinite(gap)) candidates.push(gap);
+      } catch (e) { /* ignore */ }
+      var wSet = set.scrollWidth;
+      var wHalf = track.scrollWidth >= 48 ? track.scrollWidth / 2 : 0;
+      if (wSet >= 24) candidates.push(wSet);
+      if (wHalf >= 24) candidates.push(wHalf);
+      if (!candidates.length) {
+        var ow = set.offsetWidth;
+        if (ow >= 24) candidates.push(ow);
+      }
+      if (!candidates.length) return 0;
+      /* Floor + min: never use a loop length larger than the real repeat distance (avoids
+       * translating past the first clone into empty track / black on mobile). */
+      var w = Math.floor(Math.min.apply(null, candidates));
       return w >= 24 ? w : 0;
     }
 
@@ -112,10 +129,11 @@
         accumPx += ((now - lastNow) / 1000) * pxPerSec;
       }
       lastNow = now;
-      if (loopW > 0 && accumPx > loopW * 1.5) {
-        accumPx = accumPx % loopW;
+      if (loopW > 0) {
+        /* Keep offset bounded every frame so float drift / huge accumPx never breaks % modulo. */
+        accumPx = ((accumPx % loopW) + loopW) % loopW;
       }
-      var x = accumPx % loopW;
+      var x = loopW > 0 ? accumPx : 0;
       track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
       marqueeRaf = requestAnimationFrame(marqueeFrame);
     }
@@ -127,10 +145,11 @@
     }
 
     /* Defer first measurement so mobile layout + eager images have settled before loopW locks. */
+    var startDelayMs = liteMotion ? 400 : 200;
     requestAnimationFrame(function () {
       setTimeout(function () {
         scheduleMarqueeFrame();
-      }, 200);
+      }, startDelayMs);
     });
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden && root.isConnected) scheduleMarqueeFrame();
@@ -150,13 +169,15 @@
       if (liteMotion) accumPx = 0;
     }
     if (window.ResizeObserver) {
-      new ResizeObserver(function () {
+      var ro = new ResizeObserver(function () {
         if (roTimer) clearTimeout(roTimer);
         roTimer = setTimeout(function () {
           roTimer = null;
           invalidateWidth();
         }, 180);
-      }).observe(track);
+      });
+      ro.observe(track);
+      ro.observe(set);
     }
     window.addEventListener('load', invalidateWidth, { once: true });
   }
