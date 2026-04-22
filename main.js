@@ -69,6 +69,11 @@
     var set = root.querySelector('.video-marquee__set');
     if (!track || !set) return;
     root.setAttribute('data-video-marquee-ready', '1');
+    var shell = root.closest('.channel-videos-shell');
+    /* When the shell is scroll-revealed off-screen, the rail keeps translating in rAF, so
+     * re-entering shows a shifted strip + jagged stagger. Pause rAF, snap translate to 0, and
+     * resync lastNow when the shell is visible again. */
+    var resyncMarqueeTimeNextVisible = false;
 
     var dup = set.cloneNode(true);
     dup.setAttribute('aria-hidden', 'true');
@@ -116,6 +121,19 @@
       marqueeRaf = null;
       if (document.hidden || !root.isConnected) return;
 
+      if (shell && !shell.classList.contains('is-visible')) {
+        accumPx = 0;
+        resyncMarqueeTimeNextVisible = true;
+        lastNow = now;
+        track.style.transform = 'translate3d(0,0,0)';
+        return;
+      }
+
+      if (resyncMarqueeTimeNextVisible) {
+        lastNow = now;
+        resyncMarqueeTimeNextVisible = false;
+      }
+
       if (!loopW) {
         loopW = readLoopWidth();
         lastNow = now;
@@ -156,6 +174,13 @@
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden && root.isConnected) scheduleMarqueeFrame();
     });
+    if (shell && window.MutationObserver) {
+      new MutationObserver(function () {
+        if (shell.classList.contains('is-visible')) {
+          scheduleMarqueeFrame();
+        }
+      }).observe(shell, { attributes: true, attributeFilter: ['class'] });
+    }
 
     if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
       root.addEventListener('mouseenter', function () { paused = true; });
@@ -332,28 +357,50 @@
 
   hydrateChannels();
 
-  /* Scroll-triggered reveal: hysteresis on intersection ratio so edge scroll does not
-   * flip is-visible rapidly (channel + video card flicker). */
+  /* Scroll-reveal: add .is-visible when a section enters the viewport; remove it after a
+   * **debounced** time off-screen (avoids fast edge flicker from isIntersecting toggling). */
+  var REVEAL_EXIT_MS = 450;
+  var revealExitByEl = typeof WeakMap !== 'undefined' ? new WeakMap() : new Map();
+  function clearRevealExitTimer(el) {
+    var id = revealExitByEl.get(el);
+    if (id != null) {
+      clearTimeout(id);
+      revealExitByEl.delete(el);
+    }
+  }
+  function scheduleRevealExit(el) {
+    clearRevealExitTimer(el);
+    revealExitByEl.set(
+      el,
+      setTimeout(function () {
+        revealExitByEl.delete(el);
+        if (el && el.isConnected) {
+          el.setAttribute('data-reveal-latched', '0');
+          el.classList.remove('is-visible');
+        }
+      }, REVEAL_EXIT_MS)
+    );
+  }
   var revealObserver = new IntersectionObserver(
     function (entries) {
       for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         var el = entry.target;
-        var ratio = typeof entry.intersectionRatio === 'number' ? entry.intersectionRatio : (entry.isIntersecting ? 1 : 0);
-        var latched = el.getAttribute('data-reveal-latched') === '1';
-        var next = latched;
-        if (latched && ratio < 0.03) next = false;
-        else if (!latched && entry.isIntersecting && ratio >= 0.1) next = true;
-        if (next !== latched) {
-          el.setAttribute('data-reveal-latched', next ? '1' : '0');
-          el.classList.toggle('is-visible', next);
+        if (entry.isIntersecting) {
+          clearRevealExitTimer(el);
+          if (el.getAttribute('data-reveal-latched') === '1') continue;
+          var ir = entry.intersectionRect;
+          if (ir != null && (ir.width < 0.5 || ir.height < 0.5)) continue;
+          el.setAttribute('data-reveal-latched', '1');
+          el.classList.add('is-visible');
+        } else {
+          if (el.getAttribute('data-reveal-latched') === '1') {
+            scheduleRevealExit(el);
+          }
         }
       }
     },
-    {
-      rootMargin: '0px 0px -5% 0px',
-      threshold: [0, 0.02, 0.04, 0.06, 0.1, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
-    }
+    { root: null, rootMargin: '0px', threshold: 0 }
   );
   document.querySelectorAll('.scroll-reveal').forEach(function (el) {
     revealObserver.observe(el);
