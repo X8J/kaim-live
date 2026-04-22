@@ -495,7 +495,7 @@ No `search.list` (expensive).
 
 **Thumbnail selection**
 
-- Prefer `maxres`, then `high`, then `medium`, else construct `https://i.ytimg.com/vi/{id}/maxresdefault.jpg`.
+- **`snippet.thumbnails.maxres.url`** when present; otherwise the constructed fallback **`https://i.ytimg.com/vi/{id}/maxresdefault.jpg`** only (no `high` / `medium` tiers).
 
 **Failure modes**
 

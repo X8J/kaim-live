@@ -167,14 +167,6 @@ async function fetchVideoStatsBatched(videoIds) {
   return stats;
 }
 
-function pickThumbnail(snippet, videoId) {
-  const th = snippet && snippet.thumbnails;
-  if (th && th.maxres && th.maxres.url) return th.maxres.url;
-  if (th && th.high && th.high.url) return th.high.url;
-  if (th && th.medium && th.medium.url) return th.medium.url;
-  return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
-}
-
 function buildChannelBlock(handle, item) {
   const st = item.statistics || {};
   const subsHidden =
@@ -239,7 +231,9 @@ async function main() {
         isTopThree: rank <= 3,
         videoId: id,
         title: sn.title || '',
-        thumbnail: pickThumbnail(sn, id),
+        thumbnail:
+          sn?.thumbnails?.maxres?.url ??
+          `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
         viewCount: views,
         viewCountFormatted: formatVideoViews(views),
         publishedAt: sn.publishedAt || '',
