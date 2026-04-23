@@ -62,6 +62,27 @@
 
   startIntro();
 
+  /* Hero “Join our team” ring: drive conic `from` with rAF (CSS can’t animate custom props in most engines). */
+  (function initHeroJoinRing() {
+    var ring = document.querySelector('.hero-join__ring');
+    if (!ring) return;
+    var period = 4200;
+    var t0 = null;
+    function frame(now) {
+      if (prefersReducedMotion) {
+        t0 = null;
+        requestAnimationFrame(frame);
+        return;
+      }
+      if (t0 === null) t0 = now;
+      var elapsed = (now - t0) % period;
+      var deg = (elapsed / period) * 360;
+      ring.style.setProperty('--hero-join-sweep', String(deg) + 'deg');
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
   /* Side-scroll marquee: clone row, then rAF + inline translateX (WAAPI/CSS keyframes were not moving on some builds). */
   function initVideoMarquee(root) {
     if (!root || root.getAttribute('data-video-marquee-ready') === '1') return;

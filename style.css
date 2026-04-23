@@ -137,6 +137,93 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   transform: translate3d(0, 0, 0);
 }
 
+/* Join our team: conic “shimmer” ring (clipped) + large green glow (box-shadow) */
+.hero-join {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: clamp(14px, 1.85vw, 16px);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  /* Clip the rotated conic layer to the pill: unclipped, rotation bloats the AABB. */
+  border-radius: 9999px;
+  overflow: hidden;
+  color: #d1fae5;
+  /* Longer, softer ease on glow so hover doesn’t pop */
+  transition: box-shadow 0.6s ease-out, transform 0.35s cubic-bezier(0.22, 1, 0.45, 1), color 0.2s ease,
+    opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.32s;
+  box-shadow: none;
+  opacity: 0;
+  isolation: isolate;
+  backface-visibility: hidden;
+}
+.hero.hero-intro-ready .hero-join {
+  opacity: 1;
+}
+.hero-join__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  /* `--hero-join-sweep` is driven in main.js (rAF) — keyframe+@property is unreliable in most browsers. */
+  background: conic-gradient(
+    from var(--hero-join-sweep, 0deg),
+    #0d1f16 0deg,
+    #14532d 38deg,
+    #1a3f28 70deg,
+    #2a8a52 98deg,
+    #4ade80 118deg,
+    #6ee7b7 128deg,
+    #4ade80 148deg,
+    #22804a 188deg,
+    #14532d 255deg,
+    #0d2818 310deg,
+    #0d1f16 360deg
+  );
+  pointer-events: none;
+  backface-visibility: hidden;
+}
+.hero-join__label {
+  position: relative;
+  z-index: 1;
+  margin: 2px;
+  padding: 12px 30px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #0a2218 0%, #061a12 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.hero-join:hover {
+  color: #ecfdf5;
+  transform: translate3d(0, -1px, 0);
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.2),
+    0 0 24px 4px rgba(16, 185, 129, 0.4),
+    0 0 64px 18px rgba(16, 185, 129, 0.35),
+    0 0 120px 40px rgba(16, 185, 129, 0.22);
+}
+.hero-join:hover .hero-join__label {
+  background: linear-gradient(180deg, #0c281b 0%, #081f15 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 12px rgba(16, 185, 129, 0.15);
+}
+.hero-join:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(45, 212, 191, 0.75),
+    0 0 20px 4px rgba(16, 185, 129, 0.4),
+    0 0 64px 16px rgba(16, 185, 129, 0.25);
+  outline: none;
+}
+
 .hero-title {
   position: relative;
   font-family: var(--font-display);
@@ -583,17 +670,35 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background-clip: text;
   color: transparent;
 }
-.positions-header p {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 10px;
-}
-
 .positions-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+}
+.positions-header .positions-footnote {
+  max-width: 32em;
+  margin: 12px auto 0;
+}
+.positions-footnote {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+.positions-footnote em {
+  font-style: italic;
+  color: rgba(240, 240, 240, 0.5);
+}
+.positions-footnote strong {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+}
+.positions-footnote u {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(200, 200, 200, 0.35);
 }
 /* Open role cards always listed before closed, regardless of DOM order */
 .positions-grid > .scroll-reveal:has(.role-card:not(.closed)) {
@@ -621,8 +726,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .closed-roles-toggle {
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 10px 12px;
   padding: 18px 20px;
   border-radius: 0;
   cursor: pointer;
@@ -644,6 +750,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .closed-roles-toggle-label {
   font-weight: 600;
   font-size: 15px;
+  flex: 1 1 200px;
+  min-width: 0;
+  line-height: 1.35;
 }
 .closed-roles-toggle-meta {
   font-family: var(--font-body);
@@ -1180,6 +1289,7 @@ textarea.apply-field-under-limit {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .scroll-indicator svg { animation: none; }
+  .hero-join__ring { animation: none; background: #22c55e; }
   .channel-card:hover .card-pfp { opacity: 0.22; }
   .role-drawer { transition: none; }
   .closed-roles-panel { transition: none; }
