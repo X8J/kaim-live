@@ -411,7 +411,30 @@
           clearRevealExitTimer(el);
           if (el.getAttribute('data-reveal-latched') === '1') continue;
           var ir = entry.intersectionRect;
-          if (ir != null && (ir.width < 0.5 || ir.height < 0.5)) continue;
+          /* Edge case: on some loads, IO reports isIntersecting=true while layout is mid-flight,
+           * so intersectionRect can be ~0×0. With threshold:0, the observer may not fire again
+           * once it becomes “really” visible, leaving the element stuck at opacity:0 (but clickable).
+           * If we see a near-zero rect, re-check on the next frame using getBoundingClientRect. */
+          if (ir != null && (ir.width < 0.5 || ir.height < 0.5)) {
+            (function retryRevealOnce(target) {
+              if (target.__revealRetryQueued) return;
+              target.__revealRetryQueued = true;
+              requestAnimationFrame(function () {
+                target.__revealRetryQueued = false;
+                if (!target || !target.isConnected) return;
+                if (target.getAttribute('data-reveal-latched') === '1') return;
+                var r = target.getBoundingClientRect();
+                if (r.width < 1 || r.height < 1) return;
+                var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+                var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+                var onScreen = r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
+                if (!onScreen) return;
+                target.setAttribute('data-reveal-latched', '1');
+                target.classList.add('is-visible');
+              });
+            })(el);
+            continue;
+          }
           el.setAttribute('data-reveal-latched', '1');
           el.classList.add('is-visible');
         } else {

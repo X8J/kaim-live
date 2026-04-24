@@ -154,8 +154,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border-radius: 9999px;
   overflow: hidden;
   color: #d1fae5;
-  /* Longer, softer ease on glow so hover doesn’t pop */
-  transition: box-shadow 0.6s ease-out, transform 0.35s cubic-bezier(0.22, 1, 0.45, 1), color 0.2s ease,
+  /* Faster glow ramp so hover feels immediate */
+  transition: box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.28s cubic-bezier(0.22, 1, 0.45, 1), color 0.2s ease,
     opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.32s;
   box-shadow: none;
   opacity: 0;
