@@ -168,158 +168,19 @@
 
         <div class="positions-grid">
 
-          <!-- Open roles first -->
-          <div class="scroll-reveal scroll-reveal-up">
-          <div class="role-card glass" data-role>
-            <div class="role-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-              </div>
-              <div class="role-text">
-                <div class="role-title">Concept Artist / Thumbnail Director </div>
-                <div class="role-meta">Both channels</div>
-              </div>
-              <div class="role-right">
-                <span class="role-dot"></span>
-                <span class="role-badge">Part-time</span>
-                <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-            <div class="role-drawer">
-              <div class="role-drawer-inner">
-                <p class="role-desc">Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for both channels.</p>
-                <button type="button" class="apply-btn" data-apply data-apply-role="Concept Artist">Apply now</button>
-              </div>
-            </div>
-          </div>
-          </div>
+          <!-- Open roles: rendered from roles-config.js (window.KAIM_ROLES) -->
+          <div data-roles-open-mount></div>
 
-          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="1">
-          <div class="role-card glass" data-role>
-            <div class="role-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              </div>
-              <div class="role-text">
-                <div class="role-title">Community Manager</div>
-                <div class="role-meta">Discord + socials</div>
-              </div>
-              <div class="role-right">
-                <span class="role-dot"></span>
-                <span class="role-badge">Volunteer</span>
-                <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-            <div class="role-drawer">
-              <div class="role-drawer-inner">
-                <p class="role-desc">Moderate the KaiM Discord server, engage with the community, and help manage social media presence.</p>
-                <button type="button" class="apply-btn" data-apply data-apply-role="Community Manager">Apply now</button>
-              </div>
-            </div>
-          </div>
-          </div>
-
-          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="2">
-          <div class="role-card glass" data-role>
-            <div class="role-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              </div>
-              <div class="role-text">
-                <div class="role-title">Channel Production Manager</div>
-                <div class="role-meta">Both channels</div>
-              </div>
-              <div class="role-right">
-                <span class="role-dot"></span>
-                <span class="role-badge">Full-time</span>
-                <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-            <div class="role-drawer">
-              <div class="role-drawer-inner">
-                <p class="role-desc">Managing the team, analyzing statistics, outreach, and handling business inquiries across both channels.</p>
-                <button type="button" class="apply-btn" data-apply data-apply-role="Channel Production Manager">Apply now</button>
-              </div>
-            </div>
-          </div>
-          </div>
-
-          <!-- Closed roles: collapsed list; expand to show past roles -->
-          <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="3">
+          <!-- Closed roles: collapsed list; inner stack from roles-config.js -->
+          <div class="scroll-reveal scroll-reveal-up" data-closed-roles-reveal data-reveal-delay="2">
           <div class="closed-roles glass" data-closed-roles>
             <button type="button" class="closed-roles-toggle" id="closedRolesToggle" data-closed-toggle aria-expanded="false" aria-controls="closedRolesPanel">
               <span class="closed-roles-toggle-label">Filled positions - may be available in the future</span>
-              <span class="closed-roles-toggle-meta">3 roles</span>
+              <span class="closed-roles-toggle-meta" data-closed-roles-count>—</span>
               <svg class="closed-roles-toggle-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="closed-roles-panel" id="closedRolesPanel" role="region" aria-labelledby="closedRolesToggle" aria-hidden="true">
-              <div class="closed-roles-stack">
-          <div class="role-card closed" data-role>
-            <div class="role-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-              </div>
-              <div class="role-text">
-                <div class="role-title">Thumbnail Artist</div>
-                <div class="role-meta">Both channels</div>
-              </div>
-              <div class="role-right">
-                <span class="role-dot closed"></span>
-                <span class="role-badge">Full-time &middot; Closed</span>
-                <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-            <div class="role-drawer">
-              <div class="role-drawer-inner">
-                <p class="role-desc">Create eye-catching thumbnails for both KaiM and KaiAim channels. Proficient in Blender and Photoshop.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="role-card closed" data-role>
-            <div class="role-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
-              </div>
-              <div class="role-text">
-                <div class="role-title">Visual Effects Artist</div>
-                <div class="role-meta">KaiM channel &middot; long-form</div>
-              </div>
-              <div class="role-right">
-                <span class="role-dot closed"></span>
-                <span class="role-badge">Full-time &middot; Closed</span>
-                <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-            <div class="role-drawer">
-              <div class="role-drawer-inner">
-                <p class="role-desc">Edit long-form YouTube videos for the main KaiM channel. Must be comfortable learning a new style heavy in motion graphics. Not entry level.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="role-card closed" data-role>
-            <div class="role-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
-              </div>
-              <div class="role-text">
-                <div class="role-title">Video Cutter</div>
-                <div class="role-meta">Both channels &middot; long-form</div>
-              </div>
-              <div class="role-right">
-                <span class="role-dot closed"></span>
-                <span class="role-badge">Full-time &middot; Closed</span>
-                <svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-            <div class="role-drawer">
-              <div class="role-drawer-inner">
-                <p class="role-desc">Needs a deep understanding of retention and how to weave a compelling story from raw footage. Responsible for structuring and cutting long-form content for the main KaiM channel.</p>
-              </div>
-            </div>
-          </div>
-              </div>
+              <div class="closed-roles-stack" data-roles-closed-mount></div>
             </div>
           </div>
           </div>
@@ -362,10 +223,6 @@
                 <span class="apply-label">Role</span>
                 <select name="role" id="applyRole" required>
                   <option value="" disabled selected>Select a role</option>
-                  <option value="Concept Artist">Concept Artist</option>
-                  <option value="Community Manager">Community Manager</option>
-                  <option value="Channel Production Manager">Channel Production Manager</option>
-                  <option value="Other / general">Other / general</option>
                 </select>
               </label>
               <label class="apply-field">
@@ -395,6 +252,7 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="main.js?v=54" defer></script>
+  <script src="roles-config.js?v=1" defer></script>
+  <script src="main.js?v=55" defer></script>
 </body>
 </html>

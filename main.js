@@ -378,6 +378,22 @@
 
   hydrateChannels();
 
+  /* SVG markup for role cards — keys must match window.KAIM_ROLES[].icon in roles-config.js */
+  var ROLE_ICONS = {
+    concept:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
+    community:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    manager:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+    thumbnail:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+    vfx:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>',
+    cutter:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>'
+  };
+
   /* Scroll-reveal: add .is-visible when a section enters the viewport; remove it after a
    * **debounced** time off-screen (avoids fast edge flicker from isIntersecting toggling). */
   var REVEAL_EXIT_MS = 450;
@@ -446,9 +462,177 @@
     },
     { root: null, rootMargin: '0px', threshold: 0 }
   );
+
+  function roleIconSvg(iconKey) {
+    var svg = ROLE_ICONS[iconKey];
+    return svg || '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"></svg>';
+  }
+
+  function escapeAttr(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;');
+  }
+
+  /* Renders window.KAIM_ROLES (roles-config.js) into mounts + apply dropdown. */
+  function initRolesFromConfig() {
+    var roles = typeof window.KAIM_ROLES !== 'undefined' && Array.isArray(window.KAIM_ROLES) ? window.KAIM_ROLES : null;
+    if (!roles) return;
+
+    var openMount = document.querySelector('[data-roles-open-mount]');
+    var closedMount = document.querySelector('[data-roles-closed-mount]');
+    var closedCountEl = document.querySelector('[data-closed-roles-count]');
+    var closedReveal = document.querySelector('[data-closed-roles-reveal]');
+    if (!openMount || !closedMount) return;
+
+    var chevron =
+      '<svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+    function buildOpenCard(role, delayIndex) {
+      var wrap = document.createElement('div');
+      wrap.className = 'scroll-reveal scroll-reveal-up';
+      if (delayIndex > 0) wrap.setAttribute('data-reveal-delay', String(delayIndex));
+
+      var card = document.createElement('div');
+      card.className = 'role-card glass';
+      card.setAttribute('data-role', '');
+
+      var applyValue = role.applyValue != null && role.applyValue !== '' ? String(role.applyValue) : String(role.title || '');
+
+      card.innerHTML =
+        '<div class="role-header" role="button" tabindex="0" aria-expanded="false">' +
+        '<div class="role-icon">' +
+        roleIconSvg(role.icon) +
+        '</div>' +
+        '<div class="role-text">' +
+        '<div class="role-title"></div>' +
+        '<div class="role-meta"></div>' +
+        '</div>' +
+        '<div class="role-right">' +
+        '<span class="role-dot"></span>' +
+        '<span class="role-badge"></span>' +
+        chevron +
+        '</div>' +
+        '</div>' +
+        '<div class="role-drawer">' +
+        '<div class="role-drawer-inner">' +
+        '<p class="role-desc"></p>' +
+        '<button type="button" class="apply-btn" data-apply data-apply-role="' +
+        escapeAttr(applyValue) +
+        '">Apply now</button>' +
+        '</div>' +
+        '</div>';
+
+      card.querySelector('.role-title').textContent = role.title || '';
+      card.querySelector('.role-meta').textContent = role.meta || '';
+      card.querySelector('.role-badge').textContent = role.badge || '';
+      card.querySelector('.role-desc').textContent = role.description || '';
+
+      wrap.appendChild(card);
+      return wrap;
+    }
+
+    function buildClosedCard(role) {
+      var card = document.createElement('div');
+      card.className = 'role-card closed';
+      card.setAttribute('data-role', '');
+
+      var baseBadge = role.badge || '';
+      var closedBadge = baseBadge ? baseBadge + ' \u00b7 Closed' : 'Closed';
+
+      card.innerHTML =
+        '<div class="role-header" role="button" tabindex="0" aria-expanded="false">' +
+        '<div class="role-icon">' +
+        roleIconSvg(role.icon) +
+        '</div>' +
+        '<div class="role-text">' +
+        '<div class="role-title"></div>' +
+        '<div class="role-meta"></div>' +
+        '</div>' +
+        '<div class="role-right">' +
+        '<span class="role-dot closed"></span>' +
+        '<span class="role-badge"></span>' +
+        chevron +
+        '</div>' +
+        '</div>' +
+        '<div class="role-drawer">' +
+        '<div class="role-drawer-inner">' +
+        '<p class="role-desc"></p>' +
+        '</div>' +
+        '</div>';
+
+      card.querySelector('.role-title').textContent = role.title || '';
+      card.querySelector('.role-meta').textContent = role.meta || '';
+      card.querySelector('.role-badge').textContent = closedBadge;
+      card.querySelector('.role-desc').textContent = role.description || '';
+
+      return card;
+    }
+
+    var openList = [];
+    var closedList = [];
+    for (var r = 0; r < roles.length; r++) {
+      if (roles[r].open) openList.push(roles[r]);
+      else closedList.push(roles[r]);
+    }
+
+    openMount.innerHTML = '';
+    closedMount.innerHTML = '';
+
+    for (var o = 0; o < openList.length; o++) {
+      openMount.appendChild(buildOpenCard(openList[o], o));
+    }
+    for (var c = 0; c < closedList.length; c++) {
+      closedMount.appendChild(buildClosedCard(closedList[c]));
+    }
+
+    if (closedCountEl) {
+      var n = closedList.length;
+      closedCountEl.textContent = n === 1 ? '1 role' : n + ' roles';
+    }
+
+    if (closedReveal) {
+      if (openList.length > 0) {
+        closedReveal.setAttribute('data-reveal-delay', String(openList.length));
+      } else {
+        closedReveal.removeAttribute('data-reveal-delay');
+      }
+    }
+
+    if (applyRoleSelect) {
+      while (applyRoleSelect.firstChild) applyRoleSelect.removeChild(applyRoleSelect.firstChild);
+      var opt0 = document.createElement('option');
+      opt0.value = '';
+      opt0.disabled = true;
+      opt0.selected = true;
+      opt0.textContent = 'Select a role';
+      applyRoleSelect.appendChild(opt0);
+      for (var a = 0; a < openList.length; a++) {
+        var av =
+          openList[a].applyValue != null && openList[a].applyValue !== ''
+            ? String(openList[a].applyValue)
+            : String(openList[a].title || '');
+        var opt = document.createElement('option');
+        opt.value = av;
+        opt.textContent = av;
+        applyRoleSelect.appendChild(opt);
+      }
+      var optOther = document.createElement('option');
+      optOther.value = 'Other / general';
+      optOther.textContent = 'Other / general';
+      applyRoleSelect.appendChild(optOther);
+    }
+
+    openMount.querySelectorAll('.scroll-reveal').forEach(function (el) {
+      revealObserver.observe(el);
+    });
+  }
+
   document.querySelectorAll('.scroll-reveal').forEach(function (el) {
     revealObserver.observe(el);
   });
+  initRolesFromConfig();
 
   /* Parallax layers — IntersectionObserver skips layout when off-screen */
   var parallaxLayers = [];
