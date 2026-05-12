@@ -127,10 +127,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   max-width: 22em;
   line-height: 1.35;
   opacity: 0;
-  transform: translate3d(0, 14px, 0);
+  transform: translate3d(0, 18px, 0);
   transition:
-    opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
-    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+    opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1) 0.38s,
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.38s;
 }
 .hero.hero-intro-ready .hero-tagline {
   opacity: 1;
@@ -150,20 +150,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: clamp(14px, 1.85vw, 16px);
   letter-spacing: 0.04em;
   line-height: 1.2;
-  /* Clip the rotated conic layer to the pill: unclipped, rotation bloats the AABB. */
   border-radius: 9999px;
   overflow: hidden;
   color: #d1fae5;
-  /* Faster glow ramp so hover feels immediate */
-  transition: box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.28s cubic-bezier(0.22, 1, 0.45, 1), color 0.2s ease,
-    opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.32s;
+  transition:
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.28s cubic-bezier(0.22, 1, 0.45, 1),
+    color 0.2s ease,
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.58s,
+    scale 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s;
   box-shadow: none;
   opacity: 0;
+  scale: 0.82;
   isolation: isolate;
   backface-visibility: hidden;
 }
 .hero.hero-intro-ready .hero-join {
   opacity: 1;
+  scale: 1;
 }
 .hero-join__ring {
   position: absolute;
@@ -235,16 +239,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   text-align: center;
   max-width: 100%;
   opacity: 0;
-  transform: scale(0.92) translate3d(0, 14px, 0);
+  transform: scale(0.88) translate3d(0, 20px, 0);
+  filter: blur(8px);
   transform-origin: center center;
-  transition: opacity 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.08s,
-              transform 1.35s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+  transition:
+    opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s,
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.05s,
+    filter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 .hero.hero-intro-ready .hero-title {
   opacity: 1;
   transform: scale(1) translate3d(0, 0, 0);
+  filter: blur(0);
   text-shadow:
     0 0 100px rgba(255,255,255,0.08),
     0 8px 48px rgba(0,0,0,0.55);
@@ -654,11 +662,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .positions {
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 32px 80px;
+  padding: 0 clamp(16px, 4vw, 32px) clamp(60px, 8vw, 100px);
 }
 .positions-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: clamp(28px, 4vw, 48px);
 }
 .positions-header h2 {
   font-family: var(--font-display);
@@ -673,7 +681,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .positions-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: clamp(16px, 2.5vw, 28px);
+}
+
+/* Open role cards: the mount is a single grid item containing all open cards stacked */
+[data-roles-open-mount] {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.8vw, 18px);
+  width: 100%;
 }
 .positions-header .positions-footnote {
   max-width: 32em;
@@ -835,10 +851,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 
 .role-card {
+  position: relative;
+  z-index: 0;
   border-radius: 14px;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, z-index 0s;
 }
 .role-card:hover {
+  z-index: 1;
   transform: translateY(-3px);
   border-color: var(--border-hover);
   box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
@@ -1229,7 +1248,7 @@ textarea.apply-field-under-limit {
 
 @media (max-width: 640px) {
   .hero { min-height: 100svh; }
-  .channels, .positions {
+  .channels {
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
@@ -1237,8 +1256,12 @@ textarea.apply-field-under-limit {
   .channels > .channel-row + .channel-row {
     margin-top: 36px;
   }
-  .positions-grid { gap: 14px; }
-  .positions-header { margin-bottom: 28px; }
+  .positions-grid { gap: clamp(12px, 1.8vw, 18px); }
+  /* On small screens the clamp() handles padding; just add safe-area insets on top */
+  .positions {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
   .contact-cta {
     padding-top: 64px;
     padding-bottom: max(64px, calc(40px + env(safe-area-inset-bottom, 0px)));
@@ -1286,29 +1309,7 @@ textarea.apply-field-under-limit {
 }
 
 /* ──────────────── REDUCED MOTION ────────────────────────── */
+/* All animations are intentional and non-jarring — no overrides applied. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .scroll-indicator svg { animation: none; }
-  .hero-join__ring { animation: none; background: #22c55e; }
-  .channel-card:hover .card-pfp { opacity: 0.22; }
-  .role-drawer { transition: none; }
-  .closed-roles-panel { transition: none; }
-  .apply-drawer { transition: none; }
-  .apply-submit.apply-submit-confirm { animation: none; }
-  .video-marquee .video-marquee__track--animate {
-    animation: none !important;
-  }
-  /* Reveal = fade only — keep base transition + delay; drop spatial offset. */
-  .scroll-reveal.scroll-reveal-up,
-  .scroll-reveal.scroll-reveal-left,
-  .scroll-reveal.scroll-reveal-right,
-  .scroll-reveal.is-visible {
-    transform: none !important;
-  }
-  .channel-row > .channel-videos-shell .video-card {
-    transform: none !important;
-    transition-duration: 0.2s !important;
-    transition-delay: 0ms !important;
-    transition-timing-function: ease !important;
-  }
 }

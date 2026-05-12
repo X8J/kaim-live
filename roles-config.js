@@ -13,23 +13,23 @@ window.KAIM_ROLES = [
     id: 'concept-artist',
     open: true,
     icon: 'concept',
-    title: 'Concept Artist / Thumbnail Director ',
+    title: 'Concept Artist / Thumbnail Strategist',
     meta: 'Both channels',
     badge: 'Part-time',
     description:
       'Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for both channels.',
-    applyValue: 'Concept Artist'
+    applyValue: 'Concept Artist / Thumbnail Strategist'
   },
   {
     id: 'channel-production-manager',
     open: true,
     icon: 'manager',
-    title: 'Channel Production Manager',
+    title: 'Channel Manager',
     meta: 'Both channels',
     badge: 'Full-time',
     description:
       'Managing the team, analyzing statistics, outreach, and handling business inquiries across both channels.',
-    applyValue: 'Channel Production Manager'
+    applyValue: 'Channel Manager'
   },
   {
     id: 'community-manager',

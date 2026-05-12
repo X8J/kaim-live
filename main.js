@@ -33,18 +33,6 @@
     liteMotion = checkLiteMotion();
   }, { passive: true });
 
-  /* prefers-reduced-motion: read once + on change (avoid matchMedia in every scroll tick) */
-  var prefersReducedMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  var prefersReducedMotion = prefersReducedMQ ? prefersReducedMQ.matches : false;
-  function onPrefersReducedChange() {
-    prefersReducedMotion = prefersReducedMQ ? prefersReducedMQ.matches : false;
-  }
-  if (prefersReducedMQ && prefersReducedMQ.addEventListener) {
-    prefersReducedMQ.addEventListener('change', onPrefersReducedChange);
-  } else if (prefersReducedMQ && prefersReducedMQ.addListener) {
-    prefersReducedMQ.addListener(onPrefersReducedChange);
-  }
-
   function checkLiteMotion() {
     return window.innerWidth < 768 ||
       window.matchMedia('(pointer: coarse)').matches;
@@ -52,10 +40,15 @@
 
   function startIntro() {
     if (hero) void hero.offsetHeight;
+    /* Triple-rAF: first flushes any pending style recalc, second ensures paint commit,
+     * third fires after the browser has composited at least one frame — so CSS transitions
+     * on .hero-intro-ready always run instead of snapping to their end state. */
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        if (hero) hero.classList.add('hero-intro-ready');
-        setTimeout(function () { introComplete = true; }, 2200);
+        requestAnimationFrame(function () {
+          if (hero) hero.classList.add('hero-intro-ready');
+          setTimeout(function () { introComplete = true; }, 2400);
+        });
       });
     });
   }
@@ -69,11 +62,6 @@
     var period = 4200;
     var t0 = null;
     function frame(now) {
-      if (prefersReducedMotion) {
-        t0 = null;
-        requestAnimationFrame(frame);
-        return;
-      }
       if (t0 === null) t0 = now;
       var elapsed = (now - t0) % period;
       var deg = (elapsed / period) * 360;
@@ -110,7 +98,7 @@
     var lastNow = 0;
     var paused = false;
     /* Slightly slower when “reduce motion” is on — still scrolls, just gentler */
-    var pxPerSec = prefersReducedMotion ? 26 : 44;
+    var pxPerSec = 44;
 
     function readLoopWidth() {
       void track.offsetWidth;
@@ -657,7 +645,7 @@
             if (ent.isIntersecting) needParallaxTick = true;
           }
         }
-        if (needParallaxTick && !liteMotion && !prefersReducedMotion) {
+        if (needParallaxTick && !liteMotion) {
           lastScrollY = window.scrollY;
           if (!ticking) {
             ticking = true;
@@ -688,7 +676,7 @@
     }
 
     updateHeroParallax();
-    if (!liteMotion && !prefersReducedMotion) updateLayerParallax();
+    if (!liteMotion) updateLayerParallax();
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -923,13 +911,13 @@
   function getApplyFormSnapshot() {
     if (!applyForm) return '';
     var name = applyForm.querySelector('[name="name"]');
-    var email = applyForm.querySelector('[name="email"]');
+    var contact = applyForm.querySelector('[name="contact"]');
     var role = applyForm.querySelector('[name="role"]');
     var portfolio = applyForm.querySelector('[name="portfolio"]');
     var msg = applyForm.querySelector('[name="message"]');
     return [
       name && name.value,
-      email && email.value,
+      contact && contact.value,
       role && role.value,
       portfolio && portfolio.value,
       msg && msg.value
@@ -969,15 +957,16 @@
   function validateApplyForm() {
     if (!applyForm) return { ok: false, message: 'Form missing.' };
     var name = applyForm.querySelector('[name="name"]');
-    var email = applyForm.querySelector('[name="email"]');
+    var contact = applyForm.querySelector('[name="contact"]');
     var role = applyForm.querySelector('[name="role"]');
     var portfolio = applyForm.querySelector('[name="portfolio"]');
-    if (!name || !String(name.value).trim()) {
-      return { ok: false, message: 'Please enter your name.' };
+    var nameVal = name && String(name.value).trim();
+    if (!nameVal || nameVal.length < 2) {
+      return { ok: false, message: 'Please enter your full name (at least 2 characters).' };
     }
-    var em = email && String(email.value).trim();
-    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
-      return { ok: false, message: 'Please enter a valid email address.' };
+    var contactVal = contact && String(contact.value).trim();
+    if (!contactVal || contactVal.length < 2) {
+      return { ok: false, message: 'Please enter a way to reach you (email, Twitter, Discord, etc.).' };
     }
     if (!role || !String(role.value).trim()) {
       return { ok: false, message: 'Please select a role.' };
@@ -1015,7 +1004,7 @@
   }
 
   if (applyForm) {
-    applyForm.addEventListener('input', function () {
+    function onApplyFormChange() {
       if (applySubmitArmed && applyArmedSnapshot !== null && getApplyFormSnapshot() !== applyArmedSnapshot) {
         resetApplySubmitArm();
         if (applyFormStatus) {
@@ -1024,17 +1013,9 @@
         }
       }
       updateApplyWordCount();
-    });
-    applyForm.addEventListener('change', function () {
-      if (applySubmitArmed && applyArmedSnapshot !== null && getApplyFormSnapshot() !== applyArmedSnapshot) {
-        resetApplySubmitArm();
-        if (applyFormStatus) {
-          applyFormStatus.textContent = '';
-          applyFormStatus.classList.remove('is-error', 'is-success', 'is-pending');
-        }
-      }
-      updateApplyWordCount();
-    });
+    }
+    applyForm.addEventListener('input', onApplyFormChange);
+    applyForm.addEventListener('change', onApplyFormChange);
     updateApplyWordCount();
   }
 
