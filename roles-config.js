@@ -14,10 +14,10 @@ window.KAIM_ROLES = [
     open: true,
     icon: 'concept',
     title: 'Concept Artist / Thumbnail Strategist',
-    meta: 'Both channels',
+    meta: 'KaiM',
     badge: 'Part-time',
     description:
-      'Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for both channels.',
+      'Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for the KaiM channel.',
     applyValue: 'Concept Artist / Thumbnail Strategist'
   },
   {
@@ -25,10 +25,10 @@ window.KAIM_ROLES = [
     open: true,
     icon: 'manager',
     title: 'Channel Manager',
-    meta: 'Both channels',
+    meta: 'KaiM',
     badge: 'Full-time',
     description:
-      'Managing the team, analyzing statistics, outreach, and handling business inquiries across both channels.',
+      'Managing the team, analyzing statistics, outreach, and handling business inquiries for the KaiM channel.',
     applyValue: 'Channel Manager'
   },
   {
@@ -46,10 +46,10 @@ window.KAIM_ROLES = [
     open: false,
     icon: 'thumbnail',
     title: 'Thumbnail Artist',
-    meta: 'Both channels',
+    meta: 'KaiM',
     badge: 'Full-time',
     description:
-      'Create eye-catching thumbnails for both KaiM and KaiAim channels. Proficient in Blender and Photoshop.'
+      'Create eye-catching thumbnails for the KaiM channel. Proficient in Blender and Photoshop.'
   },
   {
     id: 'vfx-artist',
@@ -66,7 +66,7 @@ window.KAIM_ROLES = [
     open: false,
     icon: 'cutter',
     title: 'Video Cutter',
-    meta: 'Both channels \u00b7 long-form',
+    meta: 'KaiM \u00b7 long-form',
     badge: 'Full-time',
     description:
       'Needs a deep understanding of retention and how to weave a compelling story from raw footage. Responsible for structuring and cutting long-form content for the main KaiM channel.'
