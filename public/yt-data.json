@@ -1,19 +1,19 @@
 {
-  "fetchedAt": "2026-06-01T15:44:37.303Z",
+  "fetchedAt": "2026-06-15T15:32:56.976Z",
   "channels": {
     "kaim": {
       "handle": "@SubToKaiM",
-      "totalViews": 37381405,
-      "totalViewsFormatted": "37M",
-      "subscribers": 289000,
-      "subscribersFormatted": "289K"
+      "totalViews": 38709446,
+      "totalViewsFormatted": "38M",
+      "subscribers": 296000,
+      "subscribersFormatted": "296K"
     },
     "kaiaim": {
       "handle": "@AimKaiM",
-      "totalViews": 407728,
-      "totalViewsFormatted": "407K",
-      "subscribers": 5620,
-      "subscribersFormatted": "5.6K"
+      "totalViews": 449689,
+      "totalViewsFormatted": "449K",
+      "subscribers": 6060,
+      "subscribersFormatted": "6K"
     }
   },
   "topVideos": [
@@ -26,8 +26,8 @@
       "videoId": "UBIF_MuqPxg",
       "title": "Exposing the #1 TOXIC Clan as a Undercover PRO..",
       "thumbnail": "https://i.ytimg.com/vi/UBIF_MuqPxg/maxresdefault.jpg",
-      "viewCount": 8495677,
-      "viewCountFormatted": "8.4M",
+      "viewCount": 8558993,
+      "viewCountFormatted": "8.5M",
       "publishedAt": "2025-08-25T17:38:34Z"
     },
     {
@@ -39,7 +39,7 @@
       "videoId": "ci5Gup4YAiw",
       "title": "I Snuck into a School's Rivals Tournament..",
       "thumbnail": "https://i.ytimg.com/vi/ci5Gup4YAiw/maxresdefault.jpg",
-      "viewCount": 7040523,
+      "viewCount": 7070003,
       "viewCountFormatted": "7M",
       "publishedAt": "2025-07-19T18:39:15Z"
     },
@@ -52,8 +52,8 @@
       "videoId": "h1kC0zZjIuc",
       "title": "I Hired a PRO Rivals Coach, Then DESTROYED Him..",
       "thumbnail": "https://i.ytimg.com/vi/h1kC0zZjIuc/maxresdefault.jpg",
-      "viewCount": 3788329,
-      "viewCountFormatted": "3.7M",
+      "viewCount": 3837411,
+      "viewCountFormatted": "3.8M",
       "publishedAt": "2025-06-30T19:09:50Z"
     },
     {
@@ -65,8 +65,8 @@
       "videoId": "GQt7NBAO5i8",
       "title": "I Hunted A TOXIC Scammer for REVENGE..",
       "thumbnail": "https://i.ytimg.com/vi/GQt7NBAO5i8/maxresdefault.jpg",
-      "viewCount": 3668129,
-      "viewCountFormatted": "3.6M",
+      "viewCount": 3700779,
+      "viewCountFormatted": "3.7M",
       "publishedAt": "2025-08-09T01:50:36Z"
     },
     {
@@ -78,7 +78,7 @@
       "videoId": "y6Gp4EdpBbQ",
       "title": "I Hunted a TOXIC Hacker Until He RAGE QUITS",
       "thumbnail": "https://i.ytimg.com/vi/y6Gp4EdpBbQ/maxresdefault.jpg",
-      "viewCount": 2438996,
+      "viewCount": 2480350,
       "viewCountFormatted": "2.4M",
       "publishedAt": "2025-09-30T11:08:45Z"
     },
@@ -91,8 +91,8 @@
       "videoId": "8jiN33s2aRw",
       "title": "I Banned the DUMBEST HACKER in Rivals..",
       "thumbnail": "https://i.ytimg.com/vi/8jiN33s2aRw/maxresdefault.jpg",
-      "viewCount": 2285293,
-      "viewCountFormatted": "2.2M",
+      "viewCount": 2302665,
+      "viewCountFormatted": "2.3M",
       "publishedAt": "2025-03-28T21:38:52Z"
     }
   ],
@@ -106,8 +106,8 @@
       "videoId": "E8jouAvCpxQ",
       "title": "The #1 Sniper in Rivals.",
       "thumbnail": "https://i.ytimg.com/vi/E8jouAvCpxQ/maxresdefault.jpg",
-      "viewCount": 396020,
-      "viewCountFormatted": "396K",
+      "viewCount": 436393,
+      "viewCountFormatted": "436K",
       "publishedAt": "2026-03-06T23:04:53Z"
     },
     {
@@ -119,34 +119,34 @@
       "videoId": "MBZ9boLcGlE",
       "title": "Join for a 0.01% CHARM in Rivals!",
       "thumbnail": "https://i.ytimg.com/vi/MBZ9boLcGlE/maxresdefault.jpg",
-      "viewCount": 7260,
-      "viewCountFormatted": "7.2K",
+      "viewCount": 7525,
+      "viewCountFormatted": "7.5K",
       "publishedAt": "2026-03-19T07:19:05Z"
     },
     {
       "rank": 3,
-      "previousRank": 4,
-      "rankDelta": 1,
+      "previousRank": 3,
+      "rankDelta": 0,
       "isNewEntry": false,
       "isTopThree": true,
       "videoId": "CvFgQXPKy7o",
       "title": "1v1ing viewers for Charm",
       "thumbnail": "https://i.ytimg.com/vi/CvFgQXPKy7o/maxresdefault.jpg",
-      "viewCount": 3462,
-      "viewCountFormatted": "3.4K",
+      "viewCount": 4141,
+      "viewCountFormatted": "4.1K",
       "publishedAt": "2026-05-04T14:47:58Z"
     },
     {
       "rank": 4,
-      "previousRank": 3,
-      "rankDelta": -1,
+      "previousRank": 4,
+      "rankDelta": 0,
       "isNewEntry": false,
       "isTopThree": false,
       "videoId": "UFrGJOod2Gw",
       "title": "Giving Away my CHARM in Rivals!",
       "thumbnail": "https://i.ytimg.com/vi/UFrGJOod2Gw/maxresdefault.jpg",
-      "viewCount": 3135,
-      "viewCountFormatted": "3.1K",
+      "viewCount": 3321,
+      "viewCountFormatted": "3.3K",
       "publishedAt": "2026-03-18T07:47:21Z"
     }
   ]
