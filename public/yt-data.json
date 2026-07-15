@@ -1,19 +1,19 @@
 {
-  "fetchedAt": "2026-07-01T12:25:37.167Z",
+  "fetchedAt": "2026-07-15T11:17:15.746Z",
   "channels": {
     "kaim": {
       "handle": "@SubToKaiM",
-      "totalViews": 39371499,
-      "totalViewsFormatted": "39M",
-      "subscribers": 304000,
-      "subscribersFormatted": "304K"
+      "totalViews": 41179928,
+      "totalViewsFormatted": "41M",
+      "subscribers": 317000,
+      "subscribersFormatted": "317K"
     },
     "kaiaim": {
       "handle": "@AimKaiM",
-      "totalViews": 894227,
-      "totalViewsFormatted": "894K",
-      "subscribers": 12000,
-      "subscribersFormatted": "12K"
+      "totalViews": 1685800,
+      "totalViewsFormatted": "1.6M",
+      "subscribers": 20200,
+      "subscribersFormatted": "20K"
     }
   },
   "topVideos": [
@@ -26,7 +26,7 @@
       "videoId": "UBIF_MuqPxg",
       "title": "Exposing the #1 TOXIC Clan as a Undercover PRO..",
       "thumbnail": "https://i.ytimg.com/vi/UBIF_MuqPxg/maxresdefault.jpg",
-      "viewCount": 8615625,
+      "viewCount": 8680196,
       "viewCountFormatted": "8.6M",
       "publishedAt": "2025-08-25T17:38:34Z"
     },
@@ -39,8 +39,8 @@
       "videoId": "ci5Gup4YAiw",
       "title": "I Snuck into a School's Rivals Tournament..",
       "thumbnail": "https://i.ytimg.com/vi/ci5Gup4YAiw/maxresdefault.jpg",
-      "viewCount": 7098910,
-      "viewCountFormatted": "7M",
+      "viewCount": 7140939,
+      "viewCountFormatted": "7.1M",
       "publishedAt": "2025-07-19T18:39:15Z"
     },
     {
@@ -52,8 +52,8 @@
       "videoId": "h1kC0zZjIuc",
       "title": "I Hired a PRO Rivals Coach, Then DESTROYED Him..",
       "thumbnail": "https://i.ytimg.com/vi/h1kC0zZjIuc/maxresdefault.jpg",
-      "viewCount": 3876298,
-      "viewCountFormatted": "3.8M",
+      "viewCount": 3939208,
+      "viewCountFormatted": "3.9M",
       "publishedAt": "2025-06-30T19:09:50Z"
     },
     {
@@ -65,7 +65,7 @@
       "videoId": "GQt7NBAO5i8",
       "title": "I Hunted A TOXIC Scammer for REVENGE..",
       "thumbnail": "https://i.ytimg.com/vi/GQt7NBAO5i8/maxresdefault.jpg",
-      "viewCount": 3725409,
+      "viewCount": 3765018,
       "viewCountFormatted": "3.7M",
       "publishedAt": "2025-08-09T01:50:36Z"
     },
@@ -78,7 +78,7 @@
       "videoId": "y6Gp4EdpBbQ",
       "title": "I Hunted a TOXIC Hacker Until He RAGE QUITS",
       "thumbnail": "https://i.ytimg.com/vi/y6Gp4EdpBbQ/maxresdefault.jpg",
-      "viewCount": 2513724,
+      "viewCount": 2567438,
       "viewCountFormatted": "2.5M",
       "publishedAt": "2025-09-30T11:08:45Z"
     },
@@ -91,7 +91,7 @@
       "videoId": "8jiN33s2aRw",
       "title": "I Banned the DUMBEST HACKER in Rivals..",
       "thumbnail": "https://i.ytimg.com/vi/8jiN33s2aRw/maxresdefault.jpg",
-      "viewCount": 2316806,
+      "viewCount": 2341958,
       "viewCountFormatted": "2.3M",
       "publishedAt": "2025-03-28T21:38:52Z"
     }
@@ -99,29 +99,29 @@
   "kaiaimTopVideos": [
     {
       "rank": 1,
+      "previousRank": 2,
+      "rankDelta": 1,
+      "isNewEntry": false,
+      "isTopThree": true,
+      "videoId": "6GvjiuqUVgs",
+      "title": "Winning with EVERY Sniper Skin in Rivals!",
+      "thumbnail": "https://i.ytimg.com/vi/6GvjiuqUVgs/maxresdefault.jpg",
+      "viewCount": 860021,
+      "viewCountFormatted": "860K",
+      "publishedAt": "2026-06-22T00:43:58Z"
+    },
+    {
+      "rank": 2,
       "previousRank": 1,
-      "rankDelta": 0,
+      "rankDelta": -1,
       "isNewEntry": false,
       "isTopThree": true,
       "videoId": "E8jouAvCpxQ",
       "title": "The #1 Sniper in Rivals.",
       "thumbnail": "https://i.ytimg.com/vi/E8jouAvCpxQ/maxresdefault.jpg",
-      "viewCount": 483399,
-      "viewCountFormatted": "483K",
+      "viewCount": 519911,
+      "viewCountFormatted": "519K",
       "publishedAt": "2026-03-06T23:04:53Z"
-    },
-    {
-      "rank": 2,
-      "previousRank": null,
-      "rankDelta": null,
-      "isNewEntry": true,
-      "isTopThree": true,
-      "videoId": "6GvjiuqUVgs",
-      "title": "Winning with EVERY Sniper Skin in Rivals!",
-      "thumbnail": "https://i.ytimg.com/vi/6GvjiuqUVgs/maxresdefault.jpg",
-      "viewCount": 416045,
-      "viewCountFormatted": "416K",
-      "publishedAt": "2026-06-22T00:43:58Z"
     },
     {
       "rank": 3,
@@ -129,25 +129,25 @@
       "rankDelta": null,
       "isNewEntry": true,
       "isTopThree": true,
-      "videoId": "wMSOEoNwSx0",
-      "title": "hitting ARCHNEMESIS in roblox rivals🔴",
-      "thumbnail": "https://i.ytimg.com/vi/wMSOEoNwSx0/maxresdefault.jpg",
-      "viewCount": 8618,
-      "viewCountFormatted": "8.6K",
-      "publishedAt": "2026-06-25T22:19:01Z"
+      "videoId": "YbyHVGkVAOY",
+      "title": "I Hired a Rivals Coach, But I'm a PRO Undercover..",
+      "thumbnail": "https://i.ytimg.com/vi/YbyHVGkVAOY/maxresdefault.jpg",
+      "viewCount": 288184,
+      "viewCountFormatted": "288K",
+      "publishedAt": "2026-07-08T15:56:26Z"
     },
     {
       "rank": 4,
-      "previousRank": 2,
-      "rankDelta": -2,
+      "previousRank": 3,
+      "rankDelta": -1,
       "isNewEntry": false,
       "isTopThree": false,
-      "videoId": "MBZ9boLcGlE",
-      "title": "Join for a 0.01% CHARM in Rivals!",
-      "thumbnail": "https://i.ytimg.com/vi/MBZ9boLcGlE/maxresdefault.jpg",
-      "viewCount": 7911,
-      "viewCountFormatted": "7.9K",
-      "publishedAt": "2026-03-19T07:19:05Z"
+      "videoId": "wMSOEoNwSx0",
+      "title": "hitting ARCHNEMESIS in roblox rivals🔴",
+      "thumbnail": "https://i.ytimg.com/vi/wMSOEoNwSx0/maxresdefault.jpg",
+      "viewCount": 12693,
+      "viewCountFormatted": "12K",
+      "publishedAt": "2026-06-25T22:19:01Z"
     },
     {
       "rank": 5,
@@ -155,12 +155,12 @@
       "rankDelta": null,
       "isNewEntry": true,
       "isTopThree": false,
-      "videoId": "6tl0_coaSCw",
-      "title": "hitting ARCHNEMESIS in rivals ranked",
-      "thumbnail": "https://i.ytimg.com/vi/6tl0_coaSCw/maxresdefault.jpg",
-      "viewCount": 6996,
-      "viewCountFormatted": "6.9K",
-      "publishedAt": "2026-06-24T13:10:32Z"
+      "videoId": "91uWcGUrw8Q",
+      "title": "RIVALS PRO PLAYS RANKED 🔴",
+      "thumbnail": "https://i.ytimg.com/vi/91uWcGUrw8Q/maxresdefault.jpg",
+      "viewCount": 11543,
+      "viewCountFormatted": "11K",
+      "publishedAt": "2026-07-13T21:58:59Z"
     },
     {
       "rank": 6,
@@ -168,12 +168,12 @@
       "rankDelta": null,
       "isNewEntry": true,
       "isTopThree": false,
-      "videoId": "ae5ZTE4wlM0",
-      "title": "hitting ARCHNEMESIS in rivals ranked 🔴",
-      "thumbnail": "https://i.ytimg.com/vi/ae5ZTE4wlM0/maxresdefault.jpg",
-      "viewCount": 5242,
-      "viewCountFormatted": "5.2K",
-      "publishedAt": "2026-06-24T23:13:20Z"
+      "videoId": "iH5dU1zaefU",
+      "title": "GRINDING RANKED RIVALS (Nemesis) 🔴",
+      "thumbnail": "https://i.ytimg.com/vi/iH5dU1zaefU/maxresdefault.jpg",
+      "viewCount": 11007,
+      "viewCountFormatted": "11K",
+      "publishedAt": "2026-07-11T21:33:04Z"
     }
   ]
 }
