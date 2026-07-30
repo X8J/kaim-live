@@ -10,26 +10,35 @@
  */
 window.KAIM_ROLES = [
   {
-    id: 'concept-artist',
+    id: 'creative-director',
     open: true,
+    icon: 'creative',
+    title: 'Creative Director',
+    meta: 'KaiAim',
+    badge: 'Full-time',
+    description:
+      'Own the creative vision for KaiAim — thumbnails, visual identity, and the look of every video. Strong design taste, thumbnail fundamentals, and the ability to set a style the team can execute.',
+    applyValue: 'Creative Director'
+  },
+  {
+    id: 'concept-artist',
+    open: false,
     icon: 'concept',
     title: 'Concept Artist / Thumbnail Strategist',
     meta: 'KaiM',
     badge: 'Part-time',
     description:
-      'Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for the KaiM channel.',
-    applyValue: 'Concept Artist / Thumbnail Strategist'
+      'Good drawing skills, understanding of thumbnail fundamentals, and a strong grasp of rules of composition. Translate video ideas into compelling visual concepts for the KaiM channel.'
   },
   {
     id: 'channel-production-manager',
-    open: true,
+    open: false,
     icon: 'manager',
     title: 'Channel Manager',
     meta: 'KaiM',
     badge: 'Full-time',
     description:
-      'Managing the team, analyzing statistics, outreach, and handling business inquiries for the KaiM channel.',
-    applyValue: 'Channel Manager'
+      'Managing the team, analyzing statistics, outreach, and handling business inquiries for the KaiM channel.'
   },
   {
     id: 'community-manager',

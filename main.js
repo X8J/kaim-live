@@ -55,20 +55,45 @@
 
   startIntro();
 
-  /* Hero “Join our team” ring: drive conic `from` with rAF (CSS can’t animate custom props in most engines). */
+  /* Hero “Join our team” ring: drive conic `from` with rAF (CSS can’t animate custom props in most engines).
+   * Paused while the hero is off-screen or the tab is hidden — no reason to burn frames on it. */
   (function initHeroJoinRing() {
     var ring = document.querySelector('.hero-join__ring');
     if (!ring) return;
     var period = 4200;
     var t0 = null;
+    var running = false;
+    var heroVisible = true;
+
     function frame(now) {
+      if (!heroVisible || document.hidden) {
+        running = false;
+        t0 = null;
+        return;
+      }
       if (t0 === null) t0 = now;
       var elapsed = (now - t0) % period;
       var deg = (elapsed / period) * 360;
       ring.style.setProperty('--hero-join-sweep', String(deg) + 'deg');
       requestAnimationFrame(frame);
     }
-    requestAnimationFrame(frame);
+
+    function start() {
+      if (running) return;
+      running = true;
+      requestAnimationFrame(frame);
+    }
+
+    if (window.IntersectionObserver && hero) {
+      new IntersectionObserver(function (entries) {
+        heroVisible = entries[0].isIntersecting;
+        if (heroVisible) start();
+      }, { rootMargin: '80px 0px' }).observe(hero);
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) start();
+    });
+    start();
   })();
 
   /* Side-scroll marquee: clone row, then rAF + inline translateX (WAAPI/CSS keyframes were not moving on some builds). */
@@ -97,7 +122,6 @@
     var accumPx = 0;
     var lastNow = 0;
     var paused = false;
-    /* Slightly slower when “reduce motion” is on — still scrolls, just gentler */
     var pxPerSec = 44;
 
     function readLoopWidth() {
@@ -295,10 +319,11 @@
   }
 
   function renderChannels(data) {
-    if (!data?.channels) return;
+    if (!data) return;
+    var channels = data.channels || {};
 
-    var kaimViews = data.channels.kaim && data.channels.kaim.totalViewsFormatted;
-    var kaiaimViews = data.channels.kaiaim && data.channels.kaiaim.totalViewsFormatted;
+    var kaimViews = channels.kaim && channels.kaim.totalViewsFormatted;
+    var kaiaimViews = channels.kaiaim && channels.kaiaim.totalViewsFormatted;
     if (kaimViews) {
       var kClean = normalizeLiveViewLabel(kaimViews);
       document.querySelectorAll('[data-kaim-total-views]').forEach(function (el) {
@@ -313,7 +338,7 @@
     }
 
     var videos = data.topVideos;
-    if (Array.isArray(videos) && videos.length >= 6) {
+    if (Array.isArray(videos) && videos.length > 0) {
       var marquee = document.querySelector('[data-video-marquee]');
       if (marquee) {
         for (var i = 0; i < videos.length; i++) {
@@ -368,6 +393,8 @@
 
   /* SVG markup for role cards — keys must match window.KAIM_ROLES[].icon in roles-config.js */
   var ROLE_ICONS = {
+    creative:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>',
     concept:
       '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
     community:
@@ -593,7 +620,6 @@
       var opt0 = document.createElement('option');
       opt0.value = '';
       opt0.disabled = true;
-      opt0.selected = true;
       opt0.textContent = 'Select a role';
       applyRoleSelect.appendChild(opt0);
       for (var a = 0; a < openList.length; a++) {
@@ -610,6 +636,12 @@
       optOther.value = 'Other / general';
       optOther.textContent = 'Other / general';
       applyRoleSelect.appendChild(optOther);
+      /* One open role: pre-select it so applicants skip the dropdown. */
+      if (openList.length === 1) {
+        applyRoleSelect.selectedIndex = 1;
+      } else {
+        opt0.selected = true;
+      }
     }
 
     openMount.querySelectorAll('.scroll-reveal').forEach(function (el) {
@@ -806,19 +838,52 @@
     });
   }
 
+  /* Panel height is driven inline from the measured scrollHeight so open/close both
+   * animate over the real distance (a fixed max-height cap made closing lag: most of
+   * the transition was spent in the invisible 2200px → content-height range).
+   * After opening finishes, max-height unlocks to 'none' so role drawers expanding
+   * inside the panel are never clipped. */
   function setClosedRolesOpen(open) {
     if (!closedRolesRoot || !closedToggle || !closedPanel) return;
     closedRolesRoot.classList.toggle('is-open', open);
     closedToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     closedPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
-    if (!open) collapseClosedRoleCards();
+    if (open) {
+      closedPanel.style.maxHeight = closedPanel.scrollHeight + 'px';
+    } else {
+      if (closedPanel.style.maxHeight === 'none') {
+        closedPanel.style.maxHeight = closedPanel.scrollHeight + 'px';
+        void closedPanel.offsetHeight;
+      }
+      collapseClosedRoleCards();
+      closedPanel.style.maxHeight = '0';
+    }
   }
 
   if (closedToggle && closedRolesRoot && closedPanel) {
     closedToggle.addEventListener('click', function () {
       setClosedRolesOpen(!closedRolesRoot.classList.contains('is-open'));
     });
+    closedPanel.addEventListener('transitionend', function (e) {
+      if (e.target !== closedPanel || e.propertyName !== 'max-height') return;
+      if (closedRolesRoot.classList.contains('is-open')) {
+        closedPanel.style.maxHeight = 'none';
+      }
+    });
   }
+
+  /* Expanded drawers freeze max-height at click-time scrollHeight; re-measure after
+   * resize so reflowed content is never clipped. */
+  var drawerResizeTimer = null;
+  window.addEventListener('resize', function () {
+    if (drawerResizeTimer) clearTimeout(drawerResizeTimer);
+    drawerResizeTimer = setTimeout(function () {
+      drawerResizeTimer = null;
+      document.querySelectorAll('[data-role].expanded .role-drawer').forEach(function (d) {
+        d.style.maxHeight = d.scrollHeight + 'px';
+      });
+    }, 150);
+  }, { passive: true });
 
   function setApplyDrawerOpen(open) {
     if (!applyDrawer || !applyToggle) return;
@@ -830,7 +895,9 @@
   function focusApplyFormFirst() {
     if (!applyForm) return;
     var el = applyForm.querySelector('input:not(.apply-honeypot):not([type="hidden"]), textarea, select');
-    if (el) el.focus();
+    if (!el) return;
+    /* preventScroll: focusing mid smooth-scroll would otherwise yank the page and kill the glide. */
+    try { el.focus({ preventScroll: true }); } catch (err) { el.focus(); }
   }
 
   function scrollInterestedHeadingToTop() {
