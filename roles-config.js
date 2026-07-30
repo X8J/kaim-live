@@ -17,7 +17,7 @@ window.KAIM_ROLES = [
     meta: 'KaiAim',
     badge: 'Full-time',
     description:
-      'Own the creative vision for KaiAim — thumbnails, visual identity, and the look of every video. Strong design taste, thumbnail fundamentals, and the ability to set a style the team can execute.',
+      'Own the creative vision for KaiAim: thumbnails, ideas, scripting.',
     applyValue: 'Creative Director'
   },
   {
