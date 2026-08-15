@@ -198,6 +198,11 @@ async function fetchVideoStatsBatched(videoIds) {
   return stats;
 }
 
+function channelAvatarUrl(snippet) {
+  const t = snippet?.thumbnails;
+  return t?.high?.url ?? t?.medium?.url ?? t?.default?.url ?? null;
+}
+
 function buildChannelBlock(handle, item) {
   const st = item.statistics || {};
   const subsHidden =
@@ -206,6 +211,7 @@ function buildChannelBlock(handle, item) {
   const subscribers = subsHidden ? null : Number(st.subscriberCount || 0);
   return {
     handle: `@${handle}`,
+    avatarUrl: channelAvatarUrl(item.snippet),
     totalViews,
     totalViewsFormatted: formatChannelNumber(totalViews),
     subscribers: subscribers !== null ? subscribers : null,

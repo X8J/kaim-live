@@ -337,6 +337,19 @@
       });
     }
 
+    var kaimAvatar = channels.kaim && channels.kaim.avatarUrl;
+    if (kaimAvatar) {
+      document.querySelectorAll('[data-kaim-card-pfp]').forEach(function (el) {
+        el.src = kaimAvatar;
+      });
+    }
+    var kaiaimAvatar = channels.kaiaim && channels.kaiaim.avatarUrl;
+    if (kaiaimAvatar) {
+      document.querySelectorAll('[data-kaiaim-card-pfp]').forEach(function (el) {
+        el.src = kaiaimAvatar;
+      });
+    }
+
     var videos = data.topVideos;
     if (Array.isArray(videos) && videos.length > 0) {
       var marquee = document.querySelector('[data-video-marquee]');
