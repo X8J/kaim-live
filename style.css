@@ -309,18 +309,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .scroll-reveal[data-reveal-delay="3"].is-visible { transition-delay: 0.24s; }
 
 /* ──────────────────── SECTION HEADING ─────────────────────── */
-.section-eyebrow {
-  display: block;
-  text-align: center;
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.34em;
-  text-indent: 0.34em;
-  text-transform: uppercase;
-  color: rgba(232, 192, 106, 0.6);
-  margin-bottom: 14px;
-}
 .channels-header {
   text-align: center;
 }
