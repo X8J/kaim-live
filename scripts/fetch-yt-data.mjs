@@ -22,16 +22,19 @@ const CHANNELS = {
     key: 'kaim',
     handle: 'SubToKaiM',
     topVideoLimit: TOP_VIDEO_COUNT,
+    avatarFile: 'KaiM-card.jpg',
   },
   kaiaim: {
     key: 'kaiaim',
     handle: 'AimKaiM',
     topVideoLimit: TOP_VIDEO_COUNT,
+    avatarFile: 'KaiAim-card.jpg',
   },
 };
 
 const OUTPUT_PATH = new URL('../public/yt-data.json', import.meta.url);
 const OUTPUT_FILE = fileURLToPath(OUTPUT_PATH);
+const AVATAR_DIR = fileURLToPath(new URL('../assets/img/', import.meta.url));
 const YT_BASE = 'https://www.googleapis.com/youtube/v3/';
 
 function formatThousands(n) {
@@ -203,6 +206,18 @@ function channelAvatarUrl(snippet) {
   return t?.high?.url ?? t?.medium?.url ?? t?.default?.url ?? null;
 }
 
+/** Overwrite the checked-in card avatar so first paint matches the live channel photo. */
+async function downloadAvatar(url, fileName) {
+  if (!url || !fileName) return;
+  const res = await fetch(url);
+  if (!res.ok) {
+    process.stderr.write(`Warning: failed to download avatar ${url} (${res.status})\n`);
+    return;
+  }
+  const buf = Buffer.from(await res.arrayBuffer());
+  await fs.writeFile(path.join(AVATAR_DIR, fileName), buf);
+}
+
 function buildChannelBlock(handle, item) {
   const st = item.statistics || {};
   const subsHidden =
@@ -235,6 +250,7 @@ async function main() {
   for (const def of Object.values(CHANNELS)) {
     const item = await fetchChannelByHandle(def.handle);
     out.channels[def.key] = buildChannelBlock(def.handle, item);
+    await downloadAvatar(out.channels[def.key].avatarUrl, def.avatarFile);
 
     const limit = def.topVideoLimit;
     if (!limit) continue;

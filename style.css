@@ -1,15 +1,19 @@
 /* ───────────────────────── TOKENS ───────────────────────── */
 :root {
-  --bg-base: #080808;
-  --bg-surface: rgba(255,255,255,0.045);
-  --border-subtle: rgba(255,255,255,0.09);
-  --border-hover: rgba(255,255,255,0.2);
-  --text-primary: #f2f2f2;
-  --text-muted: rgba(240,240,240,0.52);
-  --accent-gold: #e8c06a;
-  --accent-blue: #4fa3e0;
-  --accent-pink: #f472b6;
-  --shadow-card: 0 4px 28px rgba(0,0,0,0.38);
+  --bg-base: #ffffff;
+  --bg-surface: rgba(255,255,255,0.72);
+  --bg-section-channels: #ffffff;
+  --bg-section-positions: #f6f5f2;
+  --bg-section-contact: #f5f8f6;
+  --border-subtle: rgba(0,0,0,0.1);
+  --border-hover: rgba(0,0,0,0.22);
+  --border-section: rgba(0,0,0,0.07);
+  --text-primary: #1a1a1a;
+  --text-muted: rgba(30,30,30,0.52);
+  --accent-gold: #c9a24d;
+  --accent-blue: #3b8bc9;
+  --accent-pink: #d9549a;
+  --shadow-card: 0 6px 32px rgba(0,0,0,0.1);
   --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -21,6 +25,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: none;
+  background: var(--bg-base);
+  overscroll-behavior-y: none;
 }
 html::-webkit-scrollbar { display: none; }
 body {
@@ -29,11 +35,12 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
   background: var(--bg-base);
+  overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
 }
 ::selection {
-  background: rgba(232, 192, 106, 0.3);
-  color: #fff;
+  background: rgba(201, 162, 77, 0.25);
+  color: #1a1a1a;
 }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
@@ -47,9 +54,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
-  backdrop-filter: blur(14px) saturate(1.15);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 
 /* ──────────────────── HERO BANNER ───────────────────────── */
@@ -89,13 +96,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, transparent 0%, rgba(8,8,8,0.35) 100%),
+    radial-gradient(ellipse 80% 60% at 50% 40%, transparent 0%, rgba(8,8,8,0.3) 100%),
     linear-gradient(
       to bottom,
-      rgba(10,10,10,0.15) 0%,
+      rgba(10,10,10,0.14) 0%,
       rgba(10,10,10,0.04) 38%,
-      rgba(10,10,10,0.45) 68%,
-      rgba(8,8,8,0.94) 100%
+      rgba(10,10,10,0.5) 100%
     );
   z-index: 1;
   pointer-events: none;
@@ -242,10 +248,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   z-index: 1;
   text-align: center;
   max-width: 100%;
-  background: linear-gradient(180deg, #ffffff 0%, #f4ecda 62%, #e3cd96 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #ffffff;
   opacity: 0;
   transform: scale(0.88) translate3d(0, 20px, 0);
   /* Match intro-ready filter list so blur ↔ drop-shadow interpolates (no mid-snap). */
@@ -277,7 +280,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
 }
 .scroll-indicator svg {
-  color: rgba(255,255,255,0.4);
+  color: rgba(0,0,0,0.3);
   animation: bob 2.4s ease-in-out infinite;
 }
 @keyframes bob {
@@ -319,17 +322,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   letter-spacing: -0.03em;
   text-align: center;
   margin-bottom: 48px;
-  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.82) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text-primary);
 }
 
 /* ──────────────────── CHANNELS ────────────────────────────── */
 #channels {
   position: relative;
   /* content-visibility:auto skipped layout for off-screen rows → carousel scrollWidth stayed 0 */
-  background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 45%, transparent 100%);
+  background: var(--bg-section-channels);
 }
 .channels {
   max-width: 1100px;
@@ -384,16 +384,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border: 1px solid var(--border-subtle);
   transition: border-color 0.3s ease, box-shadow 0.35s ease;
   will-change: transform;
-  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .channel-card.gold { --card-accent: var(--accent-gold); }
 .channel-card.blue { --card-accent: var(--accent-pink); }
 .channel-card:hover {
-  border-color: rgba(255,255,255,0.28);
+  border-color: rgba(0,0,0,0.15);
   box-shadow:
-    0 12px 48px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.1),
-    0 0 0 1px rgba(255,255,255,0.04),
+    0 12px 48px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    0 0 0 1px rgba(0,0,0,0.04),
     0 0 52px -14px var(--card-accent, transparent);
 }
 
@@ -402,8 +402,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   inset: 0;
   border-radius: 14px;
   background: var(--bg-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 0;
   overflow: hidden;
 }
@@ -414,14 +414,31 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.22;
+  opacity: 0.92;
   pointer-events: none;
   border-radius: 14px;
   z-index: 1;
-  transition: opacity 0.35s ease;
+  transition: transform 0.45s ease;
 }
 .channel-card:hover .card-pfp {
-  opacity: 0.5;
+  transform: scale(1.04);
+}
+
+/* Dark scrim over the photo so the white name/stat text stays legible on any image. */
+.channel-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,0.55) 0%,
+    rgba(0,0,0,0.08) 32%,
+    rgba(0,0,0,0.1) 62%,
+    rgba(0,0,0,0.62) 100%
+  );
 }
 
 .card-top {
@@ -429,22 +446,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   justify-content: space-between;
   align-items: flex-start;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
-.card-yt-icon { color: var(--text-muted); flex-shrink: 0; }
+.card-yt-icon { color: rgba(255,255,255,0.5); flex-shrink: 0; }
 .card-name {
   font-family: var(--font-display);
   font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
+  color: #fff;
 }
 .card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 .card-views {
   font-family: var(--font-display);
@@ -459,12 +477,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.5);
   margin-top: 2px;
   text-transform: uppercase;
 }
 .channel-card.blue .card-views-label {
-  color: rgba(244, 114, 182, 0.55);
+  color: rgba(217, 84, 154, 0.7);
 }
 
 /* ──────────────────── VIDEO CARDS + MARQUEE ───────────────── */
@@ -533,8 +551,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   overflow: hidden;
   border-radius: 14px;
   box-shadow:
-    inset 24px 0 24px -18px var(--bg-base, #0a0a0a),
-    inset -24px 0 24px -18px var(--bg-base, #0a0a0a);
+    inset 24px 0 24px -18px var(--bg-base, #ffffff),
+    inset -24px 0 24px -18px var(--bg-base, #ffffff);
 }
 
 /* Two .video-marquee__set siblings; -50% = one loop (percent = this element’s own width). */
@@ -621,7 +639,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   pointer-events: none;
   z-index: 3;
   transition: border-color 0.3s ease;
@@ -675,15 +693,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: relative;
   /* visible: avoid skipped subtree quirks with accordions / layout */
   padding-top: clamp(20px, 4vw, 44px);
-  background-color: var(--bg-base);
-  /* One field: base + whisper of gold/white (no second “slab” of color) */
-  background-image: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.028) 0%,
-    rgba(232, 192, 106, 0.055) 32%,
-    rgba(232, 192, 106, 0.04) 55%,
-    rgba(232, 192, 106, 0.022) 100%
-  );
+  background-color: var(--bg-section-positions);
+  border-top: 1px solid var(--border-section);
+  border-bottom: 1px solid var(--border-section);
 }
 .positions {
   max-width: 720px;
@@ -699,10 +711,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: clamp(28px, 5vw, 42px);
   font-weight: 700;
   letter-spacing: -0.03em;
-  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.85) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text-primary);
 }
 .positions-grid {
   display: grid;
@@ -730,17 +739,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .positions-footnote em {
   font-style: italic;
-  color: rgba(240, 240, 240, 0.5);
+  color: rgba(30, 30, 30, 0.5);
 }
 .positions-footnote strong {
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.65);
 }
 .positions-footnote u {
   text-decoration: underline;
   text-decoration-thickness: 0.1em;
   text-underline-offset: 0.2em;
-  text-decoration-color: rgba(200, 200, 200, 0.35);
+  text-decoration-color: rgba(60, 60, 60, 0.3);
 }
 /* Open role cards always listed before closed, regardless of DOM order */
 .positions-grid > .scroll-reveal:has(.role-card:not(.closed)) {
@@ -757,11 +766,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 /* Darker than default open job cards (which use .glass) */
 .closed-roles.glass {
-  background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
-  border-color: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #f7f7f7 0%, #f2f2f2 100%);
+  border-color: rgba(0, 0, 0, 0.08);
   box-shadow:
-    0 6px 36px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 6px 36px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px) saturate(1.05);
   -webkit-backdrop-filter: blur(12px) saturate(1.05);
 }
@@ -841,37 +850,34 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   /* Block-level .role-card.closed uses 0.55; here we want a darker list, not extra fade */
   opacity: 0.9;
 }
-.closed-roles .role-header {
-  transition: background 0.2s ease;
-}
 .closed-roles .role-card.closed .role-header:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.04);
 }
 .closed-roles .role-icon {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border-color: rgba(255, 255, 255, 0.05);
-  color: rgba(200, 200, 205, 0.5);
+  background: linear-gradient(145deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: rgba(30, 30, 30, 0.5);
 }
 .closed-roles .role-title {
-  color: rgba(240, 240, 240, 0.82);
+  color: rgba(30, 30, 30, 0.85);
 }
 .closed-roles .role-meta {
-  color: rgba(200, 200, 200, 0.38);
+  color: rgba(30, 30, 30, 0.45);
 }
 .closed-roles .role-badge {
-  color: rgba(200, 200, 200, 0.45);
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  color: rgba(30, 30, 30, 0.55);
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.04);
 }
 .closed-roles .role-chevron,
 .closed-roles .role-right {
-  color: rgba(180, 180, 185, 0.4);
+  color: rgba(30, 30, 30, 0.4);
 }
 .closed-roles .role-card.closed .role-header:hover .role-chevron {
-  color: rgba(200, 200, 200, 0.55);
+  color: rgba(30, 30, 30, 0.65);
 }
 .closed-roles .role-desc {
-  color: rgba(200, 200, 200, 0.48);
+  color: rgba(30, 30, 30, 0.55);
 }
 
 .role-card {
@@ -979,13 +985,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .apply-btn:active { transform: translateY(0); }
 
 /* ──────────────────── CONTACT CTA ────────────────────────── */
+#contactSection {
+  background: var(--bg-section-contact);
+}
 .contact-cta {
   width: 100%;
   padding: 120px 32px;
   text-align: center;
   background:
-    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(74, 222, 128, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 40%, rgba(15, 100, 40, 0.5) 0%, rgba(8, 50, 20, 0.22) 42%, transparent 75%);
+    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(74, 222, 128, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 40%, rgba(74, 222, 128, 0.07) 0%, rgba(34, 197, 94, 0.03) 42%, transparent 75%);
 }
 .contact-cta h2 {
   font-family: var(--font-display);
@@ -993,7 +1002,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-weight: 700;
   letter-spacing: -0.03em;
   margin-bottom: 16px;
-  text-shadow: 0 2px 28px rgba(0,0,0,0.35);
+  color: var(--text-primary);
 }
 .contact-subtitle {
   font-family: var(--font-body);
@@ -1033,10 +1042,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   padding: 24px;
   border-radius: 14px;
   border: 1px solid var(--border-subtle);
-  background: rgba(0,0,0,0.35);
+  background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.9);
 }
 .apply-form-hint {
   font-size: 12px;
@@ -1059,7 +1068,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .apply-label-hint {
   font-weight: 400;
-  color: rgba(240,240,240,0.38);
+  color: rgba(30,30,30,0.4);
 }
 .apply-word-count {
   font-size: 12px;
@@ -1068,33 +1077,33 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   text-align: right;
 }
 .apply-word-count.is-under {
-  color: #fbbf24;
+  color: #d97706;
 }
 .apply-word-count.is-over {
-  color: #f87171;
+  color: #dc2626;
   font-weight: 600;
 }
 textarea.apply-field-over-limit {
-  border-color: rgba(248, 113, 113, 0.5);
+  border-color: rgba(220, 38, 38, 0.5);
 }
 textarea.apply-field-under-limit {
-  border-color: rgba(251, 191, 36, 0.35);
+  border-color: rgba(217, 119, 6, 0.35);
 }
 .apply-submit.apply-submit-confirm {
   animation: applyConfirmPulse 2s ease-in-out infinite;
-  box-shadow: 0 0 0 2px rgba(232, 192, 106, 0.42);
+  box-shadow: 0 0 0 2px rgba(201, 162, 77, 0.42);
 }
 @keyframes applyConfirmPulse {
   0%,
   100% {
-    box-shadow: 0 0 0 2px rgba(232, 192, 106, 0.42);
+    box-shadow: 0 0 0 2px rgba(201, 162, 77, 0.42);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(232, 192, 106, 0.2);
+    box-shadow: 0 0 0 6px rgba(201, 162, 77, 0.2);
   }
 }
 .apply-form-status.is-pending {
-  color: rgba(232, 192, 106, 0.85);
+  color: rgba(180, 140, 50, 0.85);
 }
 .apply-form input,
 .apply-form select,
@@ -1105,25 +1114,25 @@ textarea.apply-field-under-limit {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-subtle);
-  background: rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.03);
   width: 100%;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 .apply-form input::placeholder,
 .apply-form textarea::placeholder {
-  color: rgba(240,240,240,0.35);
+  color: rgba(30,30,30,0.35);
 }
 .apply-form input:focus,
 .apply-form select:focus,
 .apply-form textarea:focus {
   outline: none;
   border-color: var(--border-hover);
-  background: rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.05);
 }
 .apply-form select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(240,240,240,0.45)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(30,30,30,0.45)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
@@ -1150,13 +1159,13 @@ textarea.apply-field-under-limit {
   border-radius: 50px;
   border: none;
   cursor: pointer;
-  background: var(--text-primary);
-  color: #0f2a14;
+  background: #1a1a1a;
+  color: #ffffff;
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 .apply-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
 }
 .apply-submit:disabled {
   opacity: 0.55;
@@ -1168,8 +1177,8 @@ textarea.apply-field-under-limit {
   text-align: center;
   min-height: 1.25em;
 }
-.apply-form-status.is-error { color: #f87171; }
-.apply-form-status.is-success { color: #86efac; }
+.apply-form-status.is-error { color: #dc2626; }
+.apply-form-status.is-success { color: #16a34a; }
 
 .cta-btn {
   display: inline-flex;
@@ -1185,34 +1194,34 @@ textarea.apply-field-under-limit {
 .cta-btn.primary {
   padding: 14px 32px;
   font-size: 15px;
-  background: var(--text-primary);
-  color: #0f2a14;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  background: #1a1a1a;
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 .cta-btn.primary:hover {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
 }
 
 .cta-btn.secondary {
   padding: 14px 24px;
   font-size: 14px;
   border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  background: rgba(0,0,0,0.2);
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.03);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 .cta-btn.secondary:hover {
   border-color: var(--border-hover);
   color: var(--text-primary);
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.06);
 }
 
 .contact-cta.pulse-gold { animation: goldPulse 1.2s ease; }
 @keyframes goldPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(232,192,106,0); }
-  30%  { box-shadow: 0 0 30px 4px rgba(232,192,106,0.25); }
-  100% { box-shadow: 0 0 0 0 rgba(232,192,106,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(201,162,77,0); }
+  30%  { box-shadow: 0 0 30px 4px rgba(201,162,77,0.25); }
+  100% { box-shadow: 0 0 0 0 rgba(201,162,77,0); }
 }
 
 /* ──────────────────── FOOTER BAR ────────────────────────── */
@@ -1227,16 +1236,6 @@ textarea.apply-field-under-limit {
   font-size: 12px;
   color: var(--text-muted);
   position: relative;
-}
-.footer-bar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(320px, 60%);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
 }
 
 /* ──────────────────── RESPONSIVE ────────────────────────── */
