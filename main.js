@@ -262,7 +262,7 @@
       });
   }
 
-  /** KaiAim: 1 tile = solo (no horizontal strip); 2–6 = scrollable row. No marquee. */
+  /** KaiAim: 1 tile = solo static card; 2+ = the same auto-scrolling marquee KaiM uses. */
   function renderKaiaimRail(videos) {
     var rail = document.querySelector('[data-kaiaim-video-rail]');
     if (!rail) return;
@@ -275,10 +275,31 @@
     }
     if (rows.length === 0) return;
 
-    rail.classList.toggle('video-static--multi', rows.length > 1);
     while (rail.firstChild) rail.removeChild(rail.firstChild);
 
     var solo = rows.length === 1;
+    /* With 2+ videos the rail is rebuilt as a marquee root: the shared [data-video-marquee]
+     * init pass runs after render, so it picks this up like KaiM's. A lone card has nothing
+     * to loop, so it stays a plain static tile. */
+    var mount;
+    if (solo) {
+      rail.className = 'video-static video-static--kaiaim';
+      rail.removeAttribute('data-video-marquee');
+      mount = rail;
+    } else {
+      rail.className = 'video-marquee video-marquee--kaiaim';
+      rail.setAttribute('data-video-marquee', '');
+      var viewport = document.createElement('div');
+      viewport.className = 'video-marquee__viewport';
+      var track = document.createElement('div');
+      track.className = 'video-marquee__track';
+      mount = document.createElement('div');
+      mount.className = 'video-marquee__set';
+      track.appendChild(mount);
+      viewport.appendChild(track);
+      rail.appendChild(viewport);
+    }
+
     for (var i = 0; i < rows.length; i++) {
       var video = rows[i];
       var a = document.createElement('a');
@@ -314,7 +335,7 @@
       a.appendChild(badge);
       a.appendChild(img);
       a.appendChild(overlay);
-      rail.appendChild(a);
+      mount.appendChild(a);
     }
   }
 
