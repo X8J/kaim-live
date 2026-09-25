@@ -11,7 +11,6 @@
   --text-primary: #1a1a1a;
   --text-muted: rgba(30,30,30,0.52);
   --accent-gold: #c9a24d;
-  --accent-blue: #3b8bc9;
   --accent-pink: #d9549a;
   --shadow-card: 0 6px 32px rgba(0,0,0,0.1);
   --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -29,6 +28,14 @@ html {
   overscroll-behavior-y: none;
 }
 html::-webkit-scrollbar { display: none; }
+/* Applied by main.js for the length of the opening sequence, so the hero cannot be
+ * scrolled past mid-reveal. Always removed on a timer, never left on. */
+html.is-intro-locked,
+html.is-intro-locked body {
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+}
 body {
   font-family: var(--font-body);
   font-size: 15px;
@@ -72,6 +79,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background: var(--bg-base);
 }
 
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform: scale(1.12) translateZ(0);
+  transform-origin: center center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
 .hero-img {
   position: absolute;
   inset: 0;
@@ -79,17 +95,25 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   height: 100%;
   object-fit: cover;
   object-position: center center;
-  z-index: 0;
-  transform: scale(1.12) translateZ(0);
-  transform-origin: center center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  filter: blur(0) brightness(0.9);
-  transition: filter 1.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .hero-img[src=""] { display: none; }
-.hero.hero-intro-ready .hero-img {
+/* The banner opens bright and sharp, then cross-fades to a dim blurred copy while the text
+ * arrives. Two statically-filtered layers rather than one animated filter: animating
+ * blur() across a full-viewport image re-runs the blur every frame, which was the jank at
+ * page open. Here each layer rasterises once and only opacity moves. */
+.hero-img--sharp {
+  filter: brightness(1.08);
+}
+.hero-img--dim {
   filter: blur(6px) brightness(0.42);
+  opacity: 0;
+  transition: opacity 1.95s cubic-bezier(0.4, 0, 0.3, 1) 0.19s;
+  will-change: opacity;
+}
+.hero.hero-intro-ready .hero-img--dim {
+  opacity: 1;
 }
 
 .hero-overlay {
@@ -139,8 +163,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 0;
   transform: translate3d(0, 18px, 0);
   transition:
-    opacity 1.0s cubic-bezier(0.22, 1, 0.36, 1) 0.38s,
-    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.38s;
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.86s,
+    transform 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.86s;
 }
 .hero.hero-intro-ready .hero-tagline {
   opacity: 1;
@@ -167,8 +191,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
     box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.28s cubic-bezier(0.22, 1, 0.45, 1),
     color 0.2s ease,
-    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.58s,
-    scale 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s;
+    opacity 0.64s cubic-bezier(0.22, 1, 0.36, 1) 1.12s,
+    scale 0.68s cubic-bezier(0.34, 1.56, 0.64, 1) 1.1s;
   box-shadow: none;
   opacity: 0;
   scale: 0.82;
@@ -179,14 +203,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
   scale: 1;
 }
+/* The sweep is a rotating square rather than an animated `from` angle: spinning the
+ * element is a compositor transform, whereas animating the gradient's angle repaints the
+ * conic gradient every frame. Sized at 160% of the button width (> its 141% diagonal) so
+ * no corner is ever exposed, and the parent's overflow clips it back to the pill. */
 .hero-join__ring {
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  left: 50%;
+  top: 50%;
+  width: 160%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
   z-index: 0;
-  /* `--hero-join-sweep` is driven in main.js (rAF) — keyframe+@property is unreliable in most browsers. */
   background: conic-gradient(
-    from var(--hero-join-sweep, 0deg),
     #0d1f16 0deg,
     #14532d 38deg,
     #1a3f28 70deg,
@@ -199,15 +228,26 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
     #0d2818 310deg,
     #0d1f16 360deg
   );
+  animation: hero-join-sweep 4.2s linear infinite;
+  will-change: transform;
   pointer-events: none;
   backface-visibility: hidden;
 }
+@keyframes hero-join-sweep {
+  to { rotate: 360deg; }
+}
+.hero.is-paused .hero-join__ring {
+  animation-play-state: paused;
+}
+/* nowrap keeps the button wider than it is tall, which is what lets the ring's 160%
+ * square always cover the pill's diagonal as it rotates. */
 .hero-join__label {
   position: relative;
   z-index: 1;
   margin: 2px;
   padding: 12px 30px;
   min-height: 44px;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -249,22 +289,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   text-align: center;
   max-width: 100%;
   color: #ffffff;
+  /* Static shadow rather than an animated blur/drop-shadow filter: filtering text this
+   * large re-rasterises a big area every frame. Opacity + transform stay on the compositor. */
+  text-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: scale(0.88) translate3d(0, 20px, 0);
-  /* Match intro-ready filter list so blur ↔ drop-shadow interpolates (no mid-snap). */
-  filter: blur(8px) drop-shadow(0 8px 40px rgba(0, 0, 0, 0));
+  transform: scale(0.9) translate3d(0, 24px, 0);
   transform-origin: center center;
   transition:
-    opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s,
-    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.05s,
-    filter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.05s;
+    opacity 0.83s cubic-bezier(0.22, 1, 0.36, 1) 0.52s,
+    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.52s;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 .hero.hero-intro-ready .hero-title {
   opacity: 1;
   transform: scale(1) translate3d(0, 0, 0);
-  filter: blur(0) drop-shadow(0 8px 40px rgba(0, 0, 0, 0.5));
 }
 
 .scroll-indicator {
@@ -274,7 +313,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   transform: translateX(-50%) translateZ(0);
   z-index: 3;
   opacity: 0;
-  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.05s;
+  transition: opacity 0.56s cubic-bezier(0.22, 1, 0.36, 1) 1.61s;
 }
 .hero.hero-intro-ready .scroll-indicator {
   opacity: 1;
@@ -331,7 +370,69 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   /* content-visibility:auto skipped layout for off-screen rows → carousel scrollWidth stayed 0 */
   background: var(--bg-section-channels);
 }
+
+/* Static square grid behind the channel rows, with individual cells fading in and out.
+ * The lattice is a plain background on this element — no animation, so it costs one paint.
+ * Only the blocks animate, and each is its own 46px element rather than a full-section
+ * layer, so the compositor holds ~8KB per block instead of a screen-sized bitmap each. */
+.grid-bg {
+  --cell: 46px;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: var(--cell) var(--cell);
+}
+.grid-bg__block {
+  position: absolute;
+  width: var(--cell);
+  height: var(--cell);
+  background: var(--block-color);
+  opacity: 0;
+  animation: block-pulse var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+  will-change: opacity;
+}
+/* Offsets are multiples of --cell so every block lands on the lattice. Negative delays
+ * start each one mid-cycle, so they are already out of step on first paint. */
+.grid-bg__block:nth-child(1) { left: 46px;   top: 92px;  --block-color: rgba(201, 162, 77, 0.20); --dur: 8s;    --delay: -1s; }
+.grid-bg__block:nth-child(2) { left: 138px;  top: 276px; --block-color: rgba(217, 84, 154, 0.16); --dur: 11s;   --delay: -4s; }
+.grid-bg__block:nth-child(3) { left: 276px;  top: 138px; --block-color: rgba(0, 0, 0, 0.05);      --dur: 9.5s;  --delay: -7s; }
+.grid-bg__block:nth-child(4) { left: 414px;  top: 368px; --block-color: rgba(201, 162, 77, 0.13); --dur: 13s;   --delay: -2s; }
+.grid-bg__block:nth-child(5) { left: 598px;  top: 92px;  --block-color: rgba(59, 139, 201, 0.11); --dur: 7s;    --delay: -5s; }
+.grid-bg__block:nth-child(6) { left: 736px;  top: 276px; --block-color: rgba(217, 84, 154, 0.13); --dur: 12s;   --delay: -9s; }
+.grid-bg__block:nth-child(7) { left: 920px;  top: 184px; --block-color: rgba(201, 162, 77, 0.16); --dur: 10s;   --delay: -3s; }
+.grid-bg__block:nth-child(8) { left: 1104px; top: 414px; --block-color: rgba(0, 0, 0, 0.045);     --dur: 14s;   --delay: -6s; }
+.grid-bg__block:nth-child(9) { left: 92px;   top: 414px; --block-color: rgba(59, 139, 201, 0.10); --dur: 8.5s;  --delay: -8s; }
+/* Solid-colour fade instead of a mask: the section background is opaque, so painting the
+ * edges back over the grid is the same result for none of the compositing cost. */
+.grid-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--bg-section-channels) 0%,
+    transparent 15%,
+    transparent 85%,
+    var(--bg-section-channels) 100%
+  );
+}
+.grid-bg.is-paused .grid-bg__block {
+  animation-play-state: paused;
+}
+@keyframes block-pulse {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 1; }
+}
+
 .channels {
+  position: relative;
+  z-index: 1;
   max-width: 1100px;
   margin: 0 auto;
   padding: 80px 32px;
@@ -388,22 +489,25 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .channel-card.gold { --card-accent: var(--accent-gold); }
 .channel-card.blue { --card-accent: var(--accent-pink); }
+/* No coloured bloom here. A 52px accent glow read as a nice halo on the old dark theme and
+ * was invisible on flat white, but over the grid it washes the lines out into a smudge
+ * ringing the card. Plain elevation instead. */
 .channel-card:hover {
   border-color: rgba(0,0,0,0.15);
   box-shadow:
-    0 12px 48px rgba(0,0,0,0.12),
+    0 14px 40px rgba(0,0,0,0.16),
     inset 0 1px 0 rgba(255,255,255,0.8),
-    0 0 0 1px rgba(0,0,0,0.04),
-    0 0 52px -14px var(--card-accent, transparent);
+    0 0 0 1px rgba(0,0,0,0.05);
 }
 
+/* No backdrop-filter here: the pfp covers this at 0.92 opacity so the blur was invisible,
+ * and a backdrop-filter under the hover tilt composites as an axis-aligned rectangle,
+ * which showed up as a hard-edged halo around the card. */
 .card-glass {
   position: absolute;
   inset: 0;
   border-radius: 14px;
   background: var(--bg-surface);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   z-index: 0;
   overflow: hidden;
 }
@@ -464,6 +568,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: relative;
   z-index: 3;
 }
+/* These sit over the channel art, which can be bright and busy, so they get a 1px black
+ * outline. Built from text-shadow rather than -webkit-text-stroke: a stroke is centered on
+ * the glyph outline, so painting it behind the fill (paint-order) shows only half its width
+ * — a 1px stroke reads as 0.5px — and painting it in front eats into the letterform. */
+.card-views,
+.card-views-label {
+  text-shadow:
+    1px 0 0 rgba(0, 0, 0, 0.62),
+    -1px 0 0 rgba(0, 0, 0, 0.62),
+    0 1px 0 rgba(0, 0, 0, 0.62),
+    0 -1px 0 rgba(0, 0, 0, 0.62),
+    1px 1px 0 rgba(0, 0, 0, 0.5),
+    -1px 1px 0 rgba(0, 0, 0, 0.5),
+    1px -1px 0 rgba(0, 0, 0, 0.5),
+    -1px -1px 0 rgba(0, 0, 0, 0.5),
+    0 2px 10px rgba(0, 0, 0, 0.45);
+}
 .card-views {
   font-family: var(--font-display);
   font-size: 28px;
@@ -472,17 +593,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   line-height: 1;
   color: var(--card-accent);
 }
+/* Fill stays opaque — a translucent fill lets the outline show through and muddies it. */
 .card-views-label {
   font-family: var(--font-display);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.9);
   margin-top: 2px;
   text-transform: uppercase;
 }
 .channel-card.blue .card-views-label {
-  color: rgba(217, 84, 154, 0.7);
+  color: rgb(236, 130, 186);
 }
 
 /* ──────────────────── VIDEO CARDS + MARQUEE ───────────────── */
@@ -559,20 +681,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-/* Fallback when Element.animate is missing (rare): same loop via -50% on the track. */
-.video-marquee__track--animate {
-  animation: video-marquee-shift 22s linear infinite;
-}
-@media (hover: hover) {
-  .video-marquee:hover .video-marquee__track--animate {
-    animation-play-state: paused;
-  }
-}
-@keyframes video-marquee-shift {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
-}
-
 .video-marquee__set {
   display: flex;
   flex-direction: row;
@@ -646,13 +754,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
 }
 
+/* No backdrop-filter: ~24 of these ride inside the two marquees, and a backdrop blur on
+ * continuously moving content has to be recomputed every frame. At 0.78 black the blur
+ * was doing nothing visible anyway. */
 .video-card__views {
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.78);
   color: #fff;
   font-family: var(--font-display);
   font-size: 11px;
@@ -678,7 +787,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border-top: 1px solid var(--border-section);
   border-bottom: 1px solid var(--border-section);
 }
+/* Halftone field: one dot lattice, faded by a mask so it reads as a gradient of dots
+ * rather than a flat screen, and never competes with the role cards on top. */
+#positions::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.14) 1.7px, transparent 1.8px);
+  background-size: 17px 17px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 38%, #000 0%, rgba(0, 0, 0, 0.45) 45%, transparent 78%);
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 38%, #000 0%, rgba(0, 0, 0, 0.45) 45%, transparent 78%);
+}
 .positions {
+  position: relative;
+  z-index: 1;
   max-width: 720px;
   margin: 0 auto;
   padding: 0 clamp(16px, 4vw, 32px) clamp(60px, 8vw, 100px);
@@ -717,10 +841,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: 12.5px;
   line-height: 1.55;
   color: var(--text-muted);
-}
-.positions-footnote em {
-  font-style: italic;
-  color: rgba(30, 30, 30, 0.5);
 }
 .positions-footnote strong {
   font-weight: 700;
@@ -1189,13 +1309,23 @@ textarea.apply-field-under-limit {
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   background: rgba(0,0,0,0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 .cta-btn.secondary:hover {
   border-color: var(--border-hover);
   color: var(--text-primary);
   background: rgba(0,0,0,0.06);
+}
+
+/* Disabled CTA (no open roles). Listed after the :hover rules so it wins the specificity
+ * tie, and it repeats the hover properties so nothing lifts or glows on hover. */
+.cta-btn:disabled,
+.cta-btn.primary:disabled,
+.cta-btn.primary:disabled:hover,
+.cta-btn.secondary:disabled:hover {
+  opacity: 0.38;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .contact-cta.pulse-gold { animation: goldPulse 1.2s ease; }
@@ -1232,7 +1362,7 @@ textarea.apply-field-under-limit {
 }
 
 @media (max-width: 768px) {
-  .hero.hero-intro-ready .hero-img {
+  .hero-img--dim {
     filter: blur(4px) brightness(0.45);
   }
   .hero-content {
@@ -1329,7 +1459,10 @@ textarea.apply-field-under-limit {
 }
 
 /* ──────────────── REDUCED MOTION ────────────────────────── */
-/* All animations are intentional and non-jarring — no overrides applied. */
+/* All animations are intentional and non-jarring — except the purely decorative ambient
+ * ones, which should simply hold still. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .grid-bg__block,
+  .hero-join__ring { animation: none !important; }
 }

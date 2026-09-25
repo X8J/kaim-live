@@ -11,7 +11,7 @@
 window.KAIM_ROLES = [
   {
     id: 'creative-director',
-    open: true,
+    open: false,
     icon: 'creative',
     title: 'Creative Director',
     meta: 'KaiAim',

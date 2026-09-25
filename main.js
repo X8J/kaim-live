@@ -9,7 +9,7 @@
 
   var scrollIndicator = document.getElementById('scrollIndicator');
   var hero            = document.getElementById('hero');
-  var heroImg         = document.getElementById('heroImg');
+  var heroMedia       = document.getElementById('heroMedia');
   var contactPanel    = document.getElementById('contactPanel');
   var contactInterested = document.getElementById('contactInterested');
   var applyDrawer     = document.getElementById('applyDrawer');
@@ -38,7 +38,27 @@
       window.matchMedia('(pointer: coarse)').matches;
   }
 
+  pauseWhenOffscreen(document.querySelector('.grid-bg'));
+
+  /* Matches the last transition in the stylesheet (scroll indicator: 1.61s delay + 0.56s).
+   * Scrolling frees up halfway through, so the tail of the reveal is not a wait. */
+  var INTRO_MS = 2200;
+  var SCROLL_LOCK_MS = 1100;
+
   function startIntro() {
+    var root = document.documentElement;
+    root.classList.add('is-intro-locked');
+    /* Both run off plain timers rather than the rAF chain below: rAF never fires while the
+     * tab is in the background, and the page must never stay locked. */
+    setTimeout(function () {
+      root.classList.remove('is-intro-locked');
+    }, SCROLL_LOCK_MS);
+    /* Held until the reveal really ends: introComplete gates the inline opacity written to
+     * the scroll indicator, which would otherwise override its still-running fade-in. */
+    setTimeout(function () {
+      introComplete = true;
+    }, INTRO_MS);
+
     if (hero) void hero.offsetHeight;
     /* Triple-rAF: first flushes any pending style recalc, second ensures paint commit,
      * third fires after the browser has composited at least one frame — so CSS transitions
@@ -47,7 +67,6 @@
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
           if (hero) hero.classList.add('hero-intro-ready');
-          setTimeout(function () { introComplete = true; }, 2400);
         });
       });
     });
@@ -55,46 +74,15 @@
 
   startIntro();
 
-  /* Hero “Join our team” ring: drive conic `from` with rAF (CSS can’t animate custom props in most engines).
-   * Paused while the hero is off-screen or the tab is hidden — no reason to burn frames on it. */
-  (function initHeroJoinRing() {
-    var ring = document.querySelector('.hero-join__ring');
-    if (!ring) return;
-    var period = 4200;
-    var t0 = null;
-    var running = false;
-    var heroVisible = true;
-
-    function frame(now) {
-      if (!heroVisible || document.hidden) {
-        running = false;
-        t0 = null;
-        return;
-      }
-      if (t0 === null) t0 = now;
-      var elapsed = (now - t0) % period;
-      var deg = (elapsed / period) * 360;
-      ring.style.setProperty('--hero-join-sweep', String(deg) + 'deg');
-      requestAnimationFrame(frame);
-    }
-
-    function start() {
-      if (running) return;
-      running = true;
-      requestAnimationFrame(frame);
-    }
-
-    if (window.IntersectionObserver && hero) {
-      new IntersectionObserver(function (entries) {
-        heroVisible = entries[0].isIntersecting;
-        if (heroVisible) start();
-      }, { rootMargin: '80px 0px' }).observe(hero);
-    }
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) start();
-    });
-    start();
-  })();
+  /* Decorative CSS animations keep ticking while scrolled past, so gate them on visibility.
+   * Adds .is-paused, which the stylesheet turns into animation-play-state: paused. */
+  function pauseWhenOffscreen(el, rootMargin) {
+    if (!el || !window.IntersectionObserver) return;
+    new IntersectionObserver(function (entries) {
+      el.classList.toggle('is-paused', !entries[0].isIntersecting);
+    }, { rootMargin: rootMargin || '120px 0px' }).observe(el);
+  }
+  pauseWhenOffscreen(hero, '80px 0px');
 
   /* Side-scroll marquee: clone row, then rAF + inline translateX (WAAPI/CSS keyframes were not moving on some builds). */
   function initVideoMarquee(root) {
@@ -649,6 +637,16 @@
       }
     }
 
+    /* Nothing open: grey the CTA out rather than hiding it, so the section keeps its shape.
+     * The native disabled attribute also stops clicks and takes it out of the tab order. */
+    if (applyToggle) {
+      var noOpenRoles = openList.length === 0;
+      applyToggle.disabled = noOpenRoles;
+      applyToggle.setAttribute('aria-disabled', noOpenRoles ? 'true' : 'false');
+      if (noOpenRoles) applyToggle.title = 'No open positions right now';
+      else applyToggle.removeAttribute('title');
+    }
+
     if (applyRoleSelect) {
       while (applyRoleSelect.firstChild) applyRoleSelect.removeChild(applyRoleSelect.firstChild);
       var opt0 = document.createElement('option');
@@ -751,23 +749,38 @@
     if (!hero) return;
     var vh = window.innerHeight;
     if (lastScrollY > vh * 1.35) return;
-    if (!heroImg) return;
+    if (!heroMedia) return;
 
+    /* Scale stays fixed: the hero image carries a blur filter, and changing scale per frame
+     * forces the browser to re-rasterise (and so re-blur) the layer on every scroll frame.
+     * Translating a pre-blurred layer is a compositor move and costs nothing. */
     var imgS  = liteMotion ? 1.12 : 1.15;
     var imgTy = liteMotion ? 0.025 : 0.06;
-    var s = imgS + lastScrollY * (liteMotion ? 0.00003 : 0.00008);
-    heroImg.style.transform = 'scale(' + s + ') translate3d(0,' + (lastScrollY * imgTy) + 'px,0)';
+    heroMedia.style.transform = 'translate3d(0,' + (lastScrollY * imgTy) + 'px,0) scale(' + imgS + ')';
   }
 
+  /* Every rect is read before any transform is written. Interleaving them made each layer
+   * force its own synchronous layout on every scroll frame — the writes invalidate style,
+   * so the next read has to flush. Transforms never move other elements, so batching this
+   * way yields identical values for one layout instead of one per layer. */
   function updateLayerParallax() {
     var vh = window.innerHeight;
-    for (var i = 0; i < parallaxLayers.length; i++) {
+    var n = parallaxLayers.length;
+    var i;
+
+    for (i = 0; i < n; i++) {
+      var read = parallaxLayers[i];
+      read.rect = read.visible === false ? null : read.el.getBoundingClientRect();
+    }
+
+    for (i = 0; i < n; i++) {
       var layer = parallaxLayers[i];
-      if (layer.visible === false) {
+      var rect = layer.rect;
+      layer.rect = null;
+      if (!rect) {
         layer.el.style.transform = '';
         continue;
       }
-      var rect = layer.el.getBoundingClientRect();
       if (rect.top >= vh + 80 || rect.bottom <= -80) continue;
       var center = rect.top + rect.height * 0.5 - vh * 0.5;
       layer.el.style.transform = 'translate3d(0,' + (center / vh * layer.speed * 52) + 'px,0)';
