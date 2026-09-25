@@ -15,6 +15,7 @@
   --shadow-card: 0 6px 32px rgba(0,0,0,0.1);
   --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-pixel: 'Pixelify Sans', 'Courier New', monospace;
 }
 
 /* ───────────────────────── RESET ────────────────────────── */
@@ -185,10 +186,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   letter-spacing: 0.04em;
   line-height: 1.2;
   border-radius: 9999px;
-  overflow: hidden;
   color: #d1fae5;
   transition:
-    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.28s cubic-bezier(0.22, 1, 0.45, 1),
     color 0.2s ease,
     opacity 0.64s cubic-bezier(0.22, 1, 0.36, 1) 1.12s,
@@ -203,10 +202,55 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
   scale: 1;
 }
+/* Glow is a pre-rendered radial gradient whose opacity animates, not a box-shadow: shadows
+ * cannot be composited, so transitioning four stacked ones (the largest a 120px blur)
+ * repainted the button every frame on hover. It sits outside the ring's clipper so it can
+ * bleed past the pill. */
+.hero-join__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 260%;
+  height: 420%;
+  translate: -50% -50%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(16, 185, 129, 0.5) 0%,
+    rgba(16, 185, 129, 0.22) 42%,
+    rgba(16, 185, 129, 0) 72%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.26s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+.hero-join:hover .hero-join__glow,
+.hero-join:focus-visible .hero-join__glow {
+  opacity: 1;
+}
+/* One sharp flash as the button lands, then back to rest. No fill-mode, so once it is done
+ * the element returns to its base opacity and the hover transition takes over again. */
+.hero.hero-intro-ready .hero-join__glow {
+  animation: hero-join-flash 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) 1.12s;
+}
+@keyframes hero-join-flash {
+  0%   { opacity: 0; }
+  28%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.hero-join__clip {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
 /* The sweep is a rotating square rather than an animated `from` angle: spinning the
  * element is a compositor transform, whereas animating the gradient's angle repaints the
  * conic gradient every frame. Sized at 160% of the button width (> its 141% diagonal) so
- * no corner is ever exposed, and the parent's overflow clips it back to the pill. */
+ * no corner is ever exposed, and .hero-join__clip clips it back to the pill. */
 .hero-join__ring {
   position: absolute;
   left: 50%;
@@ -236,14 +280,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes hero-join-sweep {
   to { rotate: 360deg; }
 }
-.hero.is-paused .hero-join__ring {
+.hero.is-paused .hero-join__ring,
+.hero.is-paused .hero-join__glow {
   animation-play-state: paused;
 }
 /* nowrap keeps the button wider than it is tall, which is what lets the ring's 160%
  * square always cover the pill's diagonal as it rotates. */
 .hero-join__label {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   margin: 2px;
   padding: 12px 30px;
   min-height: 44px;
@@ -258,11 +303,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .hero-join:hover {
   color: #ecfdf5;
   transform: translate3d(0, -1px, 0);
-  box-shadow:
-    0 0 0 1px rgba(16, 185, 129, 0.2),
-    0 0 24px 4px rgba(16, 185, 129, 0.4),
-    0 0 64px 18px rgba(16, 185, 129, 0.35),
-    0 0 120px 40px rgba(16, 185, 129, 0.22);
 }
 .hero-join:hover .hero-join__label {
   background: linear-gradient(180deg, #0c281b 0%, #081f15 100%);
@@ -271,39 +311,41 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
     0 0 12px rgba(16, 185, 129, 0.15);
 }
 .hero-join:focus-visible {
-  box-shadow:
-    0 0 0 2px rgba(45, 212, 191, 0.75),
-    0 0 20px 4px rgba(16, 185, 129, 0.4),
-    0 0 64px 16px rgba(16, 185, 129, 0.25);
-  outline: none;
+  outline: 2px solid rgba(45, 212, 191, 0.85);
+  outline-offset: 3px;
 }
 
 .hero-title {
   position: relative;
-  font-family: var(--font-display);
+  font-family: var(--font-pixel);
   font-size: clamp(72px, 14vw, 180px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   line-height: 1;
   z-index: 1;
   text-align: center;
   max-width: 100%;
   color: #ffffff;
-  /* Static shadow rather than an animated blur/drop-shadow filter: filtering text this
-   * large re-rasterises a big area every frame. Opacity + transform stay on the compositor. */
   text-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  transform: scale(0.9) translate3d(0, 24px, 0);
-  transform-origin: center center;
+  /* Built left-to-right out of blocks instead of fading in. The mask is twice the element's
+   * width and hard-edged at the midpoint, so sliding it from 100% to 0% wipes the reveal
+   * across; steps() makes that wipe land in discrete columns rather than gliding, which is
+   * what reads as blocks. Only the mask position moves, so it stays cheap. */
+  -webkit-mask-image: linear-gradient(90deg, #000 50%, transparent 50%);
+  mask-image: linear-gradient(90deg, #000 50%, transparent 50%);
+  -webkit-mask-size: 200% 100%;
+  mask-size: 200% 100%;
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
   transition:
-    opacity 0.83s cubic-bezier(0.22, 1, 0.36, 1) 0.52s,
-    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.52s;
+    -webkit-mask-position 1.05s steps(14, end) 0.52s,
+    mask-position 1.05s steps(14, end) 0.52s;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 .hero.hero-intro-ready .hero-title {
-  opacity: 1;
-  transform: scale(1) translate3d(0, 0, 0);
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
 }
 
 .scroll-indicator {
@@ -438,104 +480,120 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   padding: 80px 32px;
 }
 
-.channels > .channel-row + .channel-row {
-  margin-top: 28px;
-}
-
 .channel-row {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 24px;
 }
-
-/* First column: channel card. Second: video rail (scroll-reveal + parallax child). */
-.channel-row > .scroll-reveal:first-of-type {
-  flex: 0 0 clamp(240px, 28vw, 320px);
-  width: auto;
-  min-width: 0;
-}
-.channel-row > .channel-videos-shell {
-  flex: 1;
+/* Both channels share the row evenly. */
+.channel-row > .scroll-reveal {
+  flex: 1 1 0;
   min-width: 0;
   width: auto;
-  --vc-dur: 0.2s;
-  --vc-rise: 22px;
-  /* Motion matches .scroll-reveal; opacity uses a softer decel so short fades read less “snappy”. */
-  --vc-ease-motion: cubic-bezier(0.22, 1, 0.36, 1);
-  --vc-ease-fade: cubic-bezier(0.2, 0.85, 0.25, 1);
-}
-.channel-row > .scroll-reveal:first-of-type .card-wrapper {
-  width: 100%;
-  perspective: 800px;
-}
-/* Parallax Y lives here so it never overwrites the scroll-reveal slide transform on the parent. */
-.channel-card-float {
-  width: 100%;
-  min-width: 0;
 }
 
+/* The card is three stacked layers: videos underneath, the channel face over them, and the
+ * position dots on top. Hovering fades the face out — nothing moves or resizes, so the
+ * whole interaction is opacity only. */
 .channel-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 190px;
-  padding: 24px;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   border-radius: 14px;
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
+  background: #101010;
   transition: border-color 0.3s ease, box-shadow 0.35s ease;
-  will-change: transform;
-  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.7);
+  box-shadow: var(--shadow-card);
 }
 .channel-card.gold { --card-accent: var(--accent-gold); }
 .channel-card.blue { --card-accent: var(--accent-pink); }
-/* No coloured bloom here. A 52px accent glow read as a nice halo on the old dark theme and
- * was invisible on flat white, but over the grid it washes the lines out into a smudge
- * ringing the card. Plain elevation instead. */
-.channel-card:hover {
+.channel-card:hover,
+.channel-card:focus-visible {
   border-color: rgba(0,0,0,0.15);
-  box-shadow:
-    0 14px 40px rgba(0,0,0,0.16),
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    0 0 0 1px rgba(0,0,0,0.05);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.16);
 }
 
-/* No backdrop-filter here: the pfp covers this at 0.92 opacity so the blur was invisible,
- * and a backdrop-filter under the hover tilt composites as an axis-aligned rectangle,
- * which showed up as a hard-edged halo around the card. */
-.card-glass {
+/* ── Layer 1: the top videos, one visible at a time ── */
+.card-shots {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
-  background: var(--bg-surface);
   z-index: 0;
-  overflow: hidden;
+}
+.card-shot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.card-shot.is-active { opacity: 1; }
+.card-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-shot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 46%, transparent 72%);
+}
+.card-shot__views {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  background: rgba(0,0,0,0.78);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.card-shot__title {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 30px;
+  z-index: 1;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
-.channel-card .card-pfp {
+/* ── Layer 2: the channel identity, fades away on hover ── */
+.card-face {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(16px, 2.2vw, 26px);
+  background: var(--bg-surface);
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+.channel-card.is-playing .card-face {
+  opacity: 0;
+}
+.card-face .card-pfp {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.92;
-  pointer-events: none;
-  border-radius: 14px;
-  z-index: 1;
-  transition: transform 0.45s ease;
+  z-index: 0;
 }
-.channel-card:hover .card-pfp {
-  transform: scale(1.04);
-}
-
-/* Dark scrim over the photo so the white name/stat text stays legible on any image. */
-.channel-card::after {
+/* Scrim so the white name and stats stay legible over any avatar. */
+.card-face::after {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 14px;
-  z-index: 2;
-  pointer-events: none;
+  z-index: 1;
   background: linear-gradient(
     180deg,
     rgba(0,0,0,0.55) 0%,
@@ -544,18 +602,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
     rgba(0,0,0,0.62) 100%
   );
 }
-
 .card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   position: relative;
-  z-index: 3;
+  z-index: 2;
 }
-.card-yt-icon { color: rgba(255,255,255,0.5); flex-shrink: 0; }
+.card-yt-icon { color: rgba(255,255,255,0.6); flex-shrink: 0; }
 .card-name {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: clamp(22px, 3vw, 34px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -566,12 +623,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   justify-content: space-between;
   align-items: flex-end;
   position: relative;
-  z-index: 3;
+  z-index: 2;
 }
-/* These sit over the channel art, which can be bright and busy, so they get a 1px black
- * outline. Built from text-shadow rather than -webkit-text-stroke: a stroke is centered on
- * the glyph outline, so painting it behind the fill (paint-order) shows only half its width
- * — a 1px stroke reads as 0.5px — and painting it in front eats into the letterform. */
+/* 1px outline so these stay readable over bright channel art. */
 .card-views,
 .card-views-label {
   text-shadow:
@@ -587,13 +641,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .card-views {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: clamp(20px, 2.5vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1;
   color: var(--card-accent);
 }
-/* Fill stays opaque — a translucent fill lets the outline show through and muddies it. */
 .card-views-label {
   font-family: var(--font-display);
   font-size: 10px;
@@ -607,175 +660,34 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: rgb(236, 130, 186);
 }
 
-/* ──────────────────── VIDEO CARDS + MARQUEE ───────────────── */
-.channel-videos-shell {
-  content-visibility: visible;
-}
-.channel-videos-float {
-  width: 100%;
-  min-width: 0;
-}
-
-/*
- * Channel video rail: opaque shell + transform reveal; each .video-card fades + rises in.
- * Cards keep opacity:0 + offset in the default rule so .is-visible triggers a real opacity transition.
- * Stagger: --vc-i on shell (0) + nth overrides; delay = var(--vc-i)*var(--vc-dur).
- */
-.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]) {
-  --vc-i: 0;
-  opacity: 1 !important;
-  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0ms;
-}
-.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]).is-visible,
-.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]):not(.is-visible) {
-  transition-delay: 0ms !important;
-}
-.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]):not(.is-visible) {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms;
-  pointer-events: none;
-}
-.channel-row > .channel-videos-shell.scroll-reveal:is([data-reveal-delay="2"], [data-reveal-delay="3"]).is-visible {
-  pointer-events: auto;
-}
-
-/* Explicit rest + transition on the anchor so opacity always interpolates (was only set while :not(.is-visible)). */
-.channel-row > .channel-videos-shell .video-card {
-  opacity: 0;
-  transform: translate3d(0, var(--vc-rise), 0);
-  transition:
-    opacity var(--vc-dur) var(--vc-ease-fade),
-    transform var(--vc-dur) var(--vc-ease-motion);
-  transition-delay: 0ms;
-}
-.channel-row > .channel-videos-shell:not(.is-visible) .video-card {
-  transition-delay: 0ms !important;
-}
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(2) { --vc-i: 1; }
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(3) { --vc-i: 2; }
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(4) { --vc-i: 3; }
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(5) { --vc-i: 4; }
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(6) { --vc-i: 5; }
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card:nth-child(n + 7) { --vc-i: 6; }
-.channel-row > .channel-videos-shell.is-visible .video-marquee__set .video-card,
-.channel-row > .channel-videos-shell.is-visible .video-static .video-card {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  transition-delay: calc(var(--vc-i, 0) * var(--vc-dur));
-}
-
-.video-marquee__viewport {
-  overflow: hidden;
-  border-radius: 14px;
-  box-shadow:
-    inset 24px 0 24px -18px var(--bg-base, #ffffff),
-    inset -24px 0 24px -18px var(--bg-base, #ffffff);
-}
-
-/* Two .video-marquee__set siblings; -50% = one loop (percent = this element’s own width). */
-.video-marquee__track {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  width: max-content;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.video-marquee__set {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  flex: 0 0 auto;
-}
-
-.video-static {
-  overflow: hidden;
-  border-radius: 14px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.video-card {
-  flex: 0 0 220px;
-  margin-right: 12px;
-  aspect-ratio: 16 / 9;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  display: block;
-}
-.video-marquee__set .video-card:last-child {
-  margin-right: 12px;
-}
-.video-card--solo {
-  flex: 0 0 auto;
-  width: clamp(160px, 19vw, 220px);
-  margin-right: 0;
-}
-
-.video-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-}
-.video-card:hover img {
-  transform: scale(1.05);
-}
-.video-card::after {
-  content: '';
+/* ── Layer 3: which of the three videos is showing ── */
+.card-dots {
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  pointer-events: none;
-  z-index: 3;
-  transition: border-color 0.3s ease;
-}
-.video-card:hover::after {
-  border-color: rgba(232, 192, 106, 0.55);
-}
-.video-static--kaiaim .video-card:hover::after,
-.video-marquee--kaiaim .video-card:hover::after {
-  border-color: rgba(244, 114, 182, 0.55);
-}
-
-.video-card__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 40%, transparent 70%);
-  display: flex;
-  align-items: flex-end;
-  padding: 12px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.video-card:hover .video-card__overlay {
-  opacity: 1;
-}
-
-/* No backdrop-filter: ~24 of these ride inside the two marquees, and a backdrop blur on
- * continuously moving content has to be recomputed every frame. At 0.78 black the blur
- * was doing nothing visible anyway. */
-.video-card__views {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(0,0,0,0.78);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
   z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
-
-.video-card__title {
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.35;
-  color: #fff;
+.channel-card.is-playing .card-dots {
+  opacity: 1;
+}
+.card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.card-dot.is-on {
+  background: #fff;
+  transform: scale(1.35);
 }
 
 /* ──────────────────── OPEN POSITIONS ────────────────────────── */
@@ -822,6 +734,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(16px, 2.5vw, 28px);
+}
+/* Grid items default to min-width:auto, so they refuse to shrink below their content's
+ * min-content width — the closed-roles panel was forcing the track ~20px past the viewport
+ * on a 320px screen. */
+.positions-grid > * {
+  min-width: 0;
 }
 
 /* Open role cards: the mount is a single grid item containing all open cards stacked */
@@ -1351,12 +1269,6 @@ textarea.apply-field-under-limit {
 
 /* ──────────────────── RESPONSIVE ────────────────────────── */
 
-/* Fluid channel card column — width on .channel-row > .scroll-reveal:first-of-type */
-.channel-card { height: clamp(160px, 18vw, 190px); padding: clamp(16px, 2vw, 24px); }
-.card-name { font-size: clamp(22px, 3vw, 32px); }
-.card-views { font-size: clamp(20px, 2.5vw, 28px); }
-.video-card { flex: 0 0 clamp(160px, 19vw, 220px); }
-
 @media (max-width: 900px) {
   .channels { padding-top: 56px; padding-bottom: 56px; }
 }
@@ -1378,22 +1290,12 @@ textarea.apply-field-under-limit {
     align-items: stretch;
   }
   /* In a column flex, first-of-type’s flex-basis is HEIGHT — the old clamp() left a tall empty band under the card. */
-  .channel-row > .scroll-reveal:first-of-type {
-    flex: 0 0 auto;
-    width: 100%;
-    min-height: 0;
-  }
   .channel-row > .scroll-reveal {
-    flex: none;
+    flex: 1 1 100%;
     width: 100%;
-    min-height: 0;
   }
-  .channel-card { height: auto; min-height: 160px; }
   .card-name { font-size: 28px; }
   .card-views { font-size: 24px; }
-  .channel-videos-shell { width: 100%; }
-  .video-marquee__viewport { min-height: 112px; }
-  .video-card { flex: 0 0 200px; }
 }
 
 @media (max-width: 640px) {
@@ -1401,10 +1303,6 @@ textarea.apply-field-under-limit {
   .channels {
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
-  }
-  /* Extra air between channel blocks when stacked (card + carousel per row) */
-  .channels > .channel-row + .channel-row {
-    margin-top: 36px;
   }
   .positions-grid { gap: clamp(12px, 1.8vw, 18px); }
   /* On small screens the clamp() handles padding; just add safe-area insets on top */
@@ -1432,7 +1330,6 @@ textarea.apply-field-under-limit {
   .role-drawer-inner { padding-left: 16px; }
   .apply-btn { min-height: 44px; padding: 12px 20px; }
   .cta-btn { min-height: 48px; }
-  .video-card { flex: 0 0 170px; }
   .contact-actions { flex-direction: column; }
   .role-badge { font-size: 9px; padding: 3px 8px; }
   .section-heading { margin-bottom: 32px; }
@@ -1447,7 +1344,6 @@ textarea.apply-field-under-limit {
   .role-icon svg { width: 18px; height: 18px; }
   .role-title { font-size: 14px; }
   .role-badge { font-size: 8px; padding: 2px 6px; }
-  .video-card { flex: 0 0 150px; }
   .contact-cta {
     padding-top: 56px;
     padding-bottom: max(56px, calc(36px + env(safe-area-inset-bottom, 0px)));
@@ -1455,7 +1351,30 @@ textarea.apply-field-under-limit {
     padding-right: max(14px, env(safe-area-inset-right, 0px));
   }
   .contact-subtitle { font-size: 14px; }
-  .channels > .channel-row + .channel-row { margin-top: 40px; }
+}
+
+/* ──────────────── TOUCH DEVICES ─────────────────────────── */
+/* Keyed on pointer/hover rather than width: a tablet is wide but still has no hover and
+ * still zooms on small inputs. */
+@media (pointer: coarse) {
+  /* iOS Safari zooms the whole page when a focused field is under 16px, and does not zoom
+   * back out. 44px min-height is the minimum comfortable tap target. */
+  .apply-form input,
+  .apply-form select,
+  .apply-form textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .apply-submit { min-height: 48px; }
+}
+@media (max-width: 640px) {
+  /* Five of the nine lit blocks sit past 375px, so the grid looked bare on a phone.
+   * Re-placed onto the columns that actually fit (lattice is --cell, 0–322px here). */
+  .grid-bg__block:nth-child(4) { left: 230px; top: 552px; }
+  .grid-bg__block:nth-child(5) { left: 46px;  top: 322px; }
+  .grid-bg__block:nth-child(6) { left: 322px; top: 184px; }
+  .grid-bg__block:nth-child(7) { left: 138px; top: 598px; }
+  .grid-bg__block:nth-child(8) { left: 276px; top: 460px; }
 }
 
 /* ──────────────── REDUCED MOTION ────────────────────────── */
@@ -1466,3 +1385,4 @@ textarea.apply-field-under-limit {
   .grid-bg__block,
   .hero-join__ring { animation: none !important; }
 }
+

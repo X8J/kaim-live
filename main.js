@@ -25,6 +25,7 @@
   var applyArmedSnapshot = null;
   var ticking = false;
   var lastScrollY = 0;
+  var appliedIndicatorOpacity = '';
   var introComplete = false;
 
   /* Cache device class — re-evaluated on resize instead of every frame */
@@ -84,152 +85,6 @@
   }
   pauseWhenOffscreen(hero, '80px 0px');
 
-  /* Side-scroll marquee: clone row, then rAF + inline translateX (WAAPI/CSS keyframes were not moving on some builds). */
-  function initVideoMarquee(root) {
-    if (!root || root.getAttribute('data-video-marquee-ready') === '1') return;
-    var track = root.querySelector('.video-marquee__track');
-    var set = root.querySelector('.video-marquee__set');
-    if (!track || !set) return;
-    root.setAttribute('data-video-marquee-ready', '1');
-    var shell = root.closest('.channel-videos-shell');
-    /* When the shell is scroll-revealed off-screen, the rail keeps translating in rAF, so
-     * re-entering shows a shifted strip + jagged stagger. Pause rAF, snap translate to 0, and
-     * resync lastNow when the shell is visible again. */
-    var resyncMarqueeTimeNextVisible = false;
-
-    var dup = set.cloneNode(true);
-    dup.setAttribute('aria-hidden', 'true');
-    var dupLinks = dup.querySelectorAll('a');
-    for (var d = 0; d < dupLinks.length; d++) dupLinks[d].setAttribute('tabindex', '-1');
-    track.appendChild(dup);
-
-    var imgs = track.querySelectorAll('img');
-    for (var i = 0; i < imgs.length; i++) imgs[i].loading = 'eager';
-
-    var loopW = 0;
-    var accumPx = 0;
-    var lastNow = 0;
-    var paused = false;
-    var pxPerSec = 44;
-
-    function readLoopWidth() {
-      void track.offsetWidth;
-      void set.offsetWidth;
-      var candidates = [];
-      try {
-        var r0 = set.getBoundingClientRect();
-        var r1 = dup.getBoundingClientRect();
-        var gap = r1.left - r0.left;
-        if (gap >= 24 && isFinite(gap)) candidates.push(gap);
-      } catch (e) { /* ignore */ }
-      var wSet = set.scrollWidth;
-      var wHalf = track.scrollWidth >= 48 ? track.scrollWidth / 2 : 0;
-      if (wSet >= 24) candidates.push(wSet);
-      if (wHalf >= 24) candidates.push(wHalf);
-      if (!candidates.length) {
-        var ow = set.offsetWidth;
-        if (ow >= 24) candidates.push(ow);
-      }
-      if (!candidates.length) return 0;
-      /* Floor + min: never use a loop length larger than the real repeat distance (avoids
-       * translating past the first clone into empty track / black on mobile). */
-      var w = Math.floor(Math.min.apply(null, candidates));
-      return w >= 24 ? w : 0;
-    }
-
-    var marqueeRaf = null;
-    function marqueeFrame(now) {
-      marqueeRaf = null;
-      if (document.hidden || !root.isConnected) return;
-
-      if (shell && !shell.classList.contains('is-visible')) {
-        accumPx = 0;
-        resyncMarqueeTimeNextVisible = true;
-        lastNow = now;
-        track.style.transform = 'translate3d(0,0,0)';
-        return;
-      }
-
-      if (resyncMarqueeTimeNextVisible) {
-        lastNow = now;
-        resyncMarqueeTimeNextVisible = false;
-      }
-
-      if (!loopW) {
-        loopW = readLoopWidth();
-        lastNow = now;
-        if (!loopW) {
-          marqueeRaf = requestAnimationFrame(marqueeFrame);
-          return;
-        }
-      }
-
-      if (!paused) {
-        accumPx += ((now - lastNow) / 1000) * pxPerSec;
-      }
-      lastNow = now;
-      if (loopW > 0) {
-        /* Wrap only when crossing a loop (avoid per-frame % jitter); clamp huge values for float safety. */
-        if (accumPx >= loopW || accumPx > loopW * 20) {
-          accumPx = ((accumPx % loopW) + loopW) % loopW;
-        }
-      }
-      var x = loopW > 0 ? accumPx : 0;
-      track.style.transform = 'translate3d(' + (-x) + 'px, 0, 0)';
-      marqueeRaf = requestAnimationFrame(marqueeFrame);
-    }
-
-    function scheduleMarqueeFrame() {
-      if (document.hidden || !root.isConnected) return;
-      if (marqueeRaf != null) return;
-      marqueeRaf = requestAnimationFrame(marqueeFrame);
-    }
-
-    /* Defer first measurement so mobile layout + eager images have settled before loopW locks. */
-    var startDelayMs = liteMotion ? 400 : 200;
-    requestAnimationFrame(function () {
-      setTimeout(function () {
-        scheduleMarqueeFrame();
-      }, startDelayMs);
-    });
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden && root.isConnected) scheduleMarqueeFrame();
-    });
-    if (shell && window.MutationObserver) {
-      new MutationObserver(function () {
-        if (shell.classList.contains('is-visible')) {
-          scheduleMarqueeFrame();
-        }
-      }).observe(shell, { attributes: true, attributeFilter: ['class'] });
-    }
-
-    if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
-      root.addEventListener('mouseenter', function () { paused = true; });
-      root.addEventListener('mouseleave', function () { paused = false; });
-    }
-
-    var roTimer = null;
-    function invalidateWidth() {
-      loopW = 0;
-      /* On mobile/coarse pointer, remeasure can lag card width; reset scroll offset so % loopW
-       * cannot drift into dead space. Desktop keeps accumPx to avoid a visible hitch during
-       * staggered card entrance (ResizeObserver churn during opacity/transform). */
-      if (liteMotion) accumPx = 0;
-    }
-    if (window.ResizeObserver) {
-      /* Observe track only: observing the inner set fires during card opacity/transform stagger
-       * and thrashes loopW, which caused visible flicker on the rail. */
-      new ResizeObserver(function () {
-        if (roTimer) clearTimeout(roTimer);
-        roTimer = setTimeout(function () {
-          roTimer = null;
-          invalidateWidth();
-        }, 180);
-      }).observe(track);
-    }
-    window.addEventListener('load', invalidateWidth, { once: true });
-  }
-
   const YT_DATA_URL = '/public/yt-data.json';
 
   /** Live sync values never show trailing +; strip any trailing + from JSON or prior state. */
@@ -248,83 +103,6 @@
         if (/\+$/.test(t)) return;
         el.textContent = t + '+';
       });
-  }
-
-  /** KaiAim: 1 tile = solo static card; 2+ = the same auto-scrolling marquee KaiM uses. */
-  function renderKaiaimRail(videos) {
-    var rail = document.querySelector('[data-kaiaim-video-rail]');
-    if (!rail) return;
-    if (!Array.isArray(videos)) return;
-
-    var rows = [];
-    for (var j = 0; j < videos.length; j++) {
-      var v = videos[j];
-      if (v && v.videoId) rows.push(v);
-    }
-    if (rows.length === 0) return;
-
-    while (rail.firstChild) rail.removeChild(rail.firstChild);
-
-    var solo = rows.length === 1;
-    /* With 2+ videos the rail is rebuilt as a marquee root: the shared [data-video-marquee]
-     * init pass runs after render, so it picks this up like KaiM's. A lone card has nothing
-     * to loop, so it stays a plain static tile. */
-    var mount;
-    if (solo) {
-      rail.className = 'video-static video-static--kaiaim';
-      rail.removeAttribute('data-video-marquee');
-      mount = rail;
-    } else {
-      rail.className = 'video-marquee video-marquee--kaiaim';
-      rail.setAttribute('data-video-marquee', '');
-      var viewport = document.createElement('div');
-      viewport.className = 'video-marquee__viewport';
-      var track = document.createElement('div');
-      track.className = 'video-marquee__track';
-      mount = document.createElement('div');
-      mount.className = 'video-marquee__set';
-      track.appendChild(mount);
-      viewport.appendChild(track);
-      rail.appendChild(viewport);
-    }
-
-    for (var i = 0; i < rows.length; i++) {
-      var video = rows[i];
-      var a = document.createElement('a');
-      a.className = solo ? 'video-card video-card--solo' : 'video-card';
-      a.href = 'https://www.youtube.com/watch?v=' + video.videoId;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      var rank = typeof video.rank === 'number' ? video.rank : i + 1;
-      a.setAttribute('data-video-rank', String(rank));
-
-      var badge = document.createElement('span');
-      badge.className = 'video-card__views';
-      badge.setAttribute('data-video-views', '');
-      if (video.viewCountFormatted != null) {
-        badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted);
-      }
-
-      var img = document.createElement('img');
-      img.setAttribute('data-video-thumb', '');
-      if (video.thumbnail) img.src = video.thumbnail;
-      img.alt = video.title != null ? video.title : '';
-      img.decoding = 'async';
-      img.loading = solo && i === 0 ? 'eager' : 'lazy';
-
-      var overlay = document.createElement('div');
-      overlay.className = 'video-card__overlay';
-      var titleEl = document.createElement('span');
-      titleEl.className = 'video-card__title';
-      titleEl.setAttribute('data-video-title', '');
-      if (video.title != null) titleEl.textContent = video.title;
-      overlay.appendChild(titleEl);
-
-      a.appendChild(badge);
-      a.appendChild(img);
-      a.appendChild(overlay);
-      mount.appendChild(a);
-    }
   }
 
   function renderChannels(data) {
@@ -359,37 +137,32 @@
       });
     }
 
-    var videos = data.topVideos;
-    if (Array.isArray(videos) && videos.length > 0) {
-      var marquee = document.querySelector('[data-video-marquee]');
-      if (marquee) {
-        for (var i = 0; i < videos.length; i++) {
-          var video = videos[i];
-          if (!video || !video.videoId) continue;
-          var card = marquee.querySelector('[data-video-rank="' + video.rank + '"]');
-          if (!card) continue;
+    /* Both cards carry three .card-shot slots keyed by rank, so one updater serves both. */
+    updateShots(document.querySelector('[data-channel-card] .card-shots'), data.topVideos);
+    updateShots(document.querySelector('[data-kaiaim-shots]'), data.kaiaimTopVideos);
+  }
 
-          var thumb = card.querySelector('[data-video-thumb]');
-          var badge = card.querySelector('[data-video-views]');
-          var title = card.querySelector('[data-video-title]');
+  function updateShots(mount, videos) {
+    if (!mount || !Array.isArray(videos)) return;
+    for (var i = 0; i < videos.length; i++) {
+      var video = videos[i];
+      if (!video || !video.videoId) continue;
+      var shot = mount.querySelector('[data-video-rank="' + video.rank + '"]');
+      if (!shot) continue;
 
-          if (thumb) {
-            if (video.thumbnail) thumb.src = video.thumbnail;
-            thumb.alt = video.title != null ? video.title : '';
-          }
-          if (badge && video.viewCountFormatted != null) {
-            badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted);
-          }
-          if (title && video.title != null) {
-            title.textContent = video.title;
-          }
+      var thumb = shot.querySelector('[data-video-thumb]');
+      var badge = shot.querySelector('[data-video-views]');
+      var title = shot.querySelector('[data-video-title]');
 
-          card.setAttribute('href', 'https://www.youtube.com/watch?v=' + video.videoId);
-        }
+      /* mqdefault: these are shown at card size and swap every 2s, so maxres is wasted bytes. */
+      if (thumb && video.thumbnail) {
+        thumb.src = video.thumbnail.replace(/\/(maxresdefault|sddefault|hqdefault)\.jpg/, '/mqdefault.jpg');
       }
+      if (badge && video.viewCountFormatted != null) {
+        badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted);
+      }
+      if (title && video.title != null) title.textContent = video.title;
     }
-
-    renderKaiaimRail(data.kaiaimTopVideos);
   }
 
   async function hydrateChannels() {
@@ -407,8 +180,72 @@
       markStaleViewLabelsWithPlus();
     } finally {
       clearTimeout(timeoutId);
-      document.querySelectorAll('[data-video-marquee]').forEach(initVideoMarquee);
+      initChannelCards();
     }
+  }
+
+  /* Channel cards cycle their top 3 videos. One .is-playing class drives the CSS for both
+   * input types; the timer only exists while a card is actually playing, so nothing ticks
+   * at rest. Pointer devices play on hover/focus; touch has no hover, so those cards play
+   * whenever they are on screen — otherwise the videos would be unreachable on a phone. */
+  var SHOT_HOLD_MS = 2000;
+
+  function initChannelCards() {
+    var cards = document.querySelectorAll('[data-channel-card]');
+    if (!cards.length) return;
+    var canHover = !window.matchMedia || window.matchMedia('(hover: hover)').matches;
+
+    cards.forEach(function (card) {
+      var shots = card.querySelectorAll('.card-shot');
+      var dots = card.querySelectorAll('.card-dot');
+      if (shots.length < 2) return;
+      var timer = null;
+      var idx = 0;
+
+      function show(n) {
+        for (var i = 0; i < shots.length; i++) {
+          shots[i].classList.toggle('is-active', i === n);
+        }
+        for (var d = 0; d < dots.length; d++) {
+          dots[d].classList.toggle('is-on', d === n);
+        }
+      }
+
+      function play() {
+        if (timer) return;
+        idx = 0;
+        show(0);
+        card.classList.add('is-playing');
+        timer = setInterval(function () {
+          idx = (idx + 1) % shots.length;
+          show(idx);
+        }, SHOT_HOLD_MS);
+      }
+
+      function stop() {
+        if (timer) clearInterval(timer);
+        timer = null;
+        card.classList.remove('is-playing');
+        show(-1);
+      }
+
+      if (canHover) {
+        card.addEventListener('mouseenter', play);
+        card.addEventListener('mouseleave', stop);
+        card.addEventListener('focus', play);
+        card.addEventListener('blur', stop);
+      } else if (window.IntersectionObserver) {
+        new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) play();
+          else stop();
+        }, { threshold: 0.5 }).observe(card);
+      }
+
+      /* A hidden tab still fires intervals; drop the timer and resume on return. */
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden && timer) stop();
+      });
+    });
   }
 
   hydrateChannels();
@@ -736,7 +573,13 @@
     ticking = false;
 
     if (scrollIndicator && introComplete) {
-      scrollIndicator.style.opacity = String(Math.max(0, 1 - lastScrollY / 250));
+      /* Skip no-op writes: past ~250px this is pinned at 0 for the rest of the page, and
+       * assigning it anyway still invalidates style for the element every frame. */
+      var indicatorOpacity = String(Math.max(0, 1 - lastScrollY / 250));
+      if (indicatorOpacity !== appliedIndicatorOpacity) {
+        scrollIndicator.style.opacity = indicatorOpacity;
+        appliedIndicatorOpacity = indicatorOpacity;
+      }
     }
 
     updateHeroParallax();
@@ -777,66 +620,22 @@
       var layer = parallaxLayers[i];
       var rect = layer.rect;
       layer.rect = null;
+      var next;
       if (!rect) {
-        layer.el.style.transform = '';
+        next = '';
+      } else if (rect.top >= vh + 80 || rect.bottom <= -80) {
         continue;
+      } else {
+        var center = rect.top + rect.height * 0.5 - vh * 0.5;
+        next = 'translate3d(0,' + (center / vh * layer.speed * 52) + 'px,0)';
       }
-      if (rect.top >= vh + 80 || rect.bottom <= -80) continue;
-      var center = rect.top + rect.height * 0.5 - vh * 0.5;
-      layer.el.style.transform = 'translate3d(0,' + (center / vh * layer.speed * 52) + 'px,0)';
+      /* Off-screen layers were being reset to '' on every frame; same-value writes still
+       * cost a style invalidation each. */
+      if (next !== layer.applied) {
+        layer.el.style.transform = next;
+        layer.applied = next;
+      }
     }
-  }
-
-  /* 3D tilt on channel cards (pointer devices only). Coalesces mousemove to latest pointer per frame. */
-  if (window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 640) {
-    document.querySelectorAll('[data-tilt]').forEach(function (card) {
-      var raf = null;
-      var pending = null;
-
-      function applyPointer(ev) {
-        var r = card.getBoundingClientRect();
-        var x = (ev.clientX - r.left) / r.width - 0.5;
-        var y = (ev.clientY - r.top) / r.height - 0.5;
-        card.style.transform =
-          'rotateY(' + x * 14 + 'deg) rotateX(' + -y * 14 + 'deg) scale3d(1.03,1.03,1.03)';
-      }
-
-      function scheduleTilt() {
-        if (raf != null) return;
-        raf = requestAnimationFrame(function tick() {
-          raf = null;
-          if (!pending) return;
-          var ev = pending;
-          pending = null;
-          applyPointer(ev);
-          if (pending) {
-            raf = requestAnimationFrame(tick);
-          }
-        });
-      }
-
-      card.addEventListener('mousemove', function (e) {
-        pending = e;
-        scheduleTilt();
-      });
-
-      card.addEventListener('mouseleave', function () {
-        pending = null;
-        if (raf != null) {
-          cancelAnimationFrame(raf);
-          raf = null;
-        }
-        card.style.transition = 'transform 0.4s ease';
-        card.style.transform = '';
-        setTimeout(function () {
-          card.style.transition = '';
-        }, 400);
-      });
-
-      card.addEventListener('mouseenter', function () {
-        card.style.transition = '';
-      });
-    });
   }
 
   /* Role cards accordion */
