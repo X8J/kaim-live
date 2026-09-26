@@ -385,19 +385,26 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 
 /* ──────────────────── SCROLL REVEAL ───────────────────────── */
+/* Pop in on the way down, pop back out on the way up. The slight overshoot on entry is
+ * what separates this from a plain slide; exit uses a plain decel so it does not bounce
+ * while you are scrolling away from it. */
 .scroll-reveal {
   width: 100%;
   opacity: 0;
+  transform: translate3d(0, 34px, 0) scale(0.94);
   transition:
-    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.42s cubic-bezier(0.3, 0, 0.2, 1),
+    transform 0.46s cubic-bezier(0.3, 0, 0.2, 1);
 }
-.scroll-reveal-up { transform: translate3d(0, 36px, 0); }
-.scroll-reveal-left { transform: translate3d(-40px, 0, 0); }
-.scroll-reveal-right { transform: translate3d(40px, 0, 0); }
+.scroll-reveal-up { transform: translate3d(0, 34px, 0) scale(0.94); }
+.scroll-reveal-left { transform: translate3d(-38px, 0, 0) scale(0.94); }
+.scroll-reveal-right { transform: translate3d(38px, 0, 0) scale(0.94); }
 .scroll-reveal.is-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 0.44s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.62s cubic-bezier(0.34, 1.42, 0.5, 1);
 }
 /* Stagger only on enter; exit stays immediate so the out-animation mirrors cleanly. */
 .scroll-reveal[data-reveal-delay="1"] { transition-delay: 0s; }
@@ -456,15 +463,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 /* Offsets are multiples of --cell so every block lands on the lattice. Negative delays
  * start each one mid-cycle, so they are already out of step on first paint. */
-.grid-bg__block:nth-child(1) { left: 46px;   top: 92px;  --block-color: rgba(201, 162, 77, 0.20); --dur: 8s;    --delay: -1s; }
-.grid-bg__block:nth-child(2) { left: 138px;  top: 276px; --block-color: rgba(217, 84, 154, 0.16); --dur: 11s;   --delay: -4s; }
-.grid-bg__block:nth-child(3) { left: 276px;  top: 138px; --block-color: rgba(0, 0, 0, 0.05);      --dur: 9.5s;  --delay: -7s; }
-.grid-bg__block:nth-child(4) { left: 414px;  top: 368px; --block-color: rgba(201, 162, 77, 0.13); --dur: 13s;   --delay: -2s; }
-.grid-bg__block:nth-child(5) { left: 598px;  top: 92px;  --block-color: rgba(59, 139, 201, 0.11); --dur: 7s;    --delay: -5s; }
-.grid-bg__block:nth-child(6) { left: 736px;  top: 276px; --block-color: rgba(217, 84, 154, 0.13); --dur: 12s;   --delay: -9s; }
-.grid-bg__block:nth-child(7) { left: 920px;  top: 184px; --block-color: rgba(201, 162, 77, 0.16); --dur: 10s;   --delay: -3s; }
-.grid-bg__block:nth-child(8) { left: 1104px; top: 414px; --block-color: rgba(0, 0, 0, 0.045);     --dur: 14s;   --delay: -6s; }
-.grid-bg__block:nth-child(9) { left: 92px;   top: 414px; --block-color: rgba(59, 139, 201, 0.10); --dur: 8.5s;  --delay: -8s; }
+/* Gold and pink are the channels' own accents — the same colours the view counts use.
+ * Placed to flank the cards and kept inside the band the edge fade leaves usable. */
+.grid-bg__block:nth-child(1) { left: 46px;   top: 92px;  --block-color: rgba(201, 162, 77, 0.42); --dur: 6s;   --delay: -1s; }
+.grid-bg__block:nth-child(2) { left: 138px;  top: 276px; --block-color: rgba(217, 84, 154, 0.30); --dur: 8.5s; --delay: -4s; }
+.grid-bg__block:nth-child(3) { left: 276px;  top: 138px; --block-color: rgba(201, 162, 77, 0.26); --dur: 7s;   --delay: -6s; }
+.grid-bg__block:nth-child(4) { left: 92px;   top: 368px; --block-color: rgba(201, 162, 77, 0.34); --dur: 9.5s; --delay: -2s; }
+.grid-bg__block:nth-child(5) { left: 368px;  top: 322px; --block-color: rgba(217, 84, 154, 0.22); --dur: 5.5s; --delay: -5s; }
+.grid-bg__block:nth-child(6) { right: 138px; top: 92px;  --block-color: rgba(217, 84, 154, 0.40); --dur: 8s;   --delay: -7s; }
+.grid-bg__block:nth-child(7) { right: 46px;  top: 276px; --block-color: rgba(217, 84, 154, 0.32); --dur: 6.5s; --delay: -3s; }
+.grid-bg__block:nth-child(8) { right: 276px; top: 368px; --block-color: rgba(201, 162, 77, 0.28); --dur: 10s;  --delay: -8s; }
+.grid-bg__block:nth-child(9) { right: 368px; top: 184px; --block-color: rgba(217, 84, 154, 0.26); --dur: 7.5s; --delay: -6.5s; }
 /* Solid-colour fade instead of a mask: the section background is opaque, so painting the
  * edges back over the grid is the same result for none of the compositing cost. */
 .grid-bg::after {
@@ -474,16 +483,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background: linear-gradient(
     180deg,
     var(--bg-section-channels) 0%,
-    transparent 15%,
-    transparent 85%,
+    transparent 10%,
+    transparent 90%,
     var(--bg-section-channels) 100%
   );
 }
-.grid-bg.is-paused .grid-bg__block {
-  animation-play-state: paused;
-}
 @keyframes block-pulse {
-  0%, 100% { opacity: 0.15; }
+  0%, 100% { opacity: 0.08; }
   50%      { opacity: 1; }
 }
 
@@ -559,16 +565,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .card-shot__views {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 14px;
+  left: 14px;
   z-index: 1;
-  background: rgba(0,0,0,0.78);
+  background: rgba(0,0,0,0.8);
   color: #fff;
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
+  letter-spacing: 0.01em;
+  padding: 6px 12px;
+  border-radius: 6px;
 }
 
 /* ── Layer 2: the channel identity, fades away on hover ── */
@@ -772,7 +779,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-family: var(--font-body);
   font-size: 12.5px;
   line-height: 1.55;
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 .positions-footnote strong {
   font-weight: 700;
@@ -1269,7 +1276,8 @@ textarea.apply-field-under-limit {
 
 /* ──────────────────── FOOTER BAR ────────────────────────── */
 .footer-bar {
-  max-width: 1100px;
+  background: var(--bg-section-contact);
+  max-width: none;
   margin: 0 auto;
   padding: 24px 32px;
   display: flex;
@@ -1382,13 +1390,12 @@ textarea.apply-field-under-limit {
   .apply-submit { min-height: 48px; }
 }
 @media (max-width: 640px) {
-  /* Five of the nine lit blocks sit past 375px, so the grid looked bare on a phone.
-   * Re-placed onto the columns that actually fit (lattice is --cell, 0–322px here). */
-  .grid-bg__block:nth-child(4) { left: 230px; top: 552px; }
-  .grid-bg__block:nth-child(5) { left: 46px;  top: 322px; }
-  .grid-bg__block:nth-child(6) { left: 322px; top: 184px; }
-  .grid-bg__block:nth-child(7) { left: 138px; top: 598px; }
-  .grid-bg__block:nth-child(8) { left: 276px; top: 460px; }
+  /* Right-anchored blocks would collide with the left-anchored ones on a narrow screen. */
+  .grid-bg__block:nth-child(4) { left: 230px; top: 414px; }
+  .grid-bg__block:nth-child(6) { right: 46px;  top: 138px; }
+  .grid-bg__block:nth-child(7) { right: 138px; top: 322px; }
+  .grid-bg__block:nth-child(8) { right: 230px; top: 460px; }
+  .grid-bg__block:nth-child(9) { right: 92px;  top: 230px; }
 }
 
 /* ──────────────── REDUCED MOTION ────────────────────────── */

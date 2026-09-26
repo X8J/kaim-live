@@ -100,8 +100,12 @@
       .forEach(function (el) {
         var t = (el.textContent || '').trim();
         if (!t) return;
-        if (/\+$/.test(t)) return;
-        el.textContent = t + '+';
+        /* Video badges read "8M Views", so the + belongs on the number, not the end. */
+        var parts = /^(.*?)(\s+Views)$/.exec(t);
+        var num = parts ? parts[1] : t;
+        var suffix = parts ? parts[2] : '';
+        if (/\+$/.test(num)) return;
+        el.textContent = num + '+' + suffix;
       });
   }
 
@@ -160,7 +164,7 @@
         if (video.title != null) thumb.alt = video.title;
       }
       if (badge && video.viewCountFormatted != null) {
-        badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted);
+        badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted) + ' Views';
       }
     }
   }
