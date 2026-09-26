@@ -5,16 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
   <title>KaiM</title>
-  <meta name="description" content="The official home of KaiM — YouTube channels, top videos, and open team positions.">
-  <meta property="og:title" content="KaiM">
-  <meta property="og:description" content="The official home of KaiM — YouTube channels, top videos, and open team positions.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://kaim.live/">
+  <!-- No embed by design: no og:*, no twitter:*, no description. Unfurlers build previews
+       from those tags, so with none present a shared link stays a plain link. The <title>
+       has to stay for the browser tab, and canonical does not feed previews. -->
   <link rel="canonical" href="https://kaim.live/">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="KaiM">
-  <meta name="twitter:description" content="The official home of KaiM — YouTube channels, top videos, and open team positions.">
-  <!-- No og:image / twitter:image — link previews are title + description only (favicon is rel=icon, not a preview image). -->
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="apple-touch-icon" href="assets/img/KaiM.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +20,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Pixelify+Sans:wght@400..700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Pixelify+Sans:wght@400..700&display=swap"></noscript>
-  <link rel="stylesheet" href="style.css?v=114">
+  <link rel="stylesheet" href="style.css?v=126">
 </head>
 <body>
 
@@ -35,16 +29,11 @@
       <img class="hero-img hero-img--sharp" src="assets/img/Banner.jpg" alt="KaiM banner" fetchpriority="high" decoding="async">
       <img class="hero-img hero-img--dim" src="assets/img/Banner.jpg" alt="" aria-hidden="true" decoding="async">
     </div>
-    <div class="hero-halftone" aria-hidden="true">
-      <span class="hero-halftone__layer"></span>
-      <span class="hero-halftone__layer"></span>
-      <span class="hero-halftone__layer"></span>
-    </div>
+    <div class="hero-halftone" aria-hidden="true"><div class="hero-halftone__fill"></div></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="hero-heading-stack">
         <h1 class="hero-title">KaiM</h1>
-        <p class="hero-tagline">We are hiring!</p>
         <a href="#positions" class="hero-join" aria-label="Join our team — go to open positions">
           <span class="hero-join__glow" aria-hidden="true"></span>
           <span class="hero-join__clip" aria-hidden="true"><span class="hero-join__ring"></span></span>
@@ -264,6 +253,6 @@
   </footer>
 
   <script src="roles-config.js?v=6" defer></script>
-  <script src="main.js?v=76" defer></script>
+  <script src="main.js?v=81" defer></script>
 </body>
 </html>

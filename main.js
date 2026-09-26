@@ -40,22 +40,32 @@
   }
 
   pauseWhenOffscreen(document.querySelector('.grid-bg'));
+  /* The halftone's band mask only exists for the reveal. Leaving it on would make the
+   * browser re-composite the masked subtree every frame for the two drifting layers
+   * underneath, so it comes off the moment the bands have all landed. */
+  /* Both reveals fill forwards, so their masks would stay applied for the rest of the
+   * session — 16 mask layers between them, on the hero art and the largest text on the
+   * page. Each end state is a fully opaque mask, so dropping it changes nothing visually
+   * and leaves both elements unmasked and static. */
+  [['.hero-halftone__fill', 'halftone-assemble'],
+   ['.hero-title', 'title-assemble']].forEach(function (pair) {
+    var el = document.querySelector(pair[0]);
+    if (!el) return;
+    el.addEventListener('animationend', function (e) {
+      if (e.target === el && e.animationName === pair[1]) {
+        el.classList.add('is-revealed');
+      }
+    });
+  });
+
 
   /* Matches the last transition in the stylesheet (scroll indicator: 1.61s delay + 0.56s).
-   * Scrolling frees up halfway through, so the tail of the reveal is not a wait. */
+   * Nothing is locked — the page scrolls from the first frame and the intro just plays
+   * over the top of it. introComplete only gates the inline opacity written to the scroll
+   * indicator, which would otherwise override its still-running fade-in. */
   var INTRO_MS = 2200;
-  var SCROLL_LOCK_MS = 1100;
 
   function startIntro() {
-    var root = document.documentElement;
-    root.classList.add('is-intro-locked');
-    /* Both run off plain timers rather than the rAF chain below: rAF never fires while the
-     * tab is in the background, and the page must never stay locked. */
-    setTimeout(function () {
-      root.classList.remove('is-intro-locked');
-    }, SCROLL_LOCK_MS);
-    /* Held until the reveal really ends: introComplete gates the inline opacity written to
-     * the scroll indicator, which would otherwise override its still-running fade-in. */
     setTimeout(function () {
       introComplete = true;
     }, INTRO_MS);

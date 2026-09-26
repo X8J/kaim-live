@@ -16,6 +16,8 @@
   --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-pixel: 'Pixelify Sans', 'Courier New', monospace;
+  --band-wipe: linear-gradient(90deg, #000 50%, transparent 50%);
+  --band-block: linear-gradient(#000 0 0);
 }
 
 /* ───────────────────────── RESET ────────────────────────── */
@@ -29,14 +31,6 @@ html {
   overscroll-behavior-y: none;
 }
 html::-webkit-scrollbar { display: none; }
-/* Applied by main.js for the length of the opening sequence, so the hero cannot be
- * scrolled past mid-reveal. Always removed on a timer, never left on. */
-html.is-intro-locked,
-html.is-intro-locked body {
-  overflow: hidden;
-  touch-action: none;
-  overscroll-behavior: none;
-}
 body {
   font-family: var(--font-body);
   font-size: 15px;
@@ -118,61 +112,79 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 
 /* ─────────── HERO HALFTONE ─────────── */
-/* Three dot lattices at deliberately mismatched pitches (17/19/23px). Overlapping
- * lattices that are slightly out of step produce moiré banding, and because the beat
- * wavelength is far larger than the dot pitch, nudging each layer by a single tile makes
- * those bands travel right across the hero — so it reads as a slow flowing wave from
- * motion that is only ~20px. Each layer animates transform alone, so this is three
- * composited moves per frame and no repainting: no canvas, no library, no rAF.
- * It sits under .hero-overlay, which knocks it back so it never fights the text. */
+/* Solid green and black squares scattered across a 160px tile — positions are rejection
+ * sampled with a minimum separation measured on a torus, so they read as irregular but
+ * still tile seamlessly with no clumping at the seams.
+ *
+ * Split over two elements on purpose. The centre fade has to be live from the first block
+ * onward, but it and the reveal are both mask-image, so they cannot share an element —
+ * putting the fade on the outer box is what stops the dimming from popping in only once
+ * the reveal ends. The outer mask never changes; only the inner one animates. */
 .hero-halftone {
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-  opacity: 0;
-  /* Arrives with the blur, not before it. */
-  transition: opacity 1.5s ease 0.55s;
+  /* Squares sit back to 0.5 behind the title and button, full strength at the edges. */
+  --centre-fade: radial-gradient(ellipse 54% 42% at 50% 47%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 46%, #000 88%);
+  -webkit-mask-image: var(--centre-fade);
+  mask-image: var(--centre-fade);
 }
-.hero.hero-intro-ready .hero-halftone { opacity: 1; }
-
-.hero-halftone__layer {
+.hero-halftone__fill {
   position: absolute;
-  /* Oversized by just over one tile so the drift never exposes an edge. */
-  inset: -26px;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect x='25' y='80' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='62' y='119' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='5' y='58' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='119' y='43' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='94' y='25' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='136' y='21' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='13' y='2' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='114' y='140' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='69' y='58' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='90' y='62' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='157' y='134' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='33' y='22' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='91' y='149' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='55' y='15' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='6' y='97' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='71' y='29' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='112' y='83' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='138' y='61' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='136' y='95' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='40' y='51' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='95' y='121' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='45' y='72' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='29' y='140' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='23' y='108' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
   background-repeat: repeat;
+  /* Reverse disintegration: 12 blocks (4x3) landing in 4 scattered pops. Each mask layer
+   * is one block and layers union by default, so a block appears the moment its layer is
+   * given a size. steps(1) makes each wave snap rather than grow, and also avoids
+   * mask-position drifting as mask-size interpolates. */
+  --blk: 25.000% 33.343%;
+  -webkit-mask-image: var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block);
+  mask-image: var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0.000% 0.000%, 33.333% 0.000%, 66.667% 0.000%, 100.000% 0.000%, 0.000% 50.000%, 33.333% 50.000%, 66.667% 50.000%, 100.000% 50.000%, 0.000% 100.000%, 33.333% 100.000%, 66.667% 100.000%, 100.000% 100.000%;
+  mask-position: 0.000% 0.000%, 33.333% 0.000%, 66.667% 0.000%, 100.000% 0.000%, 0.000% 50.000%, 33.333% 50.000%, 66.667% 50.000%, 100.000% 50.000%, 0.000% 100.000%, 33.333% 100.000%, 66.667% 100.000%, 100.000% 100.000%;
+  -webkit-mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
 }
-.hero-halftone__layer:nth-child(1) {
-  background-image: radial-gradient(circle, rgba(34, 197, 94, 0.5) 1.7px, transparent 1.8px);
-  background-size: 17px 17px;
-  animation: halftone-drift-a 19s linear infinite;
+.hero.hero-intro-ready .hero-halftone__fill {
+  animation: halftone-assemble 1s steps(1, end) 0.55s forwards;
 }
-.hero-halftone__layer:nth-child(2) {
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.42) 1.5px, transparent 1.6px);
-  background-size: 19px 19px;
-  animation: halftone-drift-b 27s linear infinite;
+/* Mask dropped the moment the blocks have landed, so nothing is left masked at rest.
+ * `animation: none` matters: the reveal fills forwards, so without cancelling it the
+ * keyframes keep pinning mask-size and fight whatever this rule sets. */
+.hero.hero-intro-ready .hero-halftone__fill.is-revealed {
+  animation: none;
 }
-.hero-halftone__layer:nth-child(3) {
-  background-image: radial-gradient(circle, rgba(239, 68, 68, 0.36) 1.6px, transparent 1.7px);
-  background-size: 23px 23px;
-  animation: halftone-drift-c 34s linear infinite;
+.hero-halftone__fill.is-revealed {
+  -webkit-mask-image: none;
+  mask-image: none;
 }
-/* Each ends exactly one own-tile along, so every loop is seamless. */
-@keyframes halftone-drift-a {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(17px, 17px, 0); }
-}
-@keyframes halftone-drift-b {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-19px, 19px, 0); }
-}
-@keyframes halftone-drift-c {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(23px, -23px, 0); }
-}
-.hero.is-paused .hero-halftone__layer {
-  animation-play-state: paused;
+@keyframes halftone-assemble {
+  0% {
+    -webkit-mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+            mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  }
+  25% {
+    -webkit-mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+            mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  }
+  50% {
+    -webkit-mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, 0 0, 0 0;
+            mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, 0 0, 0 0;
+  }
+  75% {
+    -webkit-mask-size: var(--blk), var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), var(--blk), var(--blk), 0 0;
+            mask-size: var(--blk), var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), var(--blk), var(--blk), 0 0;
+  }
+  100% {
+    -webkit-mask-size: var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk);
+            mask-size: var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk);
+  }
 }
 
 .hero-overlay {
@@ -210,25 +222,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   text-align: center;
 }
 
-.hero-tagline {
-  font-family: var(--font-body);
-  font-size: clamp(15px, 2.2vw, 20px);
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.78);
-  margin: 0;
-  max-width: 22em;
-  line-height: 1.35;
-  opacity: 0;
-  transform: translate3d(0, 18px, 0);
-  transition:
-    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.86s,
-    transform 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.86s;
-}
-.hero.hero-intro-ready .hero-tagline {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
 
 /* Join our team: conic “shimmer” ring (clipped) + large green glow (box-shadow) */
 .hero-join {
@@ -390,9 +383,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
    * The keyframes advance the bands by different amounts, so the reveal front is ragged —
    * pieces of a letter land while the band above it is still missing, leaving holes that
    * fill in after. steps() between keyframes keeps every jump blocky. */
-  --title-wipe: linear-gradient(90deg, #000 50%, transparent 50%);
-  -webkit-mask-image: var(--title-wipe), var(--title-wipe), var(--title-wipe), var(--title-wipe);
-  mask-image: var(--title-wipe), var(--title-wipe), var(--title-wipe), var(--title-wipe);
+  -webkit-mask-image: var(--band-wipe), var(--band-wipe), var(--band-wipe), var(--band-wipe);
+  mask-image: var(--band-wipe), var(--band-wipe), var(--band-wipe), var(--band-wipe);
   -webkit-mask-size: 200% 25.6%;
   mask-size: 200% 25.6%;
   -webkit-mask-repeat: no-repeat;
@@ -404,6 +396,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .hero.hero-intro-ready .hero-title {
   animation: title-assemble 1.05s steps(4, end) 0.52s forwards;
+}
+/* Same teardown as the halftone: the reveal fills forwards, which would otherwise keep
+ * four mask layers alive on the largest text on the page for the rest of the session.
+ * The end state is a fully opaque mask, so dropping it is visually identical. */
+.hero.hero-intro-ready .hero-title.is-revealed {
+  animation: none;
+}
+.hero-title.is-revealed {
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 /* Band order is deliberately out of sync — 2nd and 4th lag, 1st and 3rd run ahead. */
 @keyframes title-assemble {
@@ -701,22 +703,22 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
  * plain white and reads fine on its own, where an outline just muddied it. */
 .card-views {
   text-shadow:
-    2px 0 0 rgba(0, 0, 0, 0.7),
-    -2px 0 0 rgba(0, 0, 0, 0.7),
-    0 2px 0 rgba(0, 0, 0, 0.7),
-    0 -2px 0 rgba(0, 0, 0, 0.7),
-    2px 1px 0 rgba(0, 0, 0, 0.7),
-    -2px 1px 0 rgba(0, 0, 0, 0.7),
-    2px -1px 0 rgba(0, 0, 0, 0.7),
-    -2px -1px 0 rgba(0, 0, 0, 0.7),
-    1px 2px 0 rgba(0, 0, 0, 0.7),
-    -1px 2px 0 rgba(0, 0, 0, 0.7),
-    1px -2px 0 rgba(0, 0, 0, 0.7),
-    -1px -2px 0 rgba(0, 0, 0, 0.7),
-    1px 1px 0 rgba(0, 0, 0, 0.7),
-    -1px 1px 0 rgba(0, 0, 0, 0.7),
-    1px -1px 0 rgba(0, 0, 0, 0.7),
-    -1px -1px 0 rgba(0, 0, 0, 0.7);
+    2px 0 0 rgba(0, 0, 0, 0.5),
+    -2px 0 0 rgba(0, 0, 0, 0.5),
+    0 2px 0 rgba(0, 0, 0, 0.5),
+    0 -2px 0 rgba(0, 0, 0, 0.5),
+    2px 1px 0 rgba(0, 0, 0, 0.5),
+    -2px 1px 0 rgba(0, 0, 0, 0.5),
+    2px -1px 0 rgba(0, 0, 0, 0.5),
+    -2px -1px 0 rgba(0, 0, 0, 0.5),
+    1px 2px 0 rgba(0, 0, 0, 0.5),
+    -1px 2px 0 rgba(0, 0, 0, 0.5),
+    1px -2px 0 rgba(0, 0, 0, 0.5),
+    -1px -2px 0 rgba(0, 0, 0, 0.5),
+    1px 1px 0 rgba(0, 0, 0, 0.5),
+    -1px 1px 0 rgba(0, 0, 0, 0.5),
+    1px -1px 0 rgba(0, 0, 0, 0.5),
+    -1px -1px 0 rgba(0, 0, 0, 0.5);
 }
 .card-views {
   font-family: var(--font-display);
@@ -1362,7 +1364,6 @@ textarea.apply-field-under-limit {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
   .hero-title { font-size: clamp(44px, 12.5vw, 120px); }
-  .hero-tagline { font-size: clamp(14px, 3.6vw, 18px); }
 
   .channel-row {
     flex-direction: column;
@@ -1462,7 +1463,7 @@ textarea.apply-field-under-limit {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .grid-bg__block,
-  .hero-join__ring,
-  .hero-halftone__layer { animation: none !important; }
+  .hero-join__ring { animation: none !important; }
+  .hero-halftone { animation: none !important; }
 }
 
