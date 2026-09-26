@@ -510,6 +510,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 /* The card is three stacked layers: videos underneath, the channel face over them, and the
  * position dots on top. Hovering fades the face out — nothing moves or resizes, so the
  * whole interaction is opacity only. */
+/* Carries the parallax translate so the card's own transform stays free for hover. */
+.channel-card-float {
+  width: 100%;
+  min-width: 0;
+}
+
 .channel-card {
   position: relative;
   display: block;
@@ -519,15 +525,18 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   overflow: hidden;
   border: 1px solid var(--border-subtle);
   background: #101010;
-  transition: border-color 0.3s ease, box-shadow 0.35s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease,
+              box-shadow 0.35s ease;
   box-shadow: var(--shadow-card);
 }
 .channel-card.gold { --card-accent: var(--accent-gold); }
 .channel-card.blue { --card-accent: var(--accent-pink); }
 .channel-card:hover,
 .channel-card:focus-visible {
+  transform: scale(1.035);
   border-color: rgba(0,0,0,0.15);
-  box-shadow: 0 14px 40px rgba(0,0,0,0.16);
+  box-shadow: 0 22px 54px rgba(0,0,0,0.2);
 }
 
 /* ── Layer 1: the top videos, one visible at a time ── */
@@ -623,19 +632,26 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: relative;
   z-index: 2;
 }
-/* 1px outline so these stay readable over bright channel art. */
-.card-views,
-.card-views-label {
+/* Heavier outline, no drop shadow. Only the number gets it — the TOTAL VIEWS label is
+ * plain white and reads fine on its own, where an outline just muddied it. */
+.card-views {
   text-shadow:
-    1px 0 0 rgba(0, 0, 0, 0.62),
-    -1px 0 0 rgba(0, 0, 0, 0.62),
-    0 1px 0 rgba(0, 0, 0, 0.62),
-    0 -1px 0 rgba(0, 0, 0, 0.62),
-    1px 1px 0 rgba(0, 0, 0, 0.5),
-    -1px 1px 0 rgba(0, 0, 0, 0.5),
-    1px -1px 0 rgba(0, 0, 0, 0.5),
-    -1px -1px 0 rgba(0, 0, 0, 0.5),
-    0 2px 10px rgba(0, 0, 0, 0.45);
+    2px 0 0 rgba(0, 0, 0, 0.7),
+    -2px 0 0 rgba(0, 0, 0, 0.7),
+    0 2px 0 rgba(0, 0, 0, 0.7),
+    0 -2px 0 rgba(0, 0, 0, 0.7),
+    2px 1px 0 rgba(0, 0, 0, 0.7),
+    -2px 1px 0 rgba(0, 0, 0, 0.7),
+    2px -1px 0 rgba(0, 0, 0, 0.7),
+    -2px -1px 0 rgba(0, 0, 0, 0.7),
+    1px 2px 0 rgba(0, 0, 0, 0.7),
+    -1px 2px 0 rgba(0, 0, 0, 0.7),
+    1px -2px 0 rgba(0, 0, 0, 0.7),
+    -1px -2px 0 rgba(0, 0, 0, 0.7),
+    1px 1px 0 rgba(0, 0, 0, 0.7),
+    -1px 1px 0 rgba(0, 0, 0, 0.7),
+    1px -1px 0 rgba(0, 0, 0, 0.7),
+    -1px -1px 0 rgba(0, 0, 0, 0.7);
 }
 .card-views {
   font-family: var(--font-display);

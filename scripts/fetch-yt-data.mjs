@@ -17,6 +17,13 @@ if (!YT_API_KEY) {
 /** Max videos to rank per channel (top by lifetime view count on uploads playlist). */
 const TOP_VIDEO_COUNT = 6;
 
+/**
+ * Anything at or under this is treated as a Short and kept out of the rankings.
+ * There is no flag for it in the API, and Shorts can run to 3 minutes since late 2024,
+ * so duration is the only signal available. Raise or lower if a real upload gets caught.
+ */
+const SHORTS_MAX_SECONDS = 180;
+
 const CHANNELS = {
   kaim: {
     key: 'kaim',
@@ -102,14 +109,35 @@ function toRankedVideoJson(row, idx, previousRanks) {
   };
 }
 
+/** ISO 8601 duration (PT1M30S) to seconds. Returns null when it cannot be parsed. */
+function durationSeconds(iso) {
+  const m = /^P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?(?:([\d.]+)S)?$/.exec(iso ?? '');
+  if (!m) return null;
+  return (
+    (Number(m[1]) || 0) * 86400 +
+    (Number(m[2]) || 0) * 3600 +
+    (Number(m[3]) || 0) * 60 +
+    (Number(m[4]) || 0)
+  );
+}
+
+function isShort(video) {
+  const secs = durationSeconds(video?.contentDetails?.duration);
+  /* Unparseable duration is treated as long-form rather than silently dropping a video. */
+  return secs !== null && secs <= SHORTS_MAX_SECONDS;
+}
+
 function rankTopForChannel(ids, details, limit, previousRanks) {
   const scored = [];
+  let shortsSkipped = 0;
   for (const id of ids) {
     const v = details.get(id);
     if (!v?.statistics) continue;
+    if (isShort(v)) { shortsSkipped++; continue; }
     const views = parseInt(v.statistics.viewCount, 10) || 0;
     scored.push({ id, views, raw: v });
   }
+  if (shortsSkipped) console.log(`  skipped ${shortsSkipped} short(s)`);
   scored.sort((a, b) => b.views - a.views);
   const cap = Math.min(limit, scored.length);
   const top = scored.slice(0, cap);
@@ -191,7 +219,7 @@ async function fetchVideoStatsBatched(videoIds) {
   for (let i = 0; i < videoIds.length; i += chunk) {
     const slice = videoIds.slice(i, i + chunk);
     const data = await yt('/videos', {
-      part: 'statistics,snippet',
+      part: 'statistics,snippet,contentDetails',
       id: slice.join(','),
     });
     for (const v of data.items || []) {
