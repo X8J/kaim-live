@@ -152,16 +152,16 @@
 
       var thumb = shot.querySelector('[data-video-thumb]');
       var badge = shot.querySelector('[data-video-views]');
-      var title = shot.querySelector('[data-video-title]');
 
-      /* mqdefault: these are shown at card size and swap every 2s, so maxres is wasted bytes. */
+      /* Full-res straight from the API: these fill the whole card, and there are only
+       * three per channel, so the earlier downscale was costing quality for nothing. */
       if (thumb && video.thumbnail) {
-        thumb.src = video.thumbnail.replace(/\/(maxresdefault|sddefault|hqdefault)\.jpg/, '/mqdefault.jpg');
+        thumb.src = video.thumbnail;
+        if (video.title != null) thumb.alt = video.title;
       }
       if (badge && video.viewCountFormatted != null) {
         badge.textContent = normalizeLiveViewLabel(video.viewCountFormatted);
       }
-      if (title && video.title != null) title.textContent = video.title;
     }
   }
 
@@ -184,11 +184,10 @@
     }
   }
 
-  /* Channel cards cycle their top 3 videos. One .is-playing class drives the CSS for both
-   * input types; the timer only exists while a card is actually playing, so nothing ticks
-   * at rest. Pointer devices play on hover/focus; touch has no hover, so those cards play
-   * whenever they are on screen — otherwise the videos would be unreachable on a phone. */
-  var SHOT_HOLD_MS = 2000;
+  /* Channel cards cycle their top 3 videos on hover. The timer only exists while a card is
+   * playing, so nothing ticks at rest. Touch devices keep the channel face and just open
+   * the channel on tap. */
+  var SHOT_HOLD_MS = 1000;
 
   function initChannelCards() {
     var cards = document.querySelectorAll('[data-channel-card]');
@@ -229,17 +228,14 @@
         show(-1);
       }
 
-      if (canHover) {
-        card.addEventListener('mouseenter', play);
-        card.addEventListener('mouseleave', stop);
-        card.addEventListener('focus', play);
-        card.addEventListener('blur', stop);
-      } else if (window.IntersectionObserver) {
-        new IntersectionObserver(function (entries) {
-          if (entries[0].isIntersecting) play();
-          else stop();
-        }, { threshold: 0.5 }).observe(card);
-      }
+      /* Hover/focus only. Touch deliberately gets nothing: driving this from scroll
+       * position meant the cards started cycling just from scrolling past them, and a tap
+       * has to stay reserved for opening the channel. */
+      if (!canHover) return;
+      card.addEventListener('mouseenter', play);
+      card.addEventListener('mouseleave', stop);
+      card.addEventListener('focus', play);
+      card.addEventListener('blur', stop);
 
       /* A hidden tab still fires intervals; drop the timer and resume on return. */
       document.addEventListener('visibilitychange', function () {

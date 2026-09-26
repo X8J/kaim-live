@@ -327,25 +327,40 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   max-width: 100%;
   color: #ffffff;
   text-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-  /* Built left-to-right out of blocks instead of fading in. The mask is twice the element's
-   * width and hard-edged at the midpoint, so sliding it from 100% to 0% wipes the reveal
-   * across; steps() makes that wipe land in discrete columns rather than gliding, which is
-   * what reads as blocks. Only the mask position moves, so it stays cheap. */
-  -webkit-mask-image: linear-gradient(90deg, #000 50%, transparent 50%);
-  mask-image: linear-gradient(90deg, #000 50%, transparent 50%);
-  -webkit-mask-size: 200% 100%;
-  mask-size: 200% 100%;
-  -webkit-mask-position: 100% 0;
-  mask-position: 100% 0;
-  transition:
-    -webkit-mask-position 1.05s steps(14, end) 0.52s,
-    mask-position 1.05s steps(14, end) 0.52s;
+  /* Assembles out of blocks rather than wiping evenly across. The mask is four horizontal
+   * bands, each its own layer with its own hard-edged wipe (mask layers union by default).
+   * The keyframes advance the bands by different amounts, so the reveal front is ragged —
+   * pieces of a letter land while the band above it is still missing, leaving holes that
+   * fill in after. steps() between keyframes keeps every jump blocky. */
+  --title-wipe: linear-gradient(90deg, #000 50%, transparent 50%);
+  -webkit-mask-image: var(--title-wipe), var(--title-wipe), var(--title-wipe), var(--title-wipe);
+  mask-image: var(--title-wipe), var(--title-wipe), var(--title-wipe), var(--title-wipe);
+  -webkit-mask-size: 200% 25.6%;
+  mask-size: 200% 25.6%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 100% 0%, 100% 33.33%, 100% 66.66%, 100% 100%;
+  mask-position: 100% 0%, 100% 33.33%, 100% 66.66%, 100% 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 .hero.hero-intro-ready .hero-title {
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
+  animation: title-assemble 1.05s steps(4, end) 0.52s forwards;
+}
+/* Band order is deliberately out of sync — 2nd and 4th lag, 1st and 3rd run ahead. */
+@keyframes title-assemble {
+  0%   { -webkit-mask-position: 100% 0%, 100% 33.33%, 100% 66.66%, 100% 100%;
+                 mask-position: 100% 0%, 100% 33.33%, 100% 66.66%, 100% 100%; }
+  22%  { -webkit-mask-position: 66% 0%, 94% 33.33%, 78% 66.66%, 100% 100%;
+                 mask-position: 66% 0%, 94% 33.33%, 78% 66.66%, 100% 100%; }
+  45%  { -webkit-mask-position: 34% 0%, 72% 33.33%, 44% 66.66%, 82% 100%;
+                 mask-position: 34% 0%, 72% 33.33%, 44% 66.66%, 82% 100%; }
+  68%  { -webkit-mask-position: 12% 0%, 40% 33.33%, 26% 66.66%, 52% 100%;
+                 mask-position: 12% 0%, 40% 33.33%, 26% 66.66%, 52% 100%; }
+  86%  { -webkit-mask-position: 0% 0%, 16% 33.33%, 6% 66.66%, 24% 100%;
+                 mask-position: 0% 0%, 16% 33.33%, 6% 66.66%, 24% 100%; }
+  100% { -webkit-mask-position: 0% 0%, 0% 33.33%, 0% 66.66%, 0% 100%;
+                 mask-position: 0% 0%, 0% 33.33%, 0% 66.66%, 0% 100%; }
 }
 
 .scroll-indicator {
@@ -533,12 +548,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   height: 100%;
   object-fit: cover;
 }
-.card-shot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 46%, transparent 72%);
-}
 .card-shot__views {
   position: absolute;
   top: 12px;
@@ -551,17 +560,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 4px;
-}
-.card-shot__title {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 30px;
-  z-index: 1;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.35;
 }
 
 /* ── Layer 2: the channel identity, fades away on hover ── */
