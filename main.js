@@ -327,8 +327,14 @@
           }
           el.setAttribute('data-reveal-latched', '1');
           el.classList.add('is-visible');
-        } else {
-          if (el.getAttribute('data-reveal-latched') === '1') {
+        } else if (el.getAttribute('data-reveal-latched') === '1') {
+          /* Only un-reveal when the element leaves downwards — i.e. it is below the
+           * viewport again, which means you scrolled back up past it and would expect it
+           * to replay on the way down. Leaving upwards (scrolling further down past it)
+           * keeps it revealed, so it is not re-animating behind you. */
+          var bounds = entry.rootBounds;
+          var viewportBottom = bounds ? bounds.bottom : (window.innerHeight || 0);
+          if (entry.boundingClientRect.top >= viewportBottom) {
             scheduleRevealExit(el);
           }
         }

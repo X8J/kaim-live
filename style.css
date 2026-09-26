@@ -117,6 +117,64 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
 }
 
+/* ─────────── HERO HALFTONE ─────────── */
+/* Three dot lattices at deliberately mismatched pitches (17/19/23px). Overlapping
+ * lattices that are slightly out of step produce moiré banding, and because the beat
+ * wavelength is far larger than the dot pitch, nudging each layer by a single tile makes
+ * those bands travel right across the hero — so it reads as a slow flowing wave from
+ * motion that is only ~20px. Each layer animates transform alone, so this is three
+ * composited moves per frame and no repainting: no canvas, no library, no rAF.
+ * It sits under .hero-overlay, which knocks it back so it never fights the text. */
+.hero-halftone {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  /* Arrives with the blur, not before it. */
+  transition: opacity 1.5s ease 0.55s;
+}
+.hero.hero-intro-ready .hero-halftone { opacity: 1; }
+
+.hero-halftone__layer {
+  position: absolute;
+  /* Oversized by just over one tile so the drift never exposes an edge. */
+  inset: -26px;
+  background-repeat: repeat;
+}
+.hero-halftone__layer:nth-child(1) {
+  background-image: radial-gradient(circle, rgba(34, 197, 94, 0.5) 1.7px, transparent 1.8px);
+  background-size: 17px 17px;
+  animation: halftone-drift-a 19s linear infinite;
+}
+.hero-halftone__layer:nth-child(2) {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.42) 1.5px, transparent 1.6px);
+  background-size: 19px 19px;
+  animation: halftone-drift-b 27s linear infinite;
+}
+.hero-halftone__layer:nth-child(3) {
+  background-image: radial-gradient(circle, rgba(239, 68, 68, 0.36) 1.6px, transparent 1.7px);
+  background-size: 23px 23px;
+  animation: halftone-drift-c 34s linear infinite;
+}
+/* Each ends exactly one own-tile along, so every loop is seamless. */
+@keyframes halftone-drift-a {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(17px, 17px, 0); }
+}
+@keyframes halftone-drift-b {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-19px, 19px, 0); }
+}
+@keyframes halftone-drift-c {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(23px, -23px, 0); }
+}
+.hero.is-paused .hero-halftone__layer {
+  animation-play-state: paused;
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -128,13 +186,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
       rgba(10,10,10,0.04) 38%,
       rgba(10,10,10,0.5) 100%
     );
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
 
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +426,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   bottom: max(28px, env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%) translateZ(0);
-  z-index: 3;
+  z-index: 4;
   opacity: 0;
   transition: opacity 0.56s cubic-bezier(0.22, 1, 0.36, 1) 1.61s;
 }
@@ -1404,6 +1462,7 @@ textarea.apply-field-under-limit {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .grid-bg__block,
-  .hero-join__ring { animation: none !important; }
+  .hero-join__ring,
+  .hero-halftone__layer { animation: none !important; }
 }
 
