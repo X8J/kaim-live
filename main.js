@@ -167,10 +167,11 @@
       var thumb = shot.querySelector('[data-video-thumb]');
       var badge = shot.querySelector('[data-video-views]');
 
-      /* Full-res straight from the API: these fill the whole card, and there are only
-       * three per channel, so the earlier downscale was costing quality for nothing. */
+      /* Full-res straight from the API — these fill the whole card. Shots past the first
+       * are deferred, so write to whichever attribute that shot is currently using. */
       if (thumb && video.thumbnail) {
-        thumb.src = video.thumbnail;
+        if (thumb.hasAttribute('data-src')) thumb.setAttribute('data-src', video.thumbnail);
+        else thumb.src = video.thumbnail;
         if (video.title != null) thumb.alt = video.title;
       }
       if (badge && video.viewCountFormatted != null) {
@@ -224,8 +225,23 @@
         }
       }
 
+      /* Only the first thumbnail of each card is fetched with the page. The rest are
+       * requested together on first hover, which gives them the full first second to
+       * arrive before the cycle reaches shot 2 — and a visit that never hovers a card
+       * never downloads them at all. */
+      var loaded = false;
+      function loadDeferred() {
+        if (loaded) return;
+        loaded = true;
+        card.querySelectorAll('[data-video-thumb][data-src]').forEach(function (img) {
+          img.src = img.getAttribute('data-src');
+          img.removeAttribute('data-src');
+        });
+      }
+
       function play() {
         if (timer) return;
+        loadDeferred();
         idx = 0;
         show(0);
         card.classList.add('is-playing');
