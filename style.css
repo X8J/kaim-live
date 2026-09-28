@@ -589,10 +589,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   aspect-ratio: 16 / 9;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
   background: #101010;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              border-color 0.3s ease,
               box-shadow 0.35s ease;
   box-shadow: var(--shadow-card);
 }
@@ -601,7 +599,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .channel-card:hover,
 .channel-card:focus-visible {
   transform: scale(1.035);
-  border-color: rgba(0,0,0,0.15);
   box-shadow: 0 22px 54px rgba(0,0,0,0.2);
 }
 
