@@ -28,7 +28,6 @@
   var appliedIndicatorOpacity = '';
   var introComplete = false;
 
-  /* Cache device class — re-evaluated on resize instead of every frame */
   var liteMotion = checkLiteMotion();
   window.addEventListener('resize', function () {
     liteMotion = checkLiteMotion();
@@ -39,14 +38,6 @@
       window.matchMedia('(pointer: coarse)').matches;
   }
 
-  pauseWhenOffscreen(document.querySelector('.grid-bg'));
-  /* The halftone's band mask only exists for the reveal. Leaving it on would make the
-   * browser re-composite the masked subtree every frame for the two drifting layers
-   * underneath, so it comes off the moment the bands have all landed. */
-  /* Both reveals fill forwards, so their masks would stay applied for the rest of the
-   * session — 16 mask layers between them, on the hero art and the largest text on the
-   * page. Each end state is a fully opaque mask, so dropping it changes nothing visually
-   * and leaves both elements unmasked and static. */
   [['.hero-halftone__fill', 'halftone-assemble'],
    ['.hero-title', 'title-assemble']].forEach(function (pair) {
     var el = document.querySelector(pair[0]);
@@ -58,11 +49,6 @@
     });
   });
 
-
-  /* Matches the last transition in the stylesheet (scroll indicator: 1.61s delay + 0.56s).
-   * Nothing is locked — the page scrolls from the first frame and the intro just plays
-   * over the top of it. introComplete only gates the inline opacity written to the scroll
-   * indicator, which would otherwise override its still-running fade-in. */
   var INTRO_MS = 2200;
 
   function startIntro() {
@@ -71,9 +57,6 @@
     }, INTRO_MS);
 
     if (hero) void hero.offsetHeight;
-    /* Triple-rAF: first flushes any pending style recalc, second ensures paint commit,
-     * third fires after the browser has composited at least one frame — so CSS transitions
-     * on .hero-intro-ready always run instead of snapping to their end state. */
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
@@ -85,8 +68,6 @@
 
   startIntro();
 
-  /* Decorative CSS animations keep ticking while scrolled past, so gate them on visibility.
-   * Adds .is-paused, which the stylesheet turns into animation-play-state: paused. */
   function pauseWhenOffscreen(el, rootMargin) {
     if (!el || !window.IntersectionObserver) return;
     new IntersectionObserver(function (entries) {
@@ -97,20 +78,17 @@
 
   const YT_DATA_URL = '/public/yt-data.json';
 
-  /** Live sync values never show trailing +; strip any trailing + from JSON or prior state. */
   function normalizeLiveViewLabel(s) {
     if (s == null) return '';
     return String(s).replace(/\++$/, '').trim();
   }
 
-  /** When fetch fails: keep existing DOM counts and mark them with + (at least this high since last sync). */
   function markStaleViewLabelsWithPlus() {
     document
       .querySelectorAll('[data-kaim-total-views], [data-kaiaim-total-views], [data-video-views]')
       .forEach(function (el) {
         var t = (el.textContent || '').trim();
         if (!t) return;
-        /* Video badges read "8M Views", so the + belongs on the number, not the end. */
         var parts = /^(.*?)(\s+Views)$/.exec(t);
         var num = parts ? parts[1] : t;
         var suffix = parts ? parts[2] : '';
@@ -151,7 +129,6 @@
       });
     }
 
-    /* Both cards carry three .card-shot slots keyed by rank, so one updater serves both. */
     updateShots(document.querySelector('[data-channel-card] .card-shots'), data.topVideos);
     updateShots(document.querySelector('[data-kaiaim-shots]'), data.kaiaimTopVideos);
   }
@@ -167,8 +144,6 @@
       var thumb = shot.querySelector('[data-video-thumb]');
       var badge = shot.querySelector('[data-video-views]');
 
-      /* Full-res straight from the API — these fill the whole card. Shots past the first
-       * are deferred, so write to whichever attribute that shot is currently using. */
       if (thumb && video.thumbnail) {
         if (thumb.hasAttribute('data-src')) thumb.setAttribute('data-src', video.thumbnail);
         else thumb.src = video.thumbnail;
@@ -199,9 +174,6 @@
     }
   }
 
-  /* Channel cards cycle their top 3 videos on hover. The timer only exists while a card is
-   * playing, so nothing ticks at rest. Touch devices keep the channel face and just open
-   * the channel on tap. */
   var SHOT_HOLD_MS = 1000;
 
   function initChannelCards() {
@@ -225,10 +197,6 @@
         }
       }
 
-      /* Only the first thumbnail of each card is fetched with the page. The rest are
-       * requested together on first hover, which gives them the full first second to
-       * arrive before the cycle reaches shot 2 — and a visit that never hovers a card
-       * never downloads them at all. */
       var loaded = false;
       function loadDeferred() {
         if (loaded) return;
@@ -258,16 +226,12 @@
         show(-1);
       }
 
-      /* Hover/focus only. Touch deliberately gets nothing: driving this from scroll
-       * position meant the cards started cycling just from scrolling past them, and a tap
-       * has to stay reserved for opening the channel. */
       if (!canHover) return;
       card.addEventListener('mouseenter', play);
       card.addEventListener('mouseleave', stop);
       card.addEventListener('focus', play);
       card.addEventListener('blur', stop);
 
-      /* A hidden tab still fires intervals; drop the timer and resume on return. */
       document.addEventListener('visibilitychange', function () {
         if (document.hidden && timer) stop();
       });
@@ -276,7 +240,6 @@
 
   hydrateChannels();
 
-  /* SVG markup for role cards — keys must match window.KAIM_ROLES[].icon in roles-config.js */
   var ROLE_ICONS = {
     creative:
       '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>',
@@ -294,8 +257,6 @@
       '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>'
   };
 
-  /* Scroll-reveal: add .is-visible when a section enters the viewport; remove it after a
-   * **debounced** time off-screen (avoids fast edge flicker from isIntersecting toggling). */
   var REVEAL_EXIT_MS = 450;
   var revealExitByEl = typeof WeakMap !== 'undefined' ? new WeakMap() : new Map();
   function clearRevealExitTimer(el) {
@@ -327,10 +288,6 @@
           clearRevealExitTimer(el);
           if (el.getAttribute('data-reveal-latched') === '1') continue;
           var ir = entry.intersectionRect;
-          /* Edge case: on some loads, IO reports isIntersecting=true while layout is mid-flight,
-           * so intersectionRect can be ~0×0. With threshold:0, the observer may not fire again
-           * once it becomes “really” visible, leaving the element stuck at opacity:0 (but clickable).
-           * If we see a near-zero rect, re-check on the next frame using getBoundingClientRect. */
           if (ir != null && (ir.width < 0.5 || ir.height < 0.5)) {
             (function retryRevealOnce(target) {
               if (target.__revealRetryQueued) return;
@@ -354,10 +311,6 @@
           el.setAttribute('data-reveal-latched', '1');
           el.classList.add('is-visible');
         } else if (el.getAttribute('data-reveal-latched') === '1') {
-          /* Only un-reveal when the element leaves downwards — i.e. it is below the
-           * viewport again, which means you scrolled back up past it and would expect it
-           * to replay on the way down. Leaving upwards (scrolling further down past it)
-           * keeps it revealed, so it is not re-animating behind you. */
           var bounds = entry.rootBounds;
           var viewportBottom = bounds ? bounds.bottom : (window.innerHeight || 0);
           if (entry.boundingClientRect.top >= viewportBottom) {
@@ -381,7 +334,6 @@
       .replace(/</g, '&lt;');
   }
 
-  /* Renders window.KAIM_ROLES (roles-config.js) into mounts + apply dropdown. */
   function initRolesFromConfig() {
     var roles = typeof window.KAIM_ROLES !== 'undefined' && Array.isArray(window.KAIM_ROLES) ? window.KAIM_ROLES : null;
     if (!roles) return;
@@ -506,8 +458,6 @@
       }
     }
 
-    /* Nothing open: grey the CTA out rather than hiding it, so the section keeps its shape.
-     * The native disabled attribute also stops clicks and takes it out of the tab order. */
     if (applyToggle) {
       var noOpenRoles = openList.length === 0;
       applyToggle.disabled = noOpenRoles;
@@ -537,7 +487,6 @@
       optOther.value = 'Other / general';
       optOther.textContent = 'Other / general';
       applyRoleSelect.appendChild(optOther);
-      /* One open role: pre-select it so applicants skip the dropdown. */
       if (openList.length === 1) {
         applyRoleSelect.selectedIndex = 1;
       } else {
@@ -555,7 +504,6 @@
   });
   initRolesFromConfig();
 
-  /* Parallax layers — IntersectionObserver skips layout when off-screen */
   var parallaxLayers = [];
   var parallaxByEl = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
   document.querySelectorAll('[data-parallax]').forEach(function (el) {
@@ -605,8 +553,6 @@
     ticking = false;
 
     if (scrollIndicator && introComplete) {
-      /* Skip no-op writes: past ~250px this is pinned at 0 for the rest of the page, and
-       * assigning it anyway still invalidates style for the element every frame. */
       var indicatorOpacity = String(Math.max(0, 1 - lastScrollY / 250));
       if (indicatorOpacity !== appliedIndicatorOpacity) {
         scrollIndicator.style.opacity = indicatorOpacity;
@@ -626,18 +572,11 @@
     if (lastScrollY > vh * 1.35) return;
     if (!heroMedia) return;
 
-    /* Scale stays fixed: the hero image carries a blur filter, and changing scale per frame
-     * forces the browser to re-rasterise (and so re-blur) the layer on every scroll frame.
-     * Translating a pre-blurred layer is a compositor move and costs nothing. */
     var imgS  = liteMotion ? 1.12 : 1.15;
     var imgTy = liteMotion ? 0.025 : 0.06;
     heroMedia.style.transform = 'translate3d(0,' + (lastScrollY * imgTy) + 'px,0) scale(' + imgS + ')';
   }
 
-  /* Every rect is read before any transform is written. Interleaving them made each layer
-   * force its own synchronous layout on every scroll frame — the writes invalidate style,
-   * so the next read has to flush. Transforms never move other elements, so batching this
-   * way yields identical values for one layout instead of one per layer. */
   function updateLayerParallax() {
     var vh = window.innerHeight;
     var n = parallaxLayers.length;
@@ -661,8 +600,6 @@
         var center = rect.top + rect.height * 0.5 - vh * 0.5;
         next = 'translate3d(0,' + (center / vh * layer.speed * 52) + 'px,0)';
       }
-      /* Off-screen layers were being reset to '' on every frame; same-value writes still
-       * cost a style invalidation each. */
       if (next !== layer.applied) {
         layer.el.style.transform = next;
         layer.applied = next;
@@ -670,7 +607,6 @@
     }
   }
 
-  /* Role cards accordion */
   document.querySelectorAll('[data-role]').forEach(function (card) {
     var header = card.querySelector('.role-header');
     var drawer = card.querySelector('.role-drawer');
@@ -700,7 +636,6 @@
     });
   });
 
-  /* Closed positions: one summary row, expand to show past roles */
   var closedToggle = document.querySelector('[data-closed-toggle]');
   var closedRolesRoot = closedToggle ? closedToggle.closest('[data-closed-roles]') : null;
   var closedPanel = document.getElementById('closedRolesPanel');
@@ -716,11 +651,6 @@
     });
   }
 
-  /* Panel height is driven inline from the measured scrollHeight so open/close both
-   * animate over the real distance (a fixed max-height cap made closing lag: most of
-   * the transition was spent in the invisible 2200px → content-height range).
-   * After opening finishes, max-height unlocks to 'none' so role drawers expanding
-   * inside the panel are never clipped. */
   function setClosedRolesOpen(open) {
     if (!closedRolesRoot || !closedToggle || !closedPanel) return;
     closedRolesRoot.classList.toggle('is-open', open);
@@ -750,8 +680,6 @@
     });
   }
 
-  /* Expanded drawers freeze max-height at click-time scrollHeight; re-measure after
-   * resize so reflowed content is never clipped. */
   var drawerResizeTimer = null;
   window.addEventListener('resize', function () {
     if (drawerResizeTimer) clearTimeout(drawerResizeTimer);
@@ -774,7 +702,6 @@
     if (!applyForm) return;
     var el = applyForm.querySelector('input:not(.apply-honeypot):not([type="hidden"]), textarea, select');
     if (!el) return;
-    /* preventScroll: focusing mid smooth-scroll would otherwise yank the page and kill the glide. */
     try { el.focus({ preventScroll: true }); } catch (err) { el.focus(); }
   }
 

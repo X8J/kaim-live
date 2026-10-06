@@ -1,4 +1,4 @@
-/* ───────────────────────── TOKENS ───────────────────────── */
+/* Tokens */
 :root {
   --bg-base: #ffffff;
   --bg-surface: rgba(255,255,255,0.72);
@@ -20,7 +20,7 @@
   --band-block: linear-gradient(#000 0 0);
 }
 
-/* ───────────────────────── RESET ────────────────────────── */
+/* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html {
   scroll-behavior: smooth;
@@ -51,7 +51,7 @@ img { display: block; max-width: 100%; }
 :focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; border-radius: 4px; }
 
-/* ───────────────────── GLASS ────────────────────────────── */
+/* Glass */
 .glass {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -61,7 +61,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 
-/* ──────────────────── HERO BANNER ───────────────────────── */
+/* Hero Banner */
 .hero {
   position: relative;
   width: 100%;
@@ -94,10 +94,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   -webkit-backface-visibility: hidden;
 }
 .hero-img[src=""] { display: none; }
-/* The banner opens bright and sharp, then cross-fades to a dim blurred copy while the text
- * arrives. Two statically-filtered layers rather than one animated filter: animating
- * blur() across a full-viewport image re-runs the blur every frame, which was the jank at
- * page open. Here each layer rasterises once and only opacity moves. */
 .hero-img--sharp {
   filter: brightness(1.08);
 }
@@ -111,22 +107,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
 }
 
-/* ─────────── HERO HALFTONE ─────────── */
-/* Solid green and black squares scattered across a 160px tile — positions are rejection
- * sampled with a minimum separation measured on a torus, so they read as irregular but
- * still tile seamlessly with no clumping at the seams.
- *
- * Split over two elements on purpose. The centre fade has to be live from the first block
- * onward, but it and the reveal are both mask-image, so they cannot share an element —
- * putting the fade on the outer box is what stops the dimming from popping in only once
- * the reveal ends. The outer mask never changes; only the inner one animates. */
+/* Hero Halftone */
 .hero-halftone {
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-  /* Squares sit back to 0.5 behind the title and button, full strength at the edges. */
   --centre-fade: radial-gradient(ellipse 54% 42% at 50% 47%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 46%, #000 88%);
   -webkit-mask-image: var(--centre-fade);
   mask-image: var(--centre-fade);
@@ -137,10 +124,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect x='25' y='80' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='62' y='119' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='5' y='58' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='119' y='43' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='94' y='25' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='136' y='21' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='13' y='2' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='114' y='140' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='69' y='58' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='90' y='62' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='157' y='134' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='33' y='22' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='91' y='149' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='55' y='15' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='6' y='97' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='71' y='29' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='112' y='83' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='138' y='61' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='136' y='95' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='40' y='51' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='95' y='121' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='45' y='72' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='29' y='140' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='23' y='108' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3C/svg%3E");
   background-size: 160px 160px;
   background-repeat: repeat;
-  /* Reverse disintegration: 12 blocks (4x3) landing in 4 scattered pops. Each mask layer
-   * is one block and layers union by default, so a block appears the moment its layer is
-   * given a size. steps(1) makes each wave snap rather than grow, and also avoids
-   * mask-position drifting as mask-size interpolates. */
   --blk: 25.000% 33.343%;
   -webkit-mask-image: var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block);
   mask-image: var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block);
@@ -154,9 +137,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .hero.hero-intro-ready .hero-halftone__fill {
   animation: halftone-assemble 1s steps(1, end) 0.55s forwards;
 }
-/* Mask dropped the moment the blocks have landed, so nothing is left masked at rest.
- * `animation: none` matters: the reveal fills forwards, so without cancelling it the
- * keyframes keep pinning mask-size and fight whatever this rule sets. */
 .hero.hero-intro-ready .hero-halftone__fill.is-revealed {
   animation: none;
 }
@@ -222,8 +202,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   text-align: center;
 }
 
-
-/* Join our team: conic “shimmer” ring (clipped) + large green glow (box-shadow) */
 .hero-join {
   position: relative;
   z-index: 0;
@@ -253,10 +231,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
   scale: 1;
 }
-/* Glow is a pre-rendered radial gradient whose opacity animates, not a box-shadow: shadows
- * cannot be composited, so transitioning four stacked ones (the largest a 120px blur)
- * repainted the button every frame on hover. It sits outside the ring's clipper so it can
- * bleed past the pill. */
 .hero-join__glow {
   position: absolute;
   left: 50%;
@@ -280,8 +254,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .hero-join:focus-visible .hero-join__glow {
   opacity: 1;
 }
-/* One sharp flash as the button lands, then back to rest. No fill-mode, so once it is done
- * the element returns to its base opacity and the hover transition takes over again. */
 .hero.hero-intro-ready .hero-join__glow {
   animation: hero-join-flash 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) 1.12s;
 }
@@ -298,10 +270,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   overflow: hidden;
   pointer-events: none;
 }
-/* The sweep is a rotating square rather than an animated `from` angle: spinning the
- * element is a compositor transform, whereas animating the gradient's angle repaints the
- * conic gradient every frame. Sized at 160% of the button width (> its 141% diagonal) so
- * no corner is ever exposed, and .hero-join__clip clips it back to the pill. */
 .hero-join__ring {
   position: absolute;
   left: 50%;
@@ -335,8 +303,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .hero.is-paused .hero-join__glow {
   animation-play-state: paused;
 }
-/* nowrap keeps the button wider than it is tall, which is what lets the ring's 160%
- * square always cover the pill's diagonal as it rotates. */
 .hero-join__label {
   position: relative;
   z-index: 2;
@@ -378,11 +344,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   max-width: 100%;
   color: #ffffff;
   text-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-  /* Assembles out of blocks rather than wiping evenly across. The mask is four horizontal
-   * bands, each its own layer with its own hard-edged wipe (mask layers union by default).
-   * The keyframes advance the bands by different amounts, so the reveal front is ragged —
-   * pieces of a letter land while the band above it is still missing, leaving holes that
-   * fill in after. steps() between keyframes keeps every jump blocky. */
   -webkit-mask-image: var(--band-wipe), var(--band-wipe), var(--band-wipe), var(--band-wipe);
   mask-image: var(--band-wipe), var(--band-wipe), var(--band-wipe), var(--band-wipe);
   -webkit-mask-size: 200% 25.6%;
@@ -397,9 +358,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .hero.hero-intro-ready .hero-title {
   animation: title-assemble 1.05s steps(4, end) 0.52s forwards;
 }
-/* Same teardown as the halftone: the reveal fills forwards, which would otherwise keep
- * four mask layers alive on the largest text on the page for the rest of the session.
- * The end state is a fully opaque mask, so dropping it is visually identical. */
 .hero.hero-intro-ready .hero-title.is-revealed {
   animation: none;
 }
@@ -407,7 +365,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   -webkit-mask-image: none;
   mask-image: none;
 }
-/* Band order is deliberately out of sync — 2nd and 4th lag, 1st and 3rd run ahead. */
 @keyframes title-assemble {
   0%   { -webkit-mask-position: 100% 0%, 100% 33.33%, 100% 66.66%, 100% 100%;
                  mask-position: 100% 0%, 100% 33.33%, 100% 66.66%, 100% 100%; }
@@ -444,10 +401,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   50% { transform: translateY(8px); }
 }
 
-/* ──────────────────── SCROLL REVEAL ───────────────────────── */
-/* Pop in on the way down, pop back out on the way up. The slight overshoot on entry is
- * what separates this from a plain slide; exit uses a plain decel so it does not bounce
- * while you are scrolling away from it. */
+/* Scroll Reveal */
 .scroll-reveal {
   width: 100%;
   opacity: 0;
@@ -466,7 +420,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
     opacity 0.44s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.62s cubic-bezier(0.34, 1.42, 0.5, 1);
 }
-/* Stagger only on enter; exit stays immediate so the out-animation mirrors cleanly. */
 .scroll-reveal[data-reveal-delay="1"] { transition-delay: 0s; }
 .scroll-reveal[data-reveal-delay="1"].is-visible { transition-delay: 0.08s; }
 .scroll-reveal[data-reveal-delay="2"] { transition-delay: 0s; }
@@ -474,7 +427,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .scroll-reveal[data-reveal-delay="3"] { transition-delay: 0s; }
 .scroll-reveal[data-reveal-delay="3"].is-visible { transition-delay: 0.24s; }
 
-/* ──────────────────── SECTION HEADING ─────────────────────── */
+/* Section Heading */
 .channels-header {
   text-align: center;
 }
@@ -488,69 +441,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: var(--text-primary);
 }
 
-/* ──────────────────── CHANNELS ────────────────────────────── */
+/* Channels */
 #channels {
   position: relative;
-  /* content-visibility:auto skipped layout for off-screen rows → carousel scrollWidth stayed 0 */
   background: var(--bg-section-channels);
-}
-
-/* Static square grid behind the channel rows, with individual cells fading in and out.
- * The lattice is a plain background on this element — no animation, so it costs one paint.
- * Only the blocks animate, and each is its own 46px element rather than a full-section
- * layer, so the compositor holds ~8KB per block instead of a screen-sized bitmap each. */
-.grid-bg {
-  --cell: 46px;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: var(--cell) var(--cell);
-}
-.grid-bg__block {
-  position: absolute;
-  width: var(--cell);
-  height: var(--cell);
-  background: var(--block-color);
-  opacity: 0;
-  animation: block-pulse var(--dur) ease-in-out infinite;
-  animation-delay: var(--delay);
-  will-change: opacity;
-}
-/* Offsets are multiples of --cell so every block lands on the lattice. Negative delays
- * start each one mid-cycle, so they are already out of step on first paint. */
-/* Gold and pink are the channels' own accents — the same colours the view counts use.
- * Placed to flank the cards and kept inside the band the edge fade leaves usable. */
-.grid-bg__block:nth-child(1) { left: 46px;   top: 92px;  --block-color: rgba(201, 162, 77, 0.42); --dur: 6s;   --delay: -1s; }
-.grid-bg__block:nth-child(2) { left: 138px;  top: 276px; --block-color: rgba(217, 84, 154, 0.30); --dur: 8.5s; --delay: -4s; }
-.grid-bg__block:nth-child(3) { left: 276px;  top: 138px; --block-color: rgba(201, 162, 77, 0.26); --dur: 7s;   --delay: -6s; }
-.grid-bg__block:nth-child(4) { left: 92px;   top: 368px; --block-color: rgba(201, 162, 77, 0.34); --dur: 9.5s; --delay: -2s; }
-.grid-bg__block:nth-child(5) { left: 368px;  top: 322px; --block-color: rgba(217, 84, 154, 0.22); --dur: 5.5s; --delay: -5s; }
-.grid-bg__block:nth-child(6) { right: 138px; top: 92px;  --block-color: rgba(217, 84, 154, 0.40); --dur: 8s;   --delay: -7s; }
-.grid-bg__block:nth-child(7) { right: 46px;  top: 276px; --block-color: rgba(217, 84, 154, 0.32); --dur: 6.5s; --delay: -3s; }
-.grid-bg__block:nth-child(8) { right: 276px; top: 368px; --block-color: rgba(201, 162, 77, 0.28); --dur: 10s;  --delay: -8s; }
-.grid-bg__block:nth-child(9) { right: 368px; top: 184px; --block-color: rgba(217, 84, 154, 0.26); --dur: 7.5s; --delay: -6.5s; }
-/* Solid-colour fade instead of a mask: the section background is opaque, so painting the
- * edges back over the grid is the same result for none of the compositing cost. */
-.grid-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    var(--bg-section-channels) 0%,
-    transparent 10%,
-    transparent 90%,
-    var(--bg-section-channels) 100%
-  );
-}
-@keyframes block-pulse {
-  0%, 100% { opacity: 0.08; }
-  50%      { opacity: 1; }
 }
 
 .channels {
@@ -566,17 +460,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   align-items: stretch;
   gap: 24px;
 }
-/* Both channels share the row evenly. */
 .channel-row > .scroll-reveal {
   flex: 1 1 0;
   min-width: 0;
   width: auto;
 }
 
-/* The card is three stacked layers: videos underneath, the channel face over them, and the
- * position dots on top. Hovering fades the face out — nothing moves or resizes, so the
- * whole interaction is opacity only. */
-/* Carries the parallax translate so the card's own transform stays free for hover. */
 .channel-card-float {
   width: 100%;
   min-width: 0;
@@ -602,7 +491,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   box-shadow: 0 22px 54px rgba(0,0,0,0.2);
 }
 
-/* ── Layer 1: the top videos, one visible at a time ── */
 .card-shots {
   position: absolute;
   inset: 0;
@@ -635,7 +523,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border-radius: 6px;
 }
 
-/* ── Layer 2: the channel identity, fades away on hover ── */
 .card-face {
   position: absolute;
   inset: 0;
@@ -659,7 +546,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   object-fit: cover;
   z-index: 0;
 }
-/* Scrim so the white name and stats stay legible over any avatar. */
 .card-face::after {
   content: '';
   position: absolute;
@@ -696,8 +582,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: relative;
   z-index: 2;
 }
-/* Heavier outline, no drop shadow. Only the number gets it — the TOTAL VIEWS label is
- * plain white and reads fine on its own, where an outline just muddied it. */
 .card-views {
   text-shadow:
     2px 0 0 rgba(0, 0, 0, 0.5),
@@ -738,7 +622,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: rgb(236, 130, 186);
 }
 
-/* ── Layer 3: which of the three videos is showing ── */
 .card-dots {
   position: absolute;
   z-index: 2;
@@ -768,17 +651,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   transform: scale(1.35);
 }
 
-/* ──────────────────── OPEN POSITIONS ────────────────────────── */
+/* Open Positions */
 #positions {
   position: relative;
-  /* visible: avoid skipped subtree quirks with accordions / layout */
   padding-top: clamp(20px, 4vw, 44px);
   background-color: var(--bg-section-positions);
   border-top: 1px solid var(--border-section);
   border-bottom: 1px solid var(--border-section);
 }
-/* Halftone field: one dot lattice, faded by a mask so it reads as a gradient of dots
- * rather than a flat screen, and never competes with the role cards on top. */
 #positions::before {
   content: '';
   position: absolute;
@@ -813,14 +693,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   grid-template-columns: 1fr;
   gap: clamp(16px, 2.5vw, 28px);
 }
-/* Grid items default to min-width:auto, so they refuse to shrink below their content's
- * min-content width — the closed-roles panel was forcing the track ~20px past the viewport
- * on a 320px screen. */
 .positions-grid > * {
   min-width: 0;
 }
 
-/* Open role cards: the mount is a single grid item containing all open cards stacked */
 [data-roles-open-mount] {
   display: flex;
   flex-direction: column;
@@ -848,7 +724,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   text-underline-offset: 0.2em;
   text-decoration-color: rgba(60, 60, 60, 0.3);
 }
-/* Open role cards always listed before closed, regardless of DOM order */
 .positions-grid > .scroll-reveal:has(.role-card:not(.closed)) {
   order: 0;
 }
@@ -856,12 +731,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   order: 1;
 }
 
-/* Past roles: one darker .glass panel (dropdown); list rows attach, no row dividers */
 .closed-roles {
   width: 100%;
-  overflow: hidden; /* one rounded frame */
-}
-/* Darker than default open job cards (which use .glass) */
+  overflow: hidden;}
 .closed-roles.glass {
   background: linear-gradient(180deg, #f7f7f7 0%, #f2f2f2 100%);
   border-color: rgba(0, 0, 0, 0.08);
@@ -923,7 +795,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .closed-roles.is-open .closed-roles-toggle-chevron {
   transform: rotate(180deg);
 }
-/* Height driven inline from main.js (scrollHeight) so open/close animate the real distance. */
 .closed-roles-panel {
   max-height: 0;
   overflow: hidden;
@@ -936,7 +807,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   padding: 0;
   background: rgba(0, 0, 0, 0.15);
 }
-/* Rows inside the closed list: no separate “cards,” no hairlines between rows */
 .closed-roles .role-card.closed {
   border: none;
   border-radius: 0;
@@ -944,7 +814,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  /* Block-level .role-card.closed uses 0.55; here we want a darker list, not extra fade */
   opacity: 0.9;
 }
 .closed-roles .role-card.closed .role-header:hover {
@@ -1070,7 +939,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border: none;
   border-radius: 8px;
   white-space: nowrap;
-  /* Same green family as .contact-cta and open-role .role-dot (#4ade80) */
   background: #22c55e;
   color: #fff;
   transition: background 0.2s ease, transform 0.2s ease;
@@ -1081,7 +949,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .apply-btn:active { transform: translateY(0); }
 
-/* ──────────────────── CONTACT CTA ────────────────────────── */
+/* Contact CTA */
 #contactSection {
   background: var(--bg-section-contact);
 }
@@ -1312,8 +1180,6 @@ textarea.apply-field-under-limit {
   background: rgba(0,0,0,0.06);
 }
 
-/* Disabled CTA (no open roles). Listed after the :hover rules so it wins the specificity
- * tie, and it repeats the hover properties so nothing lifts or glows on hover. */
 .cta-btn:disabled,
 .cta-btn.primary:disabled,
 .cta-btn.primary:disabled:hover,
@@ -1331,7 +1197,7 @@ textarea.apply-field-under-limit {
   100% { box-shadow: 0 0 0 0 rgba(201,162,77,0); }
 }
 
-/* ──────────────────── FOOTER BAR ────────────────────────── */
+/* Footer Bar */
 .footer-bar {
   background: var(--bg-section-contact);
   max-width: none;
@@ -1346,8 +1212,7 @@ textarea.apply-field-under-limit {
   position: relative;
 }
 
-/* ──────────────────── RESPONSIVE ────────────────────────── */
-
+/* Responsive */
 @media (max-width: 900px) {
   .channels { padding-top: 56px; padding-bottom: 56px; }
 }
@@ -1367,7 +1232,6 @@ textarea.apply-field-under-limit {
     gap: 12px;
     align-items: stretch;
   }
-  /* In a column flex, first-of-type’s flex-basis is HEIGHT — the old clamp() left a tall empty band under the card. */
   .channel-row > .scroll-reveal {
     flex: 1 1 100%;
     width: 100%;
@@ -1383,7 +1247,6 @@ textarea.apply-field-under-limit {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
   .positions-grid { gap: clamp(12px, 1.8vw, 18px); }
-  /* On small screens the clamp() handles padding; just add safe-area insets on top */
   .positions {
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -1431,12 +1294,8 @@ textarea.apply-field-under-limit {
   .contact-subtitle { font-size: 14px; }
 }
 
-/* ──────────────── TOUCH DEVICES ─────────────────────────── */
-/* Keyed on pointer/hover rather than width: a tablet is wide but still has no hover and
- * still zooms on small inputs. */
+/* Touch Devices */
 @media (pointer: coarse) {
-  /* iOS Safari zooms the whole page when a focused field is under 16px, and does not zoom
-   * back out. 44px min-height is the minimum comfortable tap target. */
   .apply-form input,
   .apply-form select,
   .apply-form textarea {
@@ -1446,20 +1305,11 @@ textarea.apply-field-under-limit {
   .apply-submit { min-height: 48px; }
 }
 @media (max-width: 640px) {
-  /* Right-anchored blocks would collide with the left-anchored ones on a narrow screen. */
-  .grid-bg__block:nth-child(4) { left: 230px; top: 414px; }
-  .grid-bg__block:nth-child(6) { right: 46px;  top: 138px; }
-  .grid-bg__block:nth-child(7) { right: 138px; top: 322px; }
-  .grid-bg__block:nth-child(8) { right: 230px; top: 460px; }
-  .grid-bg__block:nth-child(9) { right: 92px;  top: 230px; }
 }
 
-/* ──────────────── REDUCED MOTION ────────────────────────── */
-/* All animations are intentional and non-jarring — except the purely decorative ambient
- * ones, which should simply hold still. */
+/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .grid-bg__block,
   .hero-join__ring { animation: none !important; }
   .hero-halftone { animation: none !important; }
 }

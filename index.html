@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
   <title>KaiM</title>
-  <!-- No embed by design: no og:*, no twitter:*, no description. Unfurlers build previews
-       from those tags, so with none present a shared link stays a plain link. The <title>
-       has to stay for the browser tab, and canonical does not feed previews. -->
   <link rel="canonical" href="https://kaim.live/">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="apple-touch-icon" href="assets/img/KaiM.png">
@@ -15,12 +12,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://i.ytimg.com">
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
-  <!-- Hero title font loaded eagerly: the rest of the sheet is deferred, but a swap
-       partway through the title's block-wipe reveal is very visible. -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Pixelify+Sans:wght@400..700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Pixelify+Sans:wght@400..700&display=swap"></noscript>
-  <link rel="stylesheet" href="style.css?v=127">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body>
 
@@ -48,19 +43,7 @@
 
   <main>
 
-    <!-- Channels -->
     <section id="channels">
-      <div class="grid-bg" aria-hidden="true">
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-        <span class="grid-bg__block"></span>
-      </div>
       <div class="channels">
         <div class="scroll-reveal scroll-reveal-up">
           <div class="channels-header" data-parallax="0.04">
@@ -68,9 +51,6 @@
           </div>
         </div>
 
-        <!-- Both channels on one row. Each card rests on the channel face and fades
-             through its top 3 videos on hover; clicking opens the channel.
-             Thumbnail URLs mirror public/yt-data.json (no bundled JPEGs). -->
         <div class="channel-row">
 
           <div class="scroll-reveal scroll-reveal-up" data-reveal-delay="1">
@@ -172,7 +152,6 @@
       </div>
     </section>
 
-    <!-- Open positions -->
     <section id="positions">
       <div class="positions">
         <div class="scroll-reveal scroll-reveal-up">
@@ -184,10 +163,8 @@
 
         <div class="positions-grid">
 
-          <!-- Open roles: rendered from roles-config.js (window.KAIM_ROLES) -->
           <div data-roles-open-mount></div>
 
-          <!-- Closed roles: collapsed list; inner stack from roles-config.js -->
           <div class="scroll-reveal scroll-reveal-up" data-closed-roles-reveal data-reveal-delay="2">
           <div class="closed-roles glass" data-closed-roles>
             <button type="button" class="closed-roles-toggle" id="closedRolesToggle" data-closed-toggle aria-expanded="false" aria-controls="closedRolesPanel">
@@ -205,7 +182,6 @@
       </div>
     </section>
 
-    <!-- Contact -->
     <section id="contactSection">
       <div class="scroll-reveal scroll-reveal-up">
       <div class="contact-cta" id="contactPanel" data-parallax="0.03">
@@ -269,6 +245,6 @@
   </footer>
 
   <script src="roles-config.js?v=6" defer></script>
-  <script src="main.js?v=82" defer></script>
+  <script src="main.js?v=83" defer></script>
 </body>
 </html>
