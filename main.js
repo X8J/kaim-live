@@ -38,16 +38,14 @@
       window.matchMedia('(pointer: coarse)').matches;
   }
 
-  [['.hero-halftone__fill', 'halftone-assemble'],
-   ['.hero-title', 'title-assemble']].forEach(function (pair) {
-    var el = document.querySelector(pair[0]);
-    if (!el) return;
-    el.addEventListener('animationend', function (e) {
-      if (e.target === el && e.animationName === pair[1]) {
-        el.classList.add('is-revealed');
+  var titleEl = document.querySelector('.hero-title');
+  if (titleEl) {
+    titleEl.addEventListener('animationend', function (e) {
+      if (e.target === titleEl && e.animationName === 'title-assemble') {
+        titleEl.classList.add('is-revealed');
       }
     });
-  });
+  }
 
   var INTRO_MS = 2200;
 

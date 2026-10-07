@@ -107,66 +107,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   opacity: 1;
 }
 
-/* Hero Halftone */
-.hero-halftone {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-  --centre-fade: radial-gradient(ellipse 54% 42% at 50% 47%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 46%, #000 88%);
-  -webkit-mask-image: var(--centre-fade);
-  mask-image: var(--centre-fade);
-}
-.hero-halftone__fill {
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect x='25' y='80' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='62' y='119' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='5' y='58' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='119' y='43' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='94' y='25' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='136' y='21' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='13' y='2' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='114' y='140' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='69' y='58' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='90' y='62' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='157' y='134' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='33' y='22' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='91' y='149' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='55' y='15' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='6' y='97' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='71' y='29' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='112' y='83' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='138' y='61' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='136' y='95' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='40' y='51' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='95' y='121' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='45' y='72' width='9' height='9' fill='%23000000' fill-opacity='.42'/%3E%3Crect x='29' y='140' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3Crect x='23' y='108' width='9' height='9' fill='%2322c55e' fill-opacity='.5'/%3E%3C/svg%3E");
-  background-size: 160px 160px;
-  background-repeat: repeat;
-  --blk: 25.000% 33.343%;
-  -webkit-mask-image: var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block);
-  mask-image: var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block), var(--band-block);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: 0.000% 0.000%, 33.333% 0.000%, 66.667% 0.000%, 100.000% 0.000%, 0.000% 50.000%, 33.333% 50.000%, 66.667% 50.000%, 100.000% 50.000%, 0.000% 100.000%, 33.333% 100.000%, 66.667% 100.000%, 100.000% 100.000%;
-  mask-position: 0.000% 0.000%, 33.333% 0.000%, 66.667% 0.000%, 100.000% 0.000%, 0.000% 50.000%, 33.333% 50.000%, 66.667% 50.000%, 100.000% 50.000%, 0.000% 100.000%, 33.333% 100.000%, 66.667% 100.000%, 100.000% 100.000%;
-  -webkit-mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-  mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-}
-.hero.hero-intro-ready .hero-halftone__fill {
-  animation: halftone-assemble 1s steps(1, end) 0.55s forwards;
-}
-.hero.hero-intro-ready .hero-halftone__fill.is-revealed {
-  animation: none;
-}
-.hero-halftone__fill.is-revealed {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-@keyframes halftone-assemble {
-  0% {
-    -webkit-mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-            mask-size: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-  }
-  25% {
-    -webkit-mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-            mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-  }
-  50% {
-    -webkit-mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, 0 0, 0 0;
-            mask-size: var(--blk), var(--blk), 0 0, 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, 0 0, 0 0;
-  }
-  75% {
-    -webkit-mask-size: var(--blk), var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), var(--blk), var(--blk), 0 0;
-            mask-size: var(--blk), var(--blk), var(--blk), 0 0, var(--blk), var(--blk), 0 0, var(--blk), var(--blk), var(--blk), var(--blk), 0 0;
-  }
-  100% {
-    -webkit-mask-size: var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk);
-            mask-size: var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk), var(--blk);
-  }
-}
-
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -235,15 +175,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 260%;
-  height: 420%;
+  width: 132%;
+  height: 190%;
   translate: -50% -50%;
   z-index: 0;
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgba(16, 185, 129, 0.5) 0%,
-    rgba(16, 185, 129, 0.22) 42%,
+    rgba(16, 185, 129, 0.25) 0%,
+    rgba(16, 185, 129, 0.11) 42%,
     rgba(16, 185, 129, 0) 72%
   );
   opacity: 0;
@@ -1311,6 +1251,5 @@ textarea.apply-field-under-limit {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .hero-join__ring { animation: none !important; }
-  .hero-halftone { animation: none !important; }
 }
 
