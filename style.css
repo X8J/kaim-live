@@ -536,7 +536,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(16px, 2.2vw, 26px);
   background: var(--bg-surface);
   opacity: 1;
   transition: opacity 0.4s ease;
@@ -566,6 +565,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   );
 }
 .card-top {
+  padding: clamp(16px, 2.2vw, 26px) clamp(16px, 2.2vw, 26px) 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -582,6 +582,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: #fff;
 }
 .card-bottom {
+  padding: 0 clamp(16px, 2.2vw, 26px) clamp(16px, 2.2vw, 26px);
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -1283,7 +1284,6 @@ textarea.apply-field-under-limit {
 }
 
 @media (max-width: 420px) {
-  .channel-card { padding: 14px; min-height: 140px; }
   .card-name { font-size: 24px; }
   .card-views { font-size: 20px; }
   .role-header { padding: 14px 12px; gap: 8px; }
