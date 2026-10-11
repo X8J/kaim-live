@@ -164,21 +164,17 @@
       });
     }
 
-    var kaimAvatar = channels.kaim && channels.kaim.avatarUrl;
-    if (kaimAvatar) {
-      document.querySelectorAll('[data-kaim-card-pfp]').forEach(function (el) {
-        el.src = kaimAvatar;
-      });
-    }
-    var kaiaimAvatar = channels.kaiaim && channels.kaiaim.avatarUrl;
-    if (kaiaimAvatar) {
-      document.querySelectorAll('[data-kaiaim-card-pfp]').forEach(function (el) {
-        el.src = kaiaimAvatar;
-      });
-    }
-
     updateShots(document.querySelector('[data-channel-card] .card-shots'), data.topVideos);
     updateShots(document.querySelector('[data-kaiaim-shots]'), data.kaiaimTopVideos);
+  }
+
+  function isYouTubeThumb(url) {
+    try {
+      var u = new URL(String(url), location.href);
+      return u.protocol === 'https:' && u.hostname === 'i.ytimg.com';
+    } catch (err) {
+      return false;
+    }
   }
 
   function updateShots(mount, videos) {
@@ -186,13 +182,15 @@
     for (var i = 0; i < videos.length; i++) {
       var video = videos[i];
       if (!video || !video.videoId) continue;
-      var shot = mount.querySelector('[data-video-rank="' + video.rank + '"]');
+      var rank = parseInt(video.rank, 10);
+      if (!rank) continue;
+      var shot = mount.querySelector('[data-video-rank="' + rank + '"]');
       if (!shot) continue;
 
       var thumb = shot.querySelector('[data-video-thumb]');
       var badge = shot.querySelector('[data-video-views]');
 
-      if (thumb && video.thumbnail) {
+      if (thumb && isYouTubeThumb(video.thumbnail)) {
         if (thumb.hasAttribute('data-src')) thumb.setAttribute('data-src', video.thumbnail);
         else thumb.src = video.thumbnail;
         if (video.title != null) thumb.alt = video.title;
@@ -379,7 +377,9 @@
     return String(s)
       .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
-      .replace(/</g, '&lt;');
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   function initRolesFromConfig() {
