@@ -47,6 +47,56 @@
     });
   }
 
+  (function initGridBlocks() {
+    var grid = document.querySelector('.grid-bg');
+    if (!grid) return;
+    var blocks = [].slice.call(grid.querySelectorAll('.grid-bg__block'));
+    if (!blocks.length) return;
+
+    var CELL = 46;
+    var EDGE = 0.1;
+    var taken = {};
+
+    function place(block, cols, rows, rowFrom) {
+      var key, col, row, tries = 0;
+      do {
+        col = Math.floor(Math.random() * cols);
+        row = rowFrom + Math.floor(Math.random() * rows);
+        key = col + ':' + row;
+      } while (taken[key] && ++tries < 40);
+      if (block._cell) delete taken[block._cell];
+      taken[key] = 1;
+      block._cell = key;
+      block.style.left = col * CELL + 'px';
+      block.style.top = row * CELL + 'px';
+    }
+
+    function layout() {
+      var w = grid.clientWidth, h = grid.clientHeight;
+      var cols = Math.floor(w / CELL);
+      var rowFrom = Math.ceil((h * EDGE) / CELL);
+      var rows = Math.floor((h * (1 - EDGE)) / CELL) - rowFrom;
+      if (cols < 1 || rows < 1) return null;
+      taken = {};
+      blocks.forEach(function (b) { b._cell = null; place(b, cols, rows, rowFrom); });
+      return { cols: cols, rows: rows, rowFrom: rowFrom };
+    }
+
+    var box = layout();
+
+    blocks.forEach(function (b) {
+      b.addEventListener('animationiteration', function () {
+        if (box) place(b, box.cols, box.rows, box.rowFrom);
+      });
+    });
+
+    var t = null;
+    window.addEventListener('resize', function () {
+      if (t) clearTimeout(t);
+      t = setTimeout(function () { t = null; box = layout(); }, 200);
+    }, { passive: true });
+  })();
+
   var INTRO_MS = 2200;
 
   function startIntro() {
