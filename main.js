@@ -620,7 +620,7 @@
     if (lastScrollY > vh * 1.35) return;
     if (!heroMedia) return;
 
-    var imgS  = liteMotion ? 1.12 : 1.15;
+    var imgS  = liteMotion ? 1.232 : 1.265;
     var imgTy = liteMotion ? 0.025 : 0.06;
     heroMedia.style.transform = 'translate3d(0,' + (lastScrollY * imgTy) + 'px,0) scale(' + imgS + ')';
   }
