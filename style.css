@@ -853,12 +853,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 
 .proc-cursor {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 50%;
+  left: 50%;
   z-index: 9;
   width: calc(var(--u) * 2.1);
   height: auto;
   opacity: 0;
+  transform-origin: 0 0;
   pointer-events: none;
   filter: drop-shadow(0 calc(var(--u) * 0.2) calc(var(--u) * 0.4) rgba(0, 0, 0, 0.5));
 }
@@ -896,6 +897,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   max-width: calc(var(--u) * 56);
 }
 .yt-input {
+  position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
@@ -916,6 +918,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: #f1f1f1;
   vertical-align: bottom;
 }
+.yt-cursor-wrap,
+.yt-hit-cursor { position: absolute; inset: 0; pointer-events: none; }
 .yt-caret {
   width: 1px;
   height: calc(var(--u) * 2);
@@ -1051,7 +1055,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-yt.is-active .yt-list { animation: ytScroll 7.2s cubic-bezier(0.4, 0, 0.2, 1) both; }
 .sc-yt.is-active .yt-glow { animation: ytGlow 7.2s linear both; }
 .sc-yt.is-active .yt-row--hit { animation: ytHit 7.2s cubic-bezier(0.34, 1.4, 0.5, 1) both; }
-.sc-yt.is-active .yt-cursor { animation: ytCursor 7.2s cubic-bezier(0.5, 0, 0.2, 1) both; }
+.sc-yt.is-active .yt-cursor-wrap .proc-cursor { animation: ytCursor 7.2s cubic-bezier(0.5, 0, 0.2, 1) both; }
+.sc-yt.is-active .yt-hit-cursor .proc-cursor { animation: ytHitCursor 7.2s cubic-bezier(0.5, 0, 0.2, 1) both; }
 
 @keyframes ytType { from { max-width: 0; } to { max-width: 12.4em; } }
 @keyframes ytCaret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
@@ -1067,17 +1072,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes ytHit {
   0%, 66% { transform: scale(1); }
   78%, 100% { transform: scale(1.025); }
-}
-@keyframes ytCursor {
-  0% { opacity: 0; transform: translate3d(calc(var(--u) * 62), calc(var(--u) * 34), 0); }
-  6% { opacity: 1; }
-  18% { opacity: 1; transform: translate3d(calc(var(--u) * 38), calc(var(--u) * 8.4), 0); }
-  21% { transform: translate3d(calc(var(--u) * 38), calc(var(--u) * 8.4), 0) scale(0.78); }
-  24% { opacity: 1; transform: translate3d(calc(var(--u) * 38), calc(var(--u) * 8.4), 0) scale(1); }
-  32%, 62% { opacity: 0; transform: translate3d(calc(var(--u) * 38), calc(var(--u) * 8.4), 0); }
-  63% { opacity: 0; transform: translate3d(calc(var(--u) * 58), calc(var(--u) * 52), 0); }
-  70% { opacity: 1; }
-  82%, 100% { opacity: 1; transform: translate3d(calc(var(--u) * 44), calc(var(--u) * 40), 0); }
 }
 
 .nt {
@@ -1639,7 +1633,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   width: 0.62em;
   height: 1.15em;
   overflow: hidden;
-  vertical-align: -0.18em;
+  vertical-align: -0.21em;
   font-style: normal;
 }
 .obs-strip { display: block; font-weight: 400; transform: translateY(-5.75em); }
@@ -1660,7 +1654,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-ex.is-active .obs-strip { animation: obsOdo 2.3s steps(5, end) 6.1s both; }
 .sc-ex.is-active .obs-meter--a::after { animation: obsLvlA 2.4s ease-in-out infinite; }
 .sc-ex.is-active .obs-meter--b::after { animation: obsLvlB 1.7s ease-in-out infinite; }
-.sc-ex.is-active .obs-cursor { animation: obsCursor 8.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
+.sc-ex.is-active .obs-btn--rec .proc-cursor { animation: obsCursor 8.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
 
 @keyframes dcMsg {
   from { opacity: 0; transform: translate3d(0, calc(var(--u) * 1.6), 0); }
@@ -1685,14 +1679,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes obsLvlA { 0%, 100% { transform: scaleX(0.46); } 38% { transform: scaleX(0.3); } 71% { transform: scaleX(0.56); } }
 @keyframes obsLvlB { 0%, 100% { transform: scaleX(0.66); } 44% { transform: scaleX(0.5); } 78% { transform: scaleX(0.74); } }
 @keyframes obsOdo { from { transform: translateY(0); } to { transform: translateY(-5.75em); } }
-@keyframes obsCursor {
-  0%, 50% { opacity: 0; transform: translate3d(calc(var(--u) * 92), calc(var(--u) * 52), 0); }
-  57% { opacity: 1; }
-  68% { opacity: 1; transform: translate3d(calc(var(--u) * 81), calc(var(--u) * 40.5), 0); }
-  70% { transform: translate3d(calc(var(--u) * 81), calc(var(--u) * 40.5), 0) scale(0.76); }
-  73% { opacity: 1; transform: translate3d(calc(var(--u) * 81), calc(var(--u) * 40.5), 0) scale(1); }
-  86%, 100% { opacity: 0; transform: translate3d(calc(var(--u) * 86), calc(var(--u) * 50), 0); }
-}
 
 .dc--multi { flex-direction: row; }
 .dc-side {
@@ -1721,7 +1707,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   position: absolute;
   left: calc(var(--u) * 0.9);
   right: calc(var(--u) * 0.9);
-  top: calc(var(--u) * 5.2);
+  top: calc(var(--u) * 5.5);
   height: calc(var(--u) * 4.4);
   border-radius: calc(var(--u) * 0.6);
   background: rgba(255, 255, 255, 0.09);
@@ -2206,7 +2192,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-up.is-active .pp-l2 { animation: ppOn 10.6s steps(1) both; }
 .sc-up.is-active .pp-btn { animation: ppBtn 10.6s steps(1) both; }
 .sc-up.is-active .pp-btn::before { animation: ppGlow 10.6s ease-out both; }
-.sc-up.is-active .pp-cursor { animation: ppCursor 10.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
+.sc-up.is-active .pp-btn .proc-cursor { animation: ppCursor 10.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
 .sc-up.is-active .ytu { animation: upCard 0.6s cubic-bezier(0.22, 1, 0.36, 1) 6.9s both; }
 .sc-up.is-active .ytu-bar u { animation: dcProg 1.6s cubic-bezier(0.3, 0, 0.1, 1) 7.2s both; }
 .sc-up.is-active .ytu-s1 { animation: ytuOff 10.6s steps(1) both; }
@@ -2214,8 +2200,44 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-up.is-active .ytu-b1 { animation: ytuB1 10.6s steps(1) both; }
 .sc-up.is-active .ytu-b2 { animation: ytuB2 10.6s steps(1) both; }
 .sc-up.is-active .ytu-btn { animation: ytuBtn 10.6s steps(1) both; }
-.sc-up.is-active .ytu-cursor { animation: ytuCursor 10.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
+.sc-up.is-active .ytu-btn .proc-cursor { animation: ytuCursor 10.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
 
+@keyframes ytCursor {
+  0% { opacity: 0; transform: translate3d(calc(var(--u) * 9), calc(var(--u) * 9), 0); }
+  6% { opacity: 1; }
+  18% { opacity: 1; transform: translate3d(0, 0, 0); }
+  21% { transform: translate3d(0, 0, 0) scale(0.78); }
+  24% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  32%, 100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+@keyframes ytHitCursor {
+  0%, 63% { opacity: 0; transform: translate3d(calc(var(--u) * 8), calc(var(--u) * 7), 0); }
+  70% { opacity: 1; }
+  82%, 100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes obsCursor {
+  0%, 50% { opacity: 0; transform: translate3d(calc(var(--u) * 7), calc(var(--u) * 8), 0); }
+  57% { opacity: 1; }
+  68% { opacity: 1; transform: translate3d(0, 0, 0); }
+  70% { transform: translate3d(0, 0, 0) scale(0.76); }
+  73% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  86%, 100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+@keyframes ppCursor {
+  0%, 36% { opacity: 0; transform: translate3d(calc(var(--u) * 8), calc(var(--u) * 8), 0); }
+  41% { opacity: 1; }
+  50% { opacity: 1; transform: translate3d(0, 0, 0); }
+  52% { transform: translate3d(0, 0, 0) scale(0.76); }
+  55% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  60%, 100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+@keyframes ytuCursor {
+  0%, 78% { opacity: 0; transform: translate3d(calc(var(--u) * 8), calc(var(--u) * 7), 0); }
+  83% { opacity: 1; }
+  91% { opacity: 1; transform: translate3d(0, 0, 0); }
+  92.5% { transform: translate3d(0, 0, 0) scale(0.76); }
+  95%, 100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
 @keyframes upB1 { 0%, 26% { opacity: 1; } 30%, 100% { opacity: 0; } }
 @keyframes upB2 { 0%, 27% { opacity: 0; } 31%, 60% { opacity: 1; } 64%, 100% { opacity: 0; } }
 @keyframes upB3 { 0%, 61% { opacity: 0; } 65%, 100% { opacity: 1; } }
@@ -2236,22 +2258,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes ytuB1 { 0%, 91% { opacity: 1; } 92%, 100% { opacity: 0; } }
 @keyframes ytuB2 { 0%, 91% { opacity: 0; } 92%, 100% { opacity: 1; } }
 @keyframes ytuBtn { 0%, 91% { background: #3ea6ff; } 92%, 100% { background: #7ddc9a; } }
-@keyframes ppCursor {
-  0%, 36% { opacity: 0; transform: translate3d(calc(var(--u) * 72), calc(var(--u) * 52), 0); }
-  41% { opacity: 1; }
-  50% { opacity: 1; transform: translate3d(calc(var(--u) * 50), calc(var(--u) * 38), 0); }
-  52% { transform: translate3d(calc(var(--u) * 50), calc(var(--u) * 38), 0) scale(0.76); }
-  55% { opacity: 1; transform: translate3d(calc(var(--u) * 50), calc(var(--u) * 38), 0) scale(1); }
-  60%, 100% { opacity: 0; transform: translate3d(calc(var(--u) * 50), calc(var(--u) * 38), 0); }
-}
-@keyframes ytuCursor {
-  0%, 78% { opacity: 0; transform: translate3d(calc(var(--u) * 86), calc(var(--u) * 52), 0); }
-  83% { opacity: 1; }
-  91% { opacity: 1; transform: translate3d(calc(var(--u) * 71), calc(var(--u) * 39), 0); }
-  92.5% { transform: translate3d(calc(var(--u) * 71), calc(var(--u) * 39), 0) scale(0.76); }
-  95% { opacity: 1; transform: translate3d(calc(var(--u) * 71), calc(var(--u) * 39), 0) scale(1); }
-  100% { opacity: 1; transform: translate3d(calc(var(--u) * 71), calc(var(--u) * 39), 0); }
-}
 
 .proc-stage.is-paused .proc-scene *,
 .proc-stage.is-paused .proc-scene { animation-play-state: paused; }
