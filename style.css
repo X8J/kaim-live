@@ -1500,13 +1500,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border-right: 1px solid #1f2229;
 }
 .obs-pane {
-  flex: none;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: calc(var(--u) * 0.25);
   padding: calc(var(--u) * 0.55);
 }
-.obs-pane + .obs-pane { border-top: 1px solid #1f2229; }
+.obs-pane + .obs-pane { flex: 1.35; border-top: 1px solid #1f2229; }
 .obs-dock {
   font-size: calc(var(--u) * 1.05);
   font-weight: 600;
@@ -1516,7 +1517,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   border-radius: calc(var(--u) * 0.2);
 }
 .obs-list {
-  flex: none;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: calc(var(--u) * 0.1);
@@ -1633,7 +1635,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   width: 0.62em;
   height: 1.15em;
   overflow: hidden;
-  vertical-align: -0.21em;
+  vertical-align: -0.231em;
   font-style: normal;
 }
 .obs-strip { display: block; font-weight: 400; transform: translateY(-5.75em); }
