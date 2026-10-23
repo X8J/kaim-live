@@ -35,7 +35,6 @@
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-pixel: 'Pixelify Sans', 'Courier New', monospace;
   --band-wipe: linear-gradient(90deg, #000 50%, transparent 50%);
-  --band-block: linear-gradient(#000 0 0);
 }
 
 /* Reset */
@@ -1274,6 +1273,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .dc-msgs {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -1340,7 +1340,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .dc-att--sm { width: calc(var(--u) * 30); }
 .dc--solo .dc-att { width: calc(var(--u) * 27); }
-.dc-msgs { overflow: hidden; }
 .dc-att img {
   display: block;
   width: 100%;
@@ -2046,12 +2045,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   letter-spacing: -0.035em;
   color: #001c64;
   line-height: 1;
-}
-.pp-amt i {
-  font-size: calc(var(--u) * 2.4);
-  font-style: normal;
-  font-weight: 600;
-  opacity: 0.55;
 }
 .pp-rows { display: flex; flex-direction: column; gap: calc(var(--u) * 0.9); }
 .pp-row {
@@ -2978,8 +2971,6 @@ textarea.apply-field-under-limit {
     min-height: 44px;
   }
   .apply-submit { min-height: 48px; }
-}
-@media (max-width: 640px) {
 }
 
 /* Reduced Motion */
