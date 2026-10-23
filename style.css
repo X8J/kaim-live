@@ -2076,6 +2076,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: calc(var(--u) * 1.75);
   font-weight: 600;
 }
+.pp-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 calc(var(--u) * 2.6) calc(var(--u) * 0.5) rgba(46, 196, 112, 0.8);
+  opacity: 0;
+  pointer-events: none;
+}
 .pp-l1,
 .pp-l2 {
   position: absolute;
@@ -2203,6 +2212,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-up.is-active .pp-l1 { animation: ppOff 10.6s steps(1) both; }
 .sc-up.is-active .pp-l2 { animation: ppOn 10.6s steps(1) both; }
 .sc-up.is-active .pp-btn { animation: ppBtn 10.6s steps(1) both; }
+.sc-up.is-active .pp-btn::before { animation: ppGlow 10.6s ease-out both; }
 .sc-up.is-active .pp-cursor { animation: ppCursor 10.6s cubic-bezier(0.5, 0, 0.2, 1) both; }
 .sc-up.is-active .ytu { animation: upCard 0.6s cubic-bezier(0.22, 1, 0.36, 1) 6.9s both; }
 .sc-up.is-active .ytu-bar u { animation: dcProg 1.6s cubic-bezier(0.3, 0, 0.1, 1) 7.2s both; }
@@ -2219,6 +2229,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes upCard {
   from { opacity: 0; transform: translate3d(0, calc(var(--u) * 2.4), 0) scale(0.97); }
   to { opacity: 1; transform: none; }
+}
+@keyframes ppGlow {
+  0%, 51% { opacity: 0; }
+  53% { opacity: 1; }
+  62%, 100% { opacity: 0.32; }
 }
 @keyframes ppOff { 0%, 51% { opacity: 1; } 52%, 100% { opacity: 0; } }
 @keyframes ppOn { 0%, 51% { opacity: 0; } 52%, 100% { opacity: 1; } }
