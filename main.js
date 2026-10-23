@@ -294,9 +294,6 @@
     var scenes  = sec.querySelectorAll('[data-proc-scene]');
     if (!rail || !stage || !steps.length || steps.length !== scenes.length) return;
 
-    var reduce = window.matchMedia
-      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      : false;
     var durations = [];
     var idx = 0;
     var timer = null;
@@ -335,7 +332,7 @@
 
     function queue() {
       stop();
-      if (reduce || !visible || document.hidden) return;
+      if (!visible || document.hidden) return;
       timer = setTimeout(function () {
         idx = (idx + 1) % scenes.length;
         paint();

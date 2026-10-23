@@ -2318,15 +2318,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   .proc-caption { font-size: 13.5px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .proc-scene,
-  .proc-scene * { animation: none !important; }
-  .dc-beat[data-beat="3"],
-  .up-beat--pub { opacity: 1; }
-  .sc-ex .dc { opacity: 0.24; }
-  .dc-dm:nth-child(5) { color: #f2f3f5; }
-  .rv-head { transform: translate3d(100%, 0, 0); }
-}
 
 /* Open Positions */
 #positions {
