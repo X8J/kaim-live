@@ -284,7 +284,119 @@
     });
   }
 
+  function initProcess() {
+    var sec = document.getElementById('process');
+    if (!sec) return;
+    var rail    = sec.querySelector('[data-proc-steps]');
+    var stage   = sec.querySelector('[data-proc-stage]');
+    var caption = sec.querySelector('[data-proc-caption]');
+    var steps   = sec.querySelectorAll('[data-proc-step]');
+    var scenes  = sec.querySelectorAll('[data-proc-scene]');
+    if (!rail || !stage || !steps.length || steps.length !== scenes.length) return;
+
+    var reduce = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+    var durations = [];
+    var idx = 0;
+    var timer = null;
+    var visible = false;
+
+    for (var i = 0; i < scenes.length; i++) {
+      var ms = parseInt(scenes[i].getAttribute('data-dur'), 10);
+      durations.push(ms > 0 ? ms : 8000);
+    }
+
+    function centerStep(el) {
+      if (rail.scrollWidth <= rail.clientWidth + 1) return;
+      var left = el.offsetLeft - (rail.clientWidth - el.offsetWidth) / 2;
+      if (rail.scrollTo) rail.scrollTo({ left: left, behavior: 'smooth' });
+      else rail.scrollLeft = left;
+    }
+
+    function paint() {
+      for (var i = 0; i < scenes.length; i++) {
+        var on = i === idx;
+        scenes[i].classList.toggle('is-active', on);
+        steps[i].classList.toggle('is-active', on);
+        steps[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      if (caption) {
+        var t = steps[idx].querySelector('.proc-step__text');
+        caption.textContent = t ? t.textContent : '';
+      }
+      centerStep(steps[idx]);
+    }
+
+    function stop() {
+      if (timer) clearTimeout(timer);
+      timer = null;
+    }
+
+    function queue() {
+      stop();
+      if (reduce || !visible || document.hidden) return;
+      timer = setTimeout(function () {
+        idx = (idx + 1) % scenes.length;
+        paint();
+        queue();
+      }, durations[idx]);
+    }
+
+    function go(n) {
+      idx = (n + scenes.length) % scenes.length;
+      paint();
+      queue();
+    }
+
+    function replay() {
+      var sc = scenes[idx];
+      sc.classList.remove('is-active');
+      void sc.offsetWidth;
+      paint();
+      queue();
+    }
+
+    for (var s = 0; s < steps.length; s++) {
+      steps[s].addEventListener('click', (function (n) {
+        return function () { go(n); };
+      })(s));
+    }
+
+    rail.addEventListener('keydown', function (e) {
+      var k = e.key;
+      var fwd = k === 'ArrowRight' || k === 'ArrowDown';
+      var back = k === 'ArrowLeft' || k === 'ArrowUp';
+      if (!fwd && !back) return;
+      e.preventDefault();
+      go(fwd ? idx + 1 : idx - 1);
+      steps[idx].focus();
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop();
+      else if (visible) replay();
+    });
+
+    paint();
+
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (entries) {
+        var now = entries[0].isIntersecting;
+        if (now === visible) return;
+        visible = now;
+        stage.classList.toggle('is-paused', !now);
+        if (now) replay();
+        else stop();
+      }, { rootMargin: '80px 0px', threshold: 0.2 }).observe(stage);
+    } else {
+      visible = true;
+      queue();
+    }
+  }
+
   hydrateChannels();
+  initProcess();
 
   var ROLE_ICONS = {
     creative:
