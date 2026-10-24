@@ -1647,7 +1647,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   font-size: calc(var(--u) * 1.05);
 }
 .obs-rec { display: flex; align-items: center; gap: calc(var(--u) * 0.55); color: #ff8b8b; }
-.obs-tc { white-space: nowrap; }
+.obs-tc { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .obs-rec i {
   width: calc(var(--u) * 0.9);
   height: calc(var(--u) * 0.9);
@@ -1655,15 +1655,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background: #ff4747;
 }
 .obs-od {
+  position: relative;
   display: inline-block;
-  width: 0.62em;
-  height: 1.15em;
-  overflow: hidden;
-  vertical-align: -0.231em;
   font-style: normal;
+  font-weight: 400;
 }
-.obs-strip { display: block; font-weight: 400; transform: translateY(-5.75em); }
-.obs-strip u { display: block; height: 1.15em; line-height: 1.15em; text-decoration: none; }
+.obs-od i { font-style: normal; visibility: hidden; }
+.obs-od u {
+  position: absolute;
+  left: 0;
+  top: 0;
+  text-decoration: none;
+  opacity: 0;
+}
+.obs-od u:last-of-type { opacity: 1; }
 
 .sc-ex.is-active .dc-msg { animation: dcMsg 0.42s cubic-bezier(0.22, 1, 0.36, 1) calc(0.25s + var(--i) * 0.65s) both; }
 .sc-ex.is-active .dc-msg--att { animation-delay: 2.3s; }
@@ -1677,7 +1682,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-ex.is-active .obs-l2 { animation: obsOn 8s steps(1) both; }
 .sc-ex.is-active .obs-btn--rec { animation: obsRecBtn 8s steps(1) both; }
 .sc-ex.is-active .obs-rec { animation: obsOn 8s steps(1) both; }
-.sc-ex.is-active .obs-strip { animation: obsOdo 1.7s steps(5, end) 5.95s both; }
+.sc-ex.is-active .obs-od u:nth-of-type(1) { animation: obsD0 8s steps(1) both; }
+.sc-ex.is-active .obs-od u:nth-of-type(2) { animation: obsD1 8s steps(1) both; }
+.sc-ex.is-active .obs-od u:nth-of-type(3) { animation: obsD2 8s steps(1) both; }
+.sc-ex.is-active .obs-od u:nth-of-type(4) { animation: obsD3 8s steps(1) both; }
+.sc-ex.is-active .obs-od u:nth-of-type(5) { animation: obsD4 8s steps(1) both; }
+.sc-ex.is-active .obs-od u:nth-of-type(6) { animation: obsD5 8s steps(1) both; }
 .sc-ex.is-active .obs-meter--a::after { animation: obsLvlA 2.4s ease-in-out infinite; }
 .sc-ex.is-active .obs-meter--b::after { animation: obsLvlB 1.7s ease-in-out infinite; }
 .sc-ex.is-active .obs-btn--rec .proc-cursor { animation: obsCursor 8s cubic-bezier(0.5, 0, 0.2, 1) both; }
@@ -1704,7 +1714,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 @keyframes obsRecBtn { 0%, 72% { background: #3c404d; } 73%, 100% { background: #5a3034; } }
 @keyframes obsLvlA { 0%, 100% { transform: scaleX(0.46); } 38% { transform: scaleX(0.3); } 71% { transform: scaleX(0.56); } }
 @keyframes obsLvlB { 0%, 100% { transform: scaleX(0.66); } 44% { transform: scaleX(0.5); } 78% { transform: scaleX(0.74); } }
-@keyframes obsOdo { from { transform: translateY(0); } to { transform: translateY(-5.75em); } }
+@keyframes obsD0 { 0% { opacity: 1; } 78.625% { opacity: 0; } }
+@keyframes obsD1 { 0% { opacity: 0; } 78.625% { opacity: 1; } 82.875% { opacity: 0; } }
+@keyframes obsD2 { 0% { opacity: 0; } 82.875% { opacity: 1; } 87.125% { opacity: 0; } }
+@keyframes obsD3 { 0% { opacity: 0; } 87.125% { opacity: 1; } 91.375% { opacity: 0; } }
+@keyframes obsD4 { 0% { opacity: 0; } 91.375% { opacity: 1; } 95.625% { opacity: 0; } }
+@keyframes obsD5 { 0% { opacity: 0; } 95.625% { opacity: 1; } }
 
 .dc--multi { flex-direction: row; }
 .dc-side {
