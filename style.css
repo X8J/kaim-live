@@ -2076,6 +2076,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .up-msg b { flex: 1; min-width: 0; font-weight: 400; }
 .up-msg--me { border-color: rgba(201, 162, 77, 0.45); background: rgba(201, 162, 77, 0.1); }
+.up-msg--me i { width: auto; }
+.up-msg--me b { flex: 1; }
 .up-tick {
   flex: none;
   font-style: normal;
