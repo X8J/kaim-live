@@ -1709,6 +1709,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .dc--multi { flex-direction: row; }
 .dc-side {
   position: relative;
+  z-index: 2;
   flex: none;
   width: calc(var(--u) * 23);
   padding: calc(var(--u) * 1.2) calc(var(--u) * 0.9);
@@ -1756,6 +1757,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   height: calc(var(--u) * 2.8);
   font-size: calc(var(--u) * 1.25);
 }
+.dc-unread {
+  flex: none;
+  margin-left: auto;
+  min-width: calc(var(--u) * 1.9);
+  height: calc(var(--u) * 1.9);
+  padding: 0 calc(var(--u) * 0.5);
+  border-radius: calc(var(--u) * 1);
+  background: #f23f43;
+  font-size: calc(var(--u) * 1.15);
+  font-weight: 700;
+  line-height: calc(var(--u) * 1.9);
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+}
 .dc-main { flex: 1; min-width: 0; position: relative; }
 .dc-beat {
   position: absolute;
@@ -1775,26 +1791,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 .sc-cr.is-active .dc-beat[data-beat="4"] { animation: dcBeat4 10.2s ease both; }
 .sc-cr.is-active .dc-beat[data-beat="1"] .dc-msg { animation: dcMsg 0.42s cubic-bezier(0.22, 1, 0.36, 1) calc(0.2s + var(--i) * 0.45s) both; }
 .sc-cr.is-active .dc-beat[data-beat="2"] .dc-msg { animation: dcMsg 0.42s cubic-bezier(0.22, 1, 0.36, 1) calc(3.2s + var(--i) * 0.45s) both; }
-.sc-cr.is-active .dc-beat[data-beat="3"] .dc-msg { animation: dcMsg 0.42s cubic-bezier(0.22, 1, 0.36, 1) calc(5.75s + var(--i) * 0.45s) both; }
+.sc-cr.is-active .dc-beat[data-beat="3"] .dc-msg:not(.dc-msg--old) { animation: dcMsg 0.42s cubic-bezier(0.22, 1, 0.36, 1) calc(5.8s + var(--i) * 0.45s) both; }
 .sc-cr.is-active .dc-beat[data-beat="4"] .dc-msg { animation: dcMsg 0.42s cubic-bezier(0.22, 1, 0.36, 1) calc(8.9s + var(--i) * 0.45s) both; }
-.sc-cr.is-active .dc-prog u { animation: dcProg 1.1s cubic-bezier(0.3, 0, 0.1, 1) 0.95s both; }
+.sc-cr.is-active .dc-beat[data-beat="1"] .dc-prog u { animation: dcProg 0.88s cubic-bezier(0.3, 0, 0.1, 1) 0.95s both; }
+.sc-cr.is-active .dc-beat[data-beat="1"] .dc-react { animation: dcPop 0.4s cubic-bezier(0.34, 1.5, 0.5, 1) 1.85s both; }
+.sc-cr.is-active .dc-unread { animation: dcUnread 10.2s cubic-bezier(0.34, 1.5, 0.5, 1) both; }
+.sc-cr.is-active .dc-dm .proc-cursor { animation: dcCrCursor 10.2s cubic-bezier(0.5, 0, 0.2, 1) both; }
 .sc-cr.is-active .dc-ctx { animation: dcCtx 10.2s ease both; }
 .sc-cr.is-active .dc-ctx .is-pick { animation: dcPick 10.2s steps(1) both; }
 .sc-cr.is-active .dc-fwd { animation: dcPop 0.38s cubic-bezier(0.34, 1.5, 0.5, 1) 9.5s both; }
-.sc-cr.is-active .dc-react { animation: dcPop 0.4s cubic-bezier(0.34, 1.5, 0.5, 1) 9.72s both; }
+.sc-cr.is-active .dc-beat[data-beat="4"] .dc-react { animation: dcPop 0.4s cubic-bezier(0.34, 1.5, 0.5, 1) 9.72s both; }
 
 @keyframes dcSel {
   0%, 26% { transform: translate3d(0, 0, 0); }
-  30%, 51% { transform: translate3d(0, calc(var(--u) * 4.7), 0); }
-  55%, 82% { transform: translate3d(0, 0, 0); }
+  30%, 52.5% { transform: translate3d(0, calc(var(--u) * 4.7), 0); }
+  54.5%, 82% { transform: translate3d(0, 0, 0); }
   86%, 100% { transform: translate3d(0, calc(var(--u) * 9.4), 0); }
 }
-@keyframes dcLit1 { 0%, 28% { color: #f2f3f5; } 29%, 52% { color: #949ba4; } 53%, 85% { color: #f2f3f5; } 86%, 100% { color: #949ba4; } }
-@keyframes dcLit2 { 0%, 28% { color: #949ba4; } 29%, 52% { color: #f2f3f5; } 53%, 100% { color: #949ba4; } }
+@keyframes dcLit1 { 0%, 28% { color: #f2f3f5; } 29%, 41% { color: #949ba4; } 42%, 85% { color: #f2f3f5; } 86%, 100% { color: #949ba4; } }
+@keyframes dcLit2 { 0%, 28% { color: #949ba4; } 29%, 54% { color: #f2f3f5; } 55%, 100% { color: #949ba4; } }
 @keyframes dcLit3 { 0%, 85% { color: #949ba4; } 86%, 100% { color: #f2f3f5; } }
 @keyframes dcBeat1 { 0%, 27% { opacity: 1; } 30%, 100% { opacity: 0; } }
-@keyframes dcBeat2 { 0%, 28% { opacity: 0; } 31%, 52% { opacity: 1; } 55%, 100% { opacity: 0; } }
-@keyframes dcBeat3 { 0%, 52% { opacity: 0; } 55%, 83% { opacity: 1; } 86%, 100% { opacity: 0; } }
+@keyframes dcBeat2 { 0%, 28% { opacity: 0; } 31%, 53% { opacity: 1; } 55.5%, 100% { opacity: 0; } }
+@keyframes dcBeat3 { 0%, 53% { opacity: 0; } 55.5%, 83% { opacity: 1; } 86%, 100% { opacity: 0; } }
 @keyframes dcBeat4 { 0%, 84% { opacity: 0; } 87%, 100% { opacity: 1; } }
 @keyframes dcCtx {
   0%, 66% { opacity: 0; transform: scale(0.95); }
@@ -1806,6 +1825,19 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   75%, 100% { background: #5865f2; color: #fff; }
 }
 @keyframes dcProg { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes dcUnread {
+  0%, 41% { opacity: 0; transform: scale(0.4); }
+  44%, 52.5% { opacity: 1; transform: scale(1); }
+  54%, 100% { opacity: 0; transform: scale(0.4); }
+}
+@keyframes dcCrCursor {
+  0%, 43% { opacity: 0; transform: translate3d(calc(var(--u) * 15), calc(var(--u) * 9), 0); }
+  47% { opacity: 1; }
+  52% { opacity: 1; transform: translate3d(0, 0, 0); }
+  52.8% { transform: translate3d(0, 0, 0) scale(0.76); }
+  54% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  58%, 100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
 @keyframes dcPop {
   from { opacity: 0; transform: scale(0.5); }
   to { opacity: 1; transform: scale(1); }
@@ -2400,6 +2432,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   .rv-notes { gap: calc(var(--u) * 0.7); }
   .rv-note { font-size: calc(var(--u) * 1.6); }
   .up-msg i { width: calc(var(--u) * 13); }
+  .dc-beat[data-beat="3"] .dc-ctx { top: calc(var(--u) * -4.6); }
   .proc-caption { font-size: 13.5px; }
 }
 
