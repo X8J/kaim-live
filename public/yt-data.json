@@ -1,21 +1,21 @@
 {
-  "fetchedAt": "2026-10-15T14:28:47.419Z",
+  "fetchedAt": "2026-11-01T16:28:41.856Z",
   "channels": {
     "kaim": {
       "handle": "@SubToKaiM",
-      "avatarUrl": "https://yt3.ggpht.com/he83_csfdu-gufbECBvdaHGBhcvCQabFbRxObjpzVBMUFqf2LbdV9wawCEaQx1iFwbhYkRf29Q=s800-c-k-c0x00ffffff-no-rj",
-      "totalViews": 52712284,
-      "totalViewsFormatted": "52M",
-      "subscribers": 381000,
-      "subscribersFormatted": "381K"
+      "avatarUrl": "https://yt3.ggpht.com/qr_2BsYB0Rg3VPJxzX0xCAFMEEgzt8GEWpUkLkUZmmS763V3b0sLfAt17w3Iek8PYmaJIqf8yso=s800-c-k-c0x00ffffff-no-rj",
+      "totalViews": 53786224,
+      "totalViewsFormatted": "53M",
+      "subscribers": 386000,
+      "subscribersFormatted": "386K"
     },
     "kaiaim": {
       "handle": "@AimKaiM",
       "avatarUrl": "https://yt3.ggpht.com/4CbX7rpA0ZYS8yzWHrrlH5Yzy44J8J9-wTBLAJbgd4bcJMScUELSMQoLo11P7_Nbzz7xyb0aVQ=s800-c-k-c0x00ffffff-no-rj",
-      "totalViews": 12449652,
-      "totalViewsFormatted": "12M",
-      "subscribers": 77400,
-      "subscribersFormatted": "77K"
+      "totalViews": 16544716,
+      "totalViewsFormatted": "16M",
+      "subscribers": 89900,
+      "subscribersFormatted": "89K"
     }
   },
   "topVideos": [
@@ -28,8 +28,8 @@
       "videoId": "UBIF_MuqPxg",
       "title": "Exposing the #1 TOXIC Clan as a Undercover PRO..",
       "thumbnail": "https://i.ytimg.com/vi/UBIF_MuqPxg/maxresdefault.jpg",
-      "viewCount": 8899460,
-      "viewCountFormatted": "8.8M",
+      "viewCount": 8943171,
+      "viewCountFormatted": "8.9M",
       "publishedAt": "2025-08-25T17:38:34Z"
     },
     {
@@ -41,7 +41,7 @@
       "videoId": "ci5Gup4YAiw",
       "title": "I Snuck into a School's Rivals Tournament..",
       "thumbnail": "https://i.ytimg.com/vi/ci5Gup4YAiw/maxresdefault.jpg",
-      "viewCount": 7312602,
+      "viewCount": 7336100,
       "viewCountFormatted": "7.3M",
       "publishedAt": "2025-07-19T18:39:15Z"
     },
@@ -54,8 +54,8 @@
       "videoId": "h1kC0zZjIuc",
       "title": "I Hired a PRO Rivals Coach, Then DESTROYED Him..",
       "thumbnail": "https://i.ytimg.com/vi/h1kC0zZjIuc/maxresdefault.jpg",
-      "viewCount": 4090099,
-      "viewCountFormatted": "4M",
+      "viewCount": 4105950,
+      "viewCountFormatted": "4.1M",
       "publishedAt": "2025-06-30T19:09:50Z"
     },
     {
@@ -67,7 +67,7 @@
       "videoId": "GQt7NBAO5i8",
       "title": "I Hunted A TOXIC Scammer for REVENGE..",
       "thumbnail": "https://i.ytimg.com/vi/GQt7NBAO5i8/maxresdefault.jpg",
-      "viewCount": 3948753,
+      "viewCount": 3966601,
       "viewCountFormatted": "3.9M",
       "publishedAt": "2025-08-09T01:50:36Z"
     },
@@ -80,22 +80,22 @@
       "videoId": "y6Gp4EdpBbQ",
       "title": "I Hunted a TOXIC Hacker Until He RAGE QUITS",
       "thumbnail": "https://i.ytimg.com/vi/y6Gp4EdpBbQ/maxresdefault.jpg",
-      "viewCount": 2896107,
-      "viewCountFormatted": "2.8M",
+      "viewCount": 2922552,
+      "viewCountFormatted": "2.9M",
       "publishedAt": "2025-09-30T11:08:45Z"
     },
     {
       "rank": 6,
-      "previousRank": 6,
-      "rankDelta": 0,
-      "isNewEntry": false,
+      "previousRank": null,
+      "rankDelta": null,
+      "isNewEntry": true,
       "isTopThree": false,
-      "videoId": "8jiN33s2aRw",
-      "title": "I Banned the DUMBEST HACKER in Rivals..",
-      "thumbnail": "https://i.ytimg.com/vi/8jiN33s2aRw/maxresdefault.jpg",
-      "viewCount": 2444804,
+      "videoId": "CnPWJvcNrN4",
+      "title": "I Joined My Girlfriend's Clan Undercover",
+      "thumbnail": "https://i.ytimg.com/vi/CnPWJvcNrN4/maxresdefault.jpg",
+      "viewCount": 2478392,
       "viewCountFormatted": "2.4M",
-      "publishedAt": "2025-03-28T21:38:52Z"
+      "publishedAt": "2026-08-01T20:51:16Z"
     }
   ],
   "kaiaimTopVideos": [
@@ -108,8 +108,8 @@
       "videoId": "6GvjiuqUVgs",
       "title": "Winning with EVERY Sniper Skin in Rivals!",
       "thumbnail": "https://i.ytimg.com/vi/6GvjiuqUVgs/maxresdefault.jpg",
-      "viewCount": 2040703,
-      "viewCountFormatted": "2M",
+      "viewCount": 2286396,
+      "viewCountFormatted": "2.2M",
       "publishedAt": "2026-06-22T00:43:58Z"
     },
     {
@@ -121,60 +121,60 @@
       "videoId": "SOTSNNqC48U",
       "title": "I Became FREE TO PLAY for 24 Hours in Rivals",
       "thumbnail": "https://i.ytimg.com/vi/SOTSNNqC48U/maxresdefault.jpg",
-      "viewCount": 1030332,
-      "viewCountFormatted": "1M",
+      "viewCount": 1141418,
+      "viewCountFormatted": "1.1M",
       "publishedAt": "2026-09-07T18:50:37Z"
     },
     {
       "rank": 3,
-      "previousRank": 4,
-      "rankDelta": 1,
+      "previousRank": 3,
+      "rankDelta": 0,
       "isNewEntry": false,
       "isTopThree": true,
       "videoId": "Nl-iSkdyJTE",
       "title": "I Broke the HARDEST Records in Rivals!",
       "thumbnail": "https://i.ytimg.com/vi/Nl-iSkdyJTE/maxresdefault.jpg",
-      "viewCount": 827371,
-      "viewCountFormatted": "827K",
+      "viewCount": 894656,
+      "viewCountFormatted": "894K",
       "publishedAt": "2026-08-30T20:27:53Z"
     },
     {
       "rank": 4,
-      "previousRank": 3,
-      "rankDelta": -1,
+      "previousRank": 4,
+      "rankDelta": 0,
       "isNewEntry": false,
       "isTopThree": false,
       "videoId": "bRELkP7WQfE",
       "title": "Can I Beat EVERY Rank Using Sniper ONLY?",
       "thumbnail": "https://i.ytimg.com/vi/bRELkP7WQfE/maxresdefault.jpg",
-      "viewCount": 823154,
-      "viewCountFormatted": "823K",
+      "viewCount": 890358,
+      "viewCountFormatted": "890K",
       "publishedAt": "2026-08-11T20:05:22Z"
     },
     {
       "rank": 5,
-      "previousRank": 6,
-      "rankDelta": 1,
+      "previousRank": 5,
+      "rankDelta": 0,
       "isNewEntry": false,
       "isTopThree": false,
       "videoId": "YbyHVGkVAOY",
       "title": "I Hired a Rivals Coach, But I'm a PRO Undercover..",
       "thumbnail": "https://i.ytimg.com/vi/YbyHVGkVAOY/maxresdefault.jpg",
-      "viewCount": 717504,
-      "viewCountFormatted": "717K",
+      "viewCount": 800295,
+      "viewCountFormatted": "800K",
       "publishedAt": "2026-07-08T15:56:26Z"
     },
     {
       "rank": 6,
-      "previousRank": 5,
-      "rankDelta": -1,
+      "previousRank": 6,
+      "rankDelta": 0,
       "isNewEntry": false,
       "isTopThree": false,
       "videoId": "E8jouAvCpxQ",
       "title": "The #1 Sniper in Rivals.",
       "thumbnail": "https://i.ytimg.com/vi/E8jouAvCpxQ/maxresdefault.jpg",
-      "viewCount": 710168,
-      "viewCountFormatted": "710K",
+      "viewCount": 750915,
+      "viewCountFormatted": "750K",
       "publishedAt": "2026-03-06T23:04:53Z"
     }
   ]
