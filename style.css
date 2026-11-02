@@ -1937,6 +1937,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   color: #fff;
 }
 .rv-play svg { width: 55%; height: 55%; display: block; }
+.sc-po .rv-play { opacity: 0; }
 .rv-tc {
   position: absolute;
   left: calc(var(--u) * 0.9);
@@ -1946,8 +1947,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
   background: rgba(0, 0, 0, 0.62);
   font-size: calc(var(--u) * 1.15);
   font-style: normal;
+  font-variant-numeric: tabular-nums;
   color: #fff;
 }
+.rv-now {
+  position: relative;
+  display: inline-block;
+  font-style: normal;
+}
+.rv-now u { text-decoration: none; visibility: hidden; }
+.rv-now b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: inherit;
+  opacity: 0;
+}
+.rv-now b:last-of-type { opacity: 1; }
 .rv-tl {
   position: relative;
   display: flex;
@@ -2048,32 +2064,49 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-gold); o
 }
 .rv-who--mg { background: var(--accent-pink); }
 
-.sc-po.is-active .rv-head { animation: rvHead 1.9s cubic-bezier(0.18, 0.85, 0.3, 1) 0.3s both; }
-.sc-po.is-active .rv-mark { animation: dcPop 0.36s cubic-bezier(0.34, 1.5, 0.5, 1) both; }
-.sc-po.is-active .rv-mark:nth-of-type(1) { animation-delay: 0.5s; }
-.sc-po.is-active .rv-mark:nth-of-type(2) { animation-delay: 0.9s; }
-.sc-po.is-active .rv-pin { animation: dcPop 0.4s cubic-bezier(0.34, 1.5, 0.5, 1) calc(0.55s + var(--i) * 0.45s) both; }
-.sc-po.is-active .rv-note { animation: rvNote 0.46s cubic-bezier(0.22, 1, 0.36, 1) calc(0.7s + var(--i) * 0.45s) both; }
-.sc-po.is-active .rv-col:nth-child(2) .rv-pin,
-.sc-po.is-active .rv-col:nth-child(2) .rv-note { animation-delay: calc(1.05s + var(--i) * 0.45s); }
-.sc-po.is-active .rv-v1 { animation: rvVerOff 4.4s steps(1) both; }
-.sc-po.is-active .rv-v2 { animation: rvVerOn 4.4s steps(1) both; }
-.sc-po.is-active .rv-ver::after { animation: rvGlow 4.4s ease-out both; }
-.sc-po.is-active .rv-note::after { animation: rvOk 0.34s cubic-bezier(0.34, 1.5, 0.5, 1) calc(2.85s + var(--i) * 0.22s) both; }
-.sc-po.is-active .rv-col:nth-child(2) .rv-note::after { animation-delay: calc(3.07s + var(--i) * 0.22s); }
+.sc-po.is-active .rv-play { animation: rvPlay 0.3s ease 0.1s both; }
+.sc-po.is-active .rv-head { animation: rvHead 3.7s linear 0.2s both; }
+.sc-po.is-active .rv-mark { animation: dcPop 0.36s cubic-bezier(0.34, 1.5, 0.5, 1) var(--d) both; }
+.sc-po.is-active .rv-col:nth-child(1) .rv-note { animation: rvNote 0.46s cubic-bezier(0.22, 1, 0.36, 1) calc(1.3s + var(--i) * 1.27s) both; }
+.sc-po.is-active .rv-pin { animation: dcPop 0.4s cubic-bezier(0.34, 1.5, 0.5, 1) calc(1.46s + var(--i) * 1.27s) both; }
+.sc-po.is-active .rv-col:nth-child(2) .rv-note { animation: rvNote 0.46s cubic-bezier(0.22, 1, 0.36, 1) calc(1.48s + var(--i) * 1.27s) both; }
+.sc-po.is-active .rv-col:nth-child(1) .rv-note::after { animation: rvOk 0.34s cubic-bezier(0.34, 1.5, 0.5, 1) calc(3.2s + var(--i) * 0.14s) both; }
+.sc-po.is-active .rv-col:nth-child(2) .rv-note::after { animation: rvOk 0.34s cubic-bezier(0.34, 1.5, 0.5, 1) calc(3.48s + var(--i) * 0.14s) both; }
+.sc-po.is-active .rv-v1 { animation: rvVerOff 5.6s steps(1) both; }
+.sc-po.is-active .rv-v2 { animation: rvVerOn 5.6s steps(1) both; }
+.sc-po.is-active .rv-ver::after { animation: rvGlow 5.6s ease-out both; }
+.sc-po.is-active .rv-now b:nth-of-type(1) { animation: rvTc0 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(2) { animation: rvTc1 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(3) { animation: rvTc2 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(4) { animation: rvTc3 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(5) { animation: rvTc4 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(6) { animation: rvTc5 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(7) { animation: rvTc6 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(8) { animation: rvTc7 5.6s steps(1) both; }
+.sc-po.is-active .rv-now b:nth-of-type(9) { animation: rvTc8 5.6s steps(1) both; }
 
 @keyframes rvOk {
   from { opacity: 0; transform: rotate(42deg) scale(0.3); }
   to { opacity: 1; transform: rotate(42deg) scale(1); }
 }
-@keyframes rvVerOff { 0%, 56% { opacity: 1; } 57%, 100% { opacity: 0; } }
-@keyframes rvVerOn { 0%, 56% { opacity: 0; } 57%, 100% { opacity: 1; } }
+@keyframes rvVerOff { 0%, 75.8% { opacity: 1; } 75.9%, 100% { opacity: 0; } }
+@keyframes rvVerOn { 0%, 75.8% { opacity: 0; } 75.9%, 100% { opacity: 1; } }
 @keyframes rvGlow {
-  0%, 55% { opacity: 0; transform: scale(0.9); }
-  60% { opacity: 1; transform: scale(1.06); }
-  72%, 100% { opacity: 0.3; transform: scale(1); }
+  0%, 75.4% { opacity: 0; transform: scale(0.9); }
+  78.4% { opacity: 1; transform: scale(1.06); }
+  85%, 100% { opacity: 0.3; transform: scale(1); }
 }
-@keyframes rvHead { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(63%, 0, 0); } }
+@keyframes rvHead { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(99.2%, 0, 0); } }
+@keyframes rvPlay { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.25); } }
+@keyframes rvTc0 { 0% { opacity: 1; } 7.7% { opacity: 0; } }
+@keyframes rvTc1 { 0% { opacity: 0; } 7.7% { opacity: 1; } 15.96% { opacity: 0; } }
+@keyframes rvTc2 { 0% { opacity: 0; } 15.96% { opacity: 1; } 24.22% { opacity: 0; } }
+@keyframes rvTc3 { 0% { opacity: 0; } 24.22% { opacity: 1; } 32.48% { opacity: 0; } }
+@keyframes rvTc4 { 0% { opacity: 0; } 32.48% { opacity: 1; } 40.74% { opacity: 0; } }
+@keyframes rvTc5 { 0% { opacity: 0; } 40.74% { opacity: 1; } 49% { opacity: 0; } }
+@keyframes rvTc6 { 0% { opacity: 0; } 49% { opacity: 1; } 57.25% { opacity: 0; } }
+@keyframes rvTc7 { 0% { opacity: 0; } 57.25% { opacity: 1; } 65.51% { opacity: 0; } }
+@keyframes rvTc8 { 0% { opacity: 0; } 65.51% { opacity: 1; } }
 @keyframes rvNote {
   from { opacity: 0; transform: translate3d(0, calc(var(--u) * 1.2), 0); }
   to { opacity: 1; transform: none; }
