@@ -553,8 +553,7 @@
       card.className = 'role-card closed';
       card.setAttribute('data-role', '');
 
-      var baseBadge = role.badge || '';
-      var closedBadge = baseBadge ? baseBadge + ' \u00b7 Closed' : 'Closed';
+      var closedBadge = role.badge || 'Closed';
 
       card.innerHTML =
         '<div class="role-header" role="button" tabindex="0" aria-expanded="false">' +
