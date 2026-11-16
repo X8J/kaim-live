@@ -2,9 +2,10 @@
  * Hiring roles — edit this file only.
  *
  * - open: true  → listed under “Open Positions”, appears in the apply form, shows “Apply now”.
- * - open: false → listed under “Filled positions…”, no apply button.
+ * - open: false → not listed at all. When no role is open the page shows a single
+ *   “All positions are currently closed” card in place of the list.
  *
- * Order here is display order (open roles first in file, then closed — the page splits by `open`).
+ * Order here is display order for the open roles.
  *
  * icon: must match a key in ROLE_ICONS in main.js. When adding a new visual, add the SVG key there.
  */

@@ -496,10 +496,8 @@
     if (!roles) return;
 
     var openMount = document.querySelector('[data-roles-open-mount]');
-    var closedMount = document.querySelector('[data-roles-closed-mount]');
-    var closedCountEl = document.querySelector('[data-closed-roles-count]');
-    var closedReveal = document.querySelector('[data-closed-roles-reveal]');
-    if (!openMount || !closedMount) return;
+    var emptyReveal = document.querySelector('[data-roles-empty-reveal]');
+    if (!openMount) return;
 
     var chevron =
       '<svg class="role-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
@@ -548,71 +546,17 @@
       return wrap;
     }
 
-    function buildClosedCard(role) {
-      var card = document.createElement('div');
-      card.className = 'role-card closed';
-      card.setAttribute('data-role', '');
-
-      var closedBadge = role.badge || 'Closed';
-
-      card.innerHTML =
-        '<div class="role-header" role="button" tabindex="0" aria-expanded="false">' +
-        '<div class="role-icon">' +
-        roleIconSvg(role.icon) +
-        '</div>' +
-        '<div class="role-text">' +
-        '<div class="role-title"></div>' +
-        '<div class="role-meta"></div>' +
-        '</div>' +
-        '<div class="role-right">' +
-        '<span class="role-dot closed"></span>' +
-        '<span class="role-badge"></span>' +
-        chevron +
-        '</div>' +
-        '</div>' +
-        '<div class="role-drawer">' +
-        '<div class="role-drawer-inner">' +
-        '<p class="role-desc"></p>' +
-        '</div>' +
-        '</div>';
-
-      card.querySelector('.role-title').textContent = role.title || '';
-      card.querySelector('.role-meta').textContent = role.meta || '';
-      card.querySelector('.role-badge').textContent = closedBadge;
-      card.querySelector('.role-desc').textContent = role.description || '';
-
-      return card;
-    }
-
     var openList = [];
-    var closedList = [];
     for (var r = 0; r < roles.length; r++) {
       if (roles[r].open) openList.push(roles[r]);
-      else closedList.push(roles[r]);
     }
 
     openMount.innerHTML = '';
-    closedMount.innerHTML = '';
-
     for (var o = 0; o < openList.length; o++) {
       openMount.appendChild(buildOpenCard(openList[o], o));
     }
-    for (var c = 0; c < closedList.length; c++) {
-      closedMount.appendChild(buildClosedCard(closedList[c]));
-    }
 
-    if (closedCountEl) {
-      var n = closedList.length;
-      closedCountEl.textContent = n === 1 ? '1 role' : n + ' roles';
-    }
-
-    if (closedReveal) {
-      if (openList.length > 0) {
-        closedReveal.setAttribute('data-reveal-delay', String(openList.length));
-      } else {
-        closedReveal.removeAttribute('data-reveal-delay');
-      }
-    }
+    if (emptyReveal) emptyReveal.hidden = openList.length > 0;
 
     if (applyToggle) {
       var noOpenRoles = openList.length === 0;
@@ -653,6 +597,7 @@
     openMount.querySelectorAll('.scroll-reveal').forEach(function (el) {
       revealObserver.observe(el);
     });
+    if (emptyReveal && !emptyReveal.hidden) revealObserver.observe(emptyReveal);
   }
 
   document.querySelectorAll('.scroll-reveal').forEach(function (el) {
@@ -792,50 +737,6 @@
     });
   });
 
-  var closedToggle = document.querySelector('[data-closed-toggle]');
-  var closedRolesRoot = closedToggle ? closedToggle.closest('[data-closed-roles]') : null;
-  var closedPanel = document.getElementById('closedRolesPanel');
-
-  function collapseClosedRoleCards() {
-    if (!closedPanel) return;
-    closedPanel.querySelectorAll('[data-role].expanded').forEach(function (c) {
-      c.classList.remove('expanded');
-      var hdr = c.querySelector('.role-header');
-      var drw = c.querySelector('.role-drawer');
-      if (hdr) hdr.setAttribute('aria-expanded', 'false');
-      if (drw) drw.style.maxHeight = '0';
-    });
-  }
-
-  function setClosedRolesOpen(open) {
-    if (!closedRolesRoot || !closedToggle || !closedPanel) return;
-    closedRolesRoot.classList.toggle('is-open', open);
-    closedToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    closedPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
-    if (open) {
-      closedPanel.style.maxHeight = closedPanel.scrollHeight + 'px';
-    } else {
-      if (closedPanel.style.maxHeight === 'none') {
-        closedPanel.style.maxHeight = closedPanel.scrollHeight + 'px';
-        void closedPanel.offsetHeight;
-      }
-      collapseClosedRoleCards();
-      closedPanel.style.maxHeight = '0';
-    }
-  }
-
-  if (closedToggle && closedRolesRoot && closedPanel) {
-    closedToggle.addEventListener('click', function () {
-      setClosedRolesOpen(!closedRolesRoot.classList.contains('is-open'));
-    });
-    closedPanel.addEventListener('transitionend', function (e) {
-      if (e.target !== closedPanel || e.propertyName !== 'max-height') return;
-      if (closedRolesRoot.classList.contains('is-open')) {
-        closedPanel.style.maxHeight = 'none';
-      }
-    });
-  }
-
   var drawerResizeTimer = null;
   window.addEventListener('resize', function () {
     if (drawerResizeTimer) clearTimeout(drawerResizeTimer);
@@ -914,12 +815,6 @@
       setApplyDrawerOpen(false);
       resetApplySubmitArm();
       if (applyToggle) applyToggle.focus();
-      return;
-    }
-    if (closedRolesRoot && closedPanel && closedRolesRoot.classList.contains('is-open')) {
-      if (!closedPanel.contains(document.activeElement) && document.activeElement !== closedToggle) return;
-      setClosedRolesOpen(false);
-      if (closedToggle) closedToggle.focus();
     }
   });
 

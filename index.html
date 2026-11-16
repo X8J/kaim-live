@@ -14,7 +14,7 @@
   <link rel="preload" as="image" href="assets/img/Banner.jpg" fetchpriority="high">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/pixelify-sans-latin.woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=175">
+  <link rel="stylesheet" href="style.css?v=176">
 </head>
 <body>
 
@@ -571,17 +571,14 @@
 
           <div data-roles-open-mount></div>
 
-          <div class="scroll-reveal scroll-reveal-up" data-closed-roles-reveal data-reveal-delay="2">
-          <div class="closed-roles glass" data-closed-roles>
-            <button type="button" class="closed-roles-toggle" id="closedRolesToggle" data-closed-toggle aria-expanded="false" aria-controls="closedRolesPanel">
-              <span class="closed-roles-toggle-label">Filled positions</span>
-              <span class="closed-roles-toggle-meta" data-closed-roles-count>—</span>
-              <svg class="closed-roles-toggle-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="closed-roles-panel" id="closedRolesPanel" role="region" aria-labelledby="closedRolesToggle" aria-hidden="true">
-              <div class="closed-roles-stack" data-roles-closed-mount></div>
+          <div class="scroll-reveal scroll-reveal-up" data-roles-empty-reveal hidden>
+            <div class="roles-empty glass" data-roles-empty>
+              <span class="roles-empty__dot" aria-hidden="true"></span>
+              <span class="roles-empty__text">
+                <b>All positions are currently closed</b>
+                <i>New roles get posted here first.</i>
+              </span>
             </div>
-          </div>
           </div>
 
         </div>
@@ -650,7 +647,7 @@
     <span>&copy; 2026 KaiM</span>
   </footer>
 
-  <script src="roles-config.js?v=6" defer></script>
-  <script src="main.js?v=90" defer></script>
+  <script src="roles-config.js?v=7" defer></script>
+  <script src="main.js?v=91" defer></script>
 </body>
 </html>
